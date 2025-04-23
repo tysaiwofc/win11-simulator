@@ -3,6 +3,8 @@ const path = require('path');
 const fs = require('fs').promises;
 const fsSync = require('fs');
 const os = require('os');
+const https = require('https');
+const AdmZip = require('adm-zip');
 
 let mainWindow;
 let splashWindow;

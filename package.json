@@ -1,6 +1,6 @@
 {
   "name": "windows-simulator",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -39,5 +39,9 @@
     "electron-builder": "^24.6.4",
     "electron-context-menu": "^3.6.1",
     "electron-store": "^8.1.0"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "https": "^1.0.0"
   }
 }
