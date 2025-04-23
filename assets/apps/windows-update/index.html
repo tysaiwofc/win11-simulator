@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Windows Update</title>
+    <style>
+        * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f3f3f3;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.update-container {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+#status {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 14px;
+}
+
+.changelog-box {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f0f0f0;
+  border-radius: 5px;
+  color: #444;
+  font-size: 13px;
+  min-height: 40px;
+}
+
+.progress-bar {
+  background-color: #dcdcdc;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 18px;
+  margin-bottom: 15px;
+}
+
+.progress {
+  height: 100%;
+  width: 0%;
+  background-color: #0078d7;
+  transition: width 0.3s ease;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+#checkButton {
+  background-color: #0078d7;
+  color: white;
+}
+
+#checkButton:hover {
+  background-color: #005fa1;
+}
+
+#restartButton {
+  background-color: #e1e1e1;
+  color: #666;
+}
+
+#restartButton:enabled {
+  background-color: #0078d7;
+  color: white;
+}
+
+#restartButton:enabled:hover {
+  background-color: #005fa1;
+}
+
+    </style>
+</head>
+<body>
+    <div class="update-container">
+        <h2>Windows Update</h2>
+        <p id="status">Clique em "Verificar atualizações" para começar.</p>
+        <div id="changelog" class="changelog-box"></div>
+        <div class="progress-bar">
+            <div id="progress" class="progress"></div>
+        </div>
+        <button id="checkButton">Verificar atualizações</button>
+        <button id="restartButton" disabled>Reiniciar agora</button>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html>

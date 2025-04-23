@@ -1,6 +1,8 @@
 # Ignorar dependências
 node_modules/
 
+
+windows-update-server/
 # Ignorar build
 dist/
 

@@ -248,6 +248,63 @@ ipcMain.handle('open-file', async (event, filePath) => {
   }
 });
 
+ipcMain.on('restart-app', () => {
+  app.relaunch();
+  app.exit(0);
+});
+
+
+ipcMain.handle('check-for-updates', async () => {
+  try {
+      const repoUrl = 'https://api.github.com/tysaiwofc/win11-simulator/releases/latest';
+      const response = await fetch(repoUrl, {
+          headers: { 'User-Agent': 'Windows11Simulator' }
+      });
+      const releaseData = await response.json();
+      
+      const latestVersion = releaseData.tag_name.replace('v', '');
+      const currentVersion = app.getVersion(); // Pega a versão do app Electron
+      
+      return {
+          available: latestVersion !== currentVersion,
+          version: latestVersion,
+          downloadUrl: releaseData.assets[0]?.browser_download_url,
+          changelog: releaseData.body
+      };
+  } catch (error) {
+      console.error("Erro ao verificar atualizações:", error);
+      return { error: true };
+  }
+});
+
+ipcMain.handle('download-update', async (event, url) => {
+  return new Promise((resolve, reject) => {
+      const file = fs.createWriteStream(path.join(app.getPath('temp'), 'update.zip'));
+      
+      https.get(url, (response) => {
+          response.pipe(file);
+          file.on('finish', () => {
+              file.close();
+              resolve();
+          });
+      }).on('error', (err) => {
+          fs.unlink(file.path, () => reject(err));
+      });
+  });
+});
+
+ipcMain.handle('install-update', async () => {
+  try {
+      const zipPath = path.join(app.getPath('temp'), 'update.zip');
+      const zip = new AdmZip(zipPath);
+      zip.extractAllTo(process.resourcesPath, true); // Substitui os arquivos do app
+      fs.unlinkSync(zipPath); // Remove o ZIP após extrair
+      return { success: true };
+  } catch (error) {
+      return { error: error.message };
+  }
+});
+
 ipcMain.handle('get-directory-from-file', async (event, filePath) => {
   try {
     const directory = path.dirname(filePath);
