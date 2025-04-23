@@ -1,0 +1,43 @@
+{
+  "name": "windows-simulator",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win portable --x64",
+    "build:dir": "electron-builder --win portable --x64 --dir"
+  },
+  "build": {
+    "appId": "com.windows11.simulator",
+    "productName": "Windows 11 Simulator",
+    "files": [
+      "src/**/*",
+      "main.js",
+      "preload.js",
+      "assets/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "assets",
+        "to": "./assets",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": "portable",
+      "artifactName": "${productName}.${ext}",
+      "asar": true
+    },
+    "directories": {
+      "output": "dist"
+    }
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.6.4",
+    "electron-context-menu": "^3.6.1",
+    "electron-store": "^8.1.0"
+  }
+}

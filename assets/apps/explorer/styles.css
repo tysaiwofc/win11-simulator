@@ -1,0 +1,159 @@
+.explorer-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.explorer-toolbar {
+  display: flex;
+  padding: 8px 12px;
+  gap: 8px;
+  background-color: #f3f3f3;
+  border-bottom: 1px solid #d6d6d6;
+  align-items: center;
+}
+
+.explorer-toolbar button {
+  background: none;
+  border: 1px solid #d6d6d6;
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  background-color: #ffffff;
+}
+
+.explorer-toolbar button:hover {
+  background-color: #e5e5e5;
+}
+
+.explorer-toolbar button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#address-bar {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid #d6d6d6;
+  border-radius: 4px;
+  margin: 0 8px;
+  outline: none;
+}
+
+#address-bar:focus {
+  border-color: #0078d4;
+}
+
+.explorer-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #f9f9f9;
+  border-right: 1px solid #d6d6d6;
+  padding: 8px 0;
+  overflow-y: auto;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  gap: 8px;
+  cursor: pointer;
+  color: #333333;
+}
+
+.sidebar-item:hover {
+  background-color: #e5e5e5;
+}
+
+.sidebar-item.active {
+  background-color: #e1e1e1;
+}
+
+.sidebar-item img {
+  width: 16px;
+  height: 16px;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.path-bar {
+  padding: 8px 16px;
+  background-color: #f3f3f3;
+  border-bottom: 1px solid #d6d6d6;
+  font-size: 14px;
+  color: #333333;
+}
+
+.files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.file-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.file-item:hover {
+  background-color: #e5e5e5;
+}
+
+.file-item.selected {
+  background-color: #cce4ff;
+}
+
+.file-item img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.file-item span {
+  font-size: 12px;
+  word-break: break-word;
+  width: 100%;
+  color: #333333;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

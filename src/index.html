@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Windows 11 Simulator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="desktop">
+    <!-- Ícones do desktop serão adicionados dinamicamente -->
+  </div>
+  
+  <div id="taskbar">
+    <div id="taskbar-icons">
+      <div id="start-button" class="taskbar-icon">
+        <img src="../assets/icons/windows.png" alt="Start">
+      </div>
+      <div id="clock"></div>
+    </div>
+  </div>
+  
+  <div id="start-menu">
+    <input type="text" id="start-menu-search" placeholder="Type here to search">
+    <div id="start-menu-apps"></div>
+  </div>
+  
+  <!-- Menu de contexto -->
+  <div id="context-menu" class="context-menu">
+    <div class="context-menu-item" id="context-view">View</div>
+    <div class="context-menu-item" id="context-sort">Sort by</div>
+    <div class="context-menu-item" id="context-refresh">Refresh</div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" id="context-paste">Paste</div>
+    <div class="context-menu-item" id="context-new">New</div>
+    <div class="context-menu-item" id="context-display">Display settings</div>
+    <div class="context-menu-item" id="context-personalize">Personalize</div>
+  </div>
+  
+  <!-- Caixa de seleção -->
+  <div id="selection-box"></div>
+  
+  <script src="renderer.js"></script>
+</body>
+</html>

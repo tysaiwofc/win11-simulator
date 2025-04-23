@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Loading...</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #0c0c0c;
+      color: white;
+      height: 100%;
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    img {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 40px;
+    }
+
+    .loader {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: white;
+      animation: blink 1.4s infinite ease-in-out both;
+    }
+
+    .dot:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+
+    @keyframes blink {
+      0%, 80%, 100% {
+        transform: scale(0);
+      } 
+      40% {
+        transform: scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <img src="../assets/icons/windows.png" alt="Windows Logo">
+  <div class="loader">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+</body>
+</html>

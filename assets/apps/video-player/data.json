@@ -1,0 +1,7 @@
+{
+    "displayName": "Video Player",
+    "icon": "video-player.png",
+    "description": "Play video files",
+    "version": "1.0.0",
+    "fileExtensions": [".mp4", ".mov", ".avi", ".mkv", ".webm"]
+  }

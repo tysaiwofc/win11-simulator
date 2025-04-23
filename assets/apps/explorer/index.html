@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Explorer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="explorer-container">
+    <div class="explorer-toolbar">
+      <button id="back-button" title="Back">←</button>
+      <button id="forward-button" title="Forward">→</button>
+      <button id="up-button" title="Up">↑</button>
+      <input type="text" id="address-bar" placeholder="Enter path">
+    </div>
+    <div class="explorer-content">
+      <div class="sidebar">
+        <div class="sidebar-item active" data-path="desktop">
+          <img src="../../icons/desktop.png" alt="Desktop"> Desktop
+        </div>
+        <div class="sidebar-item" data-path="documents">
+          <img src="../../icons/documents.png" alt="Documents"> Documents
+        </div>
+        <div class="sidebar-item" data-path="pictures">
+          <img src="../../icons/pictures.png" alt="Pictures"> Pictures
+        </div>
+        <div class="sidebar-item" data-path="videos">
+          <img src="../../icons/videos.png" alt="Videos"> Videos
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="path-bar" id="current-path">Desktop</div>
+        <div class="files-grid" id="files-container">
+          <!-- Files will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>
