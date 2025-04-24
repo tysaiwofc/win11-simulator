@@ -14,11 +14,18 @@ class SystemHandler {
     try {
       await fs.access(this.firstRunFile);
       return false;
-    } catch {
-      await fs.writeFile(this.firstRunFile, '');
-      return true;
+    } catch (err) {
+      try {
+        await fs.mkdir(this.baseDir, { recursive: true });
+        await fs.writeFile(this.firstRunFile, '');
+        return true;
+      } catch (writeErr) {
+        console.error("Erro ao criar first_run.flag:", writeErr);
+        throw writeErr;
+      }
     }
   }
+  
 
   async getDesktopItems() {
     const desktopPath = path.join(this.baseDir, 'desktop');

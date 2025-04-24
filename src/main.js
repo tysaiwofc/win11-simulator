@@ -33,7 +33,7 @@ function createWindow() {
     width: 1200,
     height: 800,
     minWidth: 800,
-    icon: "../assets/windows.ico",
+    icon: path.resolve(__dirname, 'assets', 'windows.ico'),
     minHeight: 600,
     transparent: false,
     frame: false,
@@ -50,7 +50,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     backgroundColor: '#00000000',
-    icon: "../assets/windows.ico",
+    icon: path.resolve(__dirname, 'assets', 'windows.ico'),
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

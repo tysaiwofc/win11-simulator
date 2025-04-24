@@ -24,7 +24,7 @@ class AppHandler {
         icon: path.join(this.getDirPath(), appName, appData.icon),
         backgroundColor: '#00000000',
         webPreferences: {
-          preload: path.join(__dirname, 'preload.js'),
+          preload: path.join(__dirname, '..', 'preload.js'),
           nodeIntegration: false,
           contextIsolation: true,
           sandbox: true,
