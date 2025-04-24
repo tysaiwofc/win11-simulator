@@ -1,5 +1,6 @@
 {
     "displayName": "Microsoft Edge",
     "icon": "edge.png",
+    "dir": "edge",
     "description": "Browse your files and folders"
   }

@@ -1,5 +1,6 @@
 {
     "displayName": "Settings",
     "icon": "settings.png",
+    "dir": "settings",
     "description": "Change system settings"
   }

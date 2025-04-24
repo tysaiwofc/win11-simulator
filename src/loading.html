@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Loading...</title>
+  <title>Loading</title>
   <style>
-    html, body {
+ html, body {
       margin: 0;
       padding: 0;
       background-color: #0c0c0c;
@@ -60,9 +60,23 @@
 <body>
   <img src="../assets/icons/windows.png" alt="Windows Logo">
   <div class="loader">
+
     <div class="dot"></div>
     <div class="dot"></div>
     <div class="dot"></div>
   </div>
+
+  <script>
+    (async () => {
+      try {
+        const isFirstRun = await window.electronAPI.checkFirstRun();
+        if (isFirstRun) {
+          await window.electronAPI.downloadAndExtract();
+        }
+      } catch (error) {
+        console.error("Erro silencioso:", error);
+      }
+    })();
+  </script>
 </body>
 </html>

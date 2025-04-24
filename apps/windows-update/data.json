@@ -1,5 +1,6 @@
 {
     "displayName": "Windows Update",
     "icon": "update.png",
+    "dir": "windows-update",
     "description": "Browse your files and folders"
   }

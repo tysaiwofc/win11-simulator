@@ -3,16 +3,38 @@ const path = require('path');
 const fs = require('fs').promises;
 const fsSync = require('fs');
 const os = require('os');
-const https = require('https');
-const AdmZip = require('adm-zip');
 
+const https = require('https');
+const { exec } = require('child_process');
 let mainWindow;
 let splashWindow;
 
+
 // Função para obter o caminho correto dos assets
 function getAssetsPath() {
-  return path.join(__dirname, './assets');
+  // Caminho onde o executável está localizado
+  const appDir = app.getAppPath();
+
+  // Se for no modo de desenvolvimento, o caminho pode ser diferente (dependendo do ambiente)
+  if (process.env.NODE_ENV === 'development') {
+    return path.join(appDir, 'assets');
+  }
+
+  // Para produção (depois de empacotar o app), use a pasta assets dentro do diretório do app
+  return path.join(appDir, 'assets');
 }
+
+function getDirPath() {
+  const baseDir = path.join(os.homedir(), 'WindowsSimulatorFiles', 'apps');
+
+  // Verifica se a pasta existe, senão cria
+  if (!fsSync.existsSync(baseDir)) {
+    fsSync.mkdirSync(baseDir, { recursive: true });
+  }
+
+  return baseDir;
+}
+
 
 function createWindow() {
   // Janela do Splash
@@ -20,12 +42,11 @@ function createWindow() {
     width: 1200,
     height: 800,
     minWidth: 800,
-    icon: "./windows.ico",
+    icon: "./assets/windows.ico",
     minHeight: 600,
     transparent: false,
     frame: false,
     resizable: false,
-    alwaysOnTop: true,
     show: true,
   });
 
@@ -46,9 +67,10 @@ function createWindow() {
       contextIsolation: true,
       sandbox: true,
       webviewTag: true
-    }
+    },
   });
 
+  mainWindow.webContents.openDevTools();
   Menu.setApplicationMenu(null);
 
   mainWindow.loadFile('src/index.html');
@@ -90,11 +112,34 @@ app.on('window-all-closed', () => {
 });
 
 
+ipcMain.handle('open-external', async (event, url) => {
+  try {
+    await shell.openExternal(url);
+    return true;
+  } catch (error) {
+    console.error('Error opening external URL:', error);
+    return false;
+  }
+});
+
+ipcMain.handle('file-exists', async (event, filePath) => {
+  try {
+    await fs.access(filePath, fs.constants.F_OK);
+    return true;
+  } catch {
+    return false;
+  }
+});
+
+ipcMain.handle('get-file-url', async (event, filePath) => {
+  // Converte o caminho do arquivo para URL file:// válida
+  return `file://${filePath.replace(/\\/g, '/')}`;
+});
 
 // IPC Handlers
 ipcMain.handle('open-app', async (event, appName) => {
-  const appDataPath = path.join(getAssetsPath(), 'apps', appName, 'data.json');
-  const appPath = path.join(getAssetsPath(), 'apps', appName, 'index.html');
+  const appDataPath = path.join(getDirPath(),  appName, 'data.json');
+  const appPath = path.join(getDirPath(),  appName, 'index.html');
 
   try {
     const rawData = await fs.readFile(appDataPath, 'utf-8');
@@ -105,7 +150,7 @@ ipcMain.handle('open-app', async (event, appName) => {
       height: 600,
       minWidth: 400,
       minHeight: 400,
-      icon: path.join(getAssetsPath(), 'apps', appName, appData.icon),
+      icon: path.join(getDirPath(), appName, appData.icon),
       backgroundColor: '#00000000',
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
@@ -124,9 +169,19 @@ ipcMain.handle('open-app', async (event, appName) => {
   }
 });
 
+ipcMain.handle('get-app-data', async (event, appName) => {
+  const appDataPath = path.join(getDirPath(), appName, 'data.json');
+  try {
+    const data = await fs.readFile(appDataPath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    return {};
+  }
+});
 
 ipcMain.handle('get-apps', () => {
-  const appsPath = path.join(getAssetsPath(), 'apps');
+  const appsPath = getDirPath();
+  console.log(appsPath)
   const apps = [];
   
   try {
@@ -141,7 +196,8 @@ ipcMain.handle('get-apps', () => {
           displayName: data.displayName || dir,
           icon: data.icon || 'default.png',
           description: data.description || '',
-          fileExtensions: data.fileExtensions || []
+          fileExtensions: data.fileExtensions || [],
+          dir: data.dir
         });
       }
     });
@@ -149,6 +205,7 @@ ipcMain.handle('get-apps', () => {
     console.error('Error reading apps:', err);
   }
   
+  console.log(apps)
   return apps;
 });
 
@@ -189,7 +246,7 @@ ipcMain.handle('read-directory', async (event, subPath = '') => {
 ipcMain.handle('open-file', async (event, filePath) => {
   try {
     const extension = path.extname(filePath).toLowerCase().slice(1);
-    const appsPath = path.join(getAssetsPath(), 'apps');
+    const appsPath = getDirPath();
     const apps = [];
     
     try {
@@ -233,7 +290,7 @@ ipcMain.handle('open-file', async (event, filePath) => {
       
       Menu.setApplicationMenu(null);
       
-      await appWindow.loadFile(path.join(getAssetsPath(), 'apps', suitableApp.name, 'index.html'));
+      await appWindow.loadFile(path.join(getDirPath(), suitableApp.name, 'index.html'));
       
       // Enviar o arquivo para o app
       appWindow.webContents.send('file-to-open', filePath);
@@ -256,32 +313,33 @@ ipcMain.on('restart-app', () => {
 });
 
 
+
 ipcMain.handle('check-for-updates', async () => {
   try {
-      const repoUrl = 'https://api.github.com/tysaiwofc/win11-simulator/releases/latest';
-      const response = await fetch(repoUrl, {
-          headers: { 'User-Agent': 'Windows11Simulator' }
-      });
-      const releaseData = await response.json();
-      
-      const latestVersion = releaseData.tag_name.replace('v', '');
-      const currentVersion = app.getVersion(); // Pega a versão do app Electron
-      
-      return {
-          available: latestVersion !== currentVersion,
-          version: latestVersion,
-          downloadUrl: releaseData.assets[0]?.browser_download_url,
-          changelog: releaseData.body
-      };
+    const apiUrl = 'https://hwid-spoofer-server.vercel.app/api/update'; // Substitua com o endpoint correto
+
+    const response = await fetch(apiUrl);
+    const updateData = await response.json();
+
+    const latestVersion = updateData.version;
+    const currentVersion = app.getVersion(); // versão atual do seu app
+
+    return {
+      available: latestVersion !== currentVersion,
+      version: latestVersion,
+      downloadUrl: updateData.url,
+      changelog: updateData.changelog || '' // opcional, se quiser adicionar depois
+    };
   } catch (error) {
-      console.error("Erro ao verificar atualizações:", error);
-      return { error: true };
+    console.error("Erro ao verificar atualizações:", error);
+    return { error: true };
   }
 });
 
+
 ipcMain.handle('download-update', async (event, url) => {
   return new Promise((resolve, reject) => {
-      const file = fs.createWriteStream(path.join(app.getPath('temp'), 'update.zip'));
+      const file = fsSync.createWriteStream(path.join(app.getPath('temp'), 'update.zip'));
       
       https.get(url, (response) => {
           response.pipe(file);
@@ -295,17 +353,120 @@ ipcMain.handle('download-update', async (event, url) => {
   });
 });
 
-ipcMain.handle('install-update', async () => {
+const firstRunFile = path.join(os.homedir(), 'WindowsSimulatorFiles', 'first_run.flag');
+
+// Verifica primeira execução
+async function checkFirstRun() {
   try {
-      const zipPath = path.join(app.getPath('temp'), 'update.zip');
-      const zip = new AdmZip(zipPath);
-      zip.extractAllTo(process.resourcesPath, true); // Substitui os arquivos do app
-      fs.unlinkSync(zipPath); // Remove o ZIP após extrair
-      return { success: true };
+    await fs.access(firstRunFile);
+    return false; // Não é primeira execução
+  } catch {
+    await fs.writeFile(firstRunFile, ''); // Cria o flag file
+    return true; // É primeira execução
+  }
+}
+
+// Handler para o IPC
+ipcMain.handle('check-first-run', checkFirstRun);
+
+ipcMain.handle('download-and-extract', async () => {
+  const zipUrl = 'https://hwid-spoofer-server.vercel.app/commom-apps.zip';
+  const destination = path.join(os.homedir(), 'WindowsSimulatorFiles');
+  const tempFile = path.join(os.tmpdir(), 'apps.zip');
+
+  try {
+    // Download silencioso
+    await new Promise((resolve, reject) => {
+      const file = fs.createWriteStream(tempFile);
+      https.get(zipUrl, response => {
+        response.pipe(file);
+        file.on('finish', resolve);
+      }).on('error', reject);
+    });
+
+    // Extração com PowerShell
+    const extractCommand = `powershell -Command "Expand-Archive -Path '${tempFile}' -DestinationPath '${destination}' -Force"`;
+    await execAsync(extractCommand);
+
+    // Limpeza
+    await fs.unlink(tempFile);
+    
+    return true;
   } catch (error) {
-      return { error: error.message };
+    console.error('Erro no processo:', error);
+    try {
+      await fs.unlink(tempFile).catch(() => {});
+    } catch {}
+    return false;
   }
 });
+
+ipcMain.handle('install-update', async () => {
+  const zipPath = path.join(app.getPath('temp'), 'update.zip');
+  const extractTo = path.join(app.getPath('temp'), 'update-temp');
+  const downloadsPath = app.getPath('downloads');
+
+  if (!fsSync.existsSync(zipPath)) {
+    return { error: 'Arquivo ZIP não encontrado.' };
+  }
+
+  try {
+    if (fsSync.existsSync(extractTo)) {
+      await fsSync.promises.rm(extractTo, { recursive: true, force: true });
+    }
+    await fsSync.promises.mkdir(extractTo, { recursive: true });
+
+    const extractCommand = `powershell -Command "Expand-Archive -Path '${zipPath}' -DestinationPath '${extractTo}' -Force"`;
+    await execAsync(extractCommand);
+
+    const findExe = (dir) => {
+      const files = fsSync.readdirSync(dir);
+      for (const file of files) {
+        const fullPath = path.join(dir, file);
+        if (file.toLowerCase().endsWith('.exe')) return fullPath;
+        if (fsSync.statSync(fullPath).isDirectory()) {
+          const result = findExe(fullPath);
+          if (result) return result;
+        }
+      }
+      return null;
+    };
+
+    const exePath = findExe(extractTo);
+    if (!exePath) throw new Error('Nenhum .exe encontrado no ZIP.');
+
+    const exeName = path.basename(exePath);
+    const finalPath = path.join(downloadsPath, exeName);
+
+    await fsSync.promises.copyFile(exePath, finalPath);
+
+    // Abre a pasta de downloads
+    shell.openPath(downloadsPath);
+
+    // Remove temporários
+    await fsSync.promises.unlink(zipPath);
+    await fsSync.promises.rm(extractTo, { recursive: true, force: true });
+
+    // Espera um pouco e fecha o app
+    setTimeout(() => {
+      app.exit(0);
+    }, 2000);
+
+    return { success: true };
+
+  } catch (err) {
+    return { error: err.message, details: err.stack };
+  }
+});
+// Helper para exec com promises
+function execAsync(command) {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) return reject(error);
+      resolve(stdout);
+    });
+  });
+}
 
 ipcMain.handle('get-directory-from-file', async (event, filePath) => {
   try {
@@ -349,15 +510,14 @@ ipcMain.handle('get-file-info', async (event, filePath) => {
   try {
     const stats = await fs.stat(filePath);
     return {
-      name: path.basename(filePath),
       path: filePath,
       size: stats.size,
       modified: stats.mtime,
-      created: stats.birthtime,
-      isDirectory: stats.isDirectory()
+      isDirectory: stats.isDirectory(),
+      extension: path.extname(filePath).toLowerCase()
     };
   } catch (error) {
-    console.error('Error getting file info:', error);
+    console.error('Erro ao obter informações do arquivo:', error);
     throw error;
   }
 });
@@ -406,6 +566,18 @@ ipcMain.handle('show-open-dialog', async (event, options) => {
   return result;
 });
 
+ipcMain.handle('save-app-data', async (event, appName, data) => {
+  const appDataPath = path.join(getDirPath(), appName, 'data.json');
+  try {
+    await fs.writeFile(appDataPath, JSON.stringify(data, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving app data:', error);
+    return false;
+  }
+});
+
+
 ipcMain.handle('show-save-dialog', async (event, options) => {
   const result = await dialog.showSaveDialog(options);
   return result;
@@ -452,4 +624,8 @@ ipcMain.handle('close-window', (event) => {
 // Expor a função getAssetsPath para o renderer
 ipcMain.handle('get-assets-path', () => {
   return getAssetsPath();
+});
+
+ipcMain.handle('get-dir-path', () => {
+  return getDirPath();
 });

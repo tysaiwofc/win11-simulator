@@ -1,6 +1,7 @@
 {
   "displayName": "File Explorer",
   "icon": "explorer.png",
+  "dir": "explorer",
   "description": "Browse your files and folders",
   "version": "1.0.0",
   "fileAssociations": {

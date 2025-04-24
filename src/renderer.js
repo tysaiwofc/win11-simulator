@@ -1,7 +1,11 @@
 
+
+
 document.addEventListener('DOMContentLoaded', async () => {
+
   // Carregar apps
   const apps = await window.electronAPI.getApps();
+  console.log(apps)
   renderApps(apps);
   
   // Configurar taskbar
@@ -20,21 +24,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupDesktopSelection();
 });
 
-function renderApps(apps) {
+async function renderApps(apps) {
   const startMenu = document.getElementById('start-menu-apps');
-  
+  const assetsPath = await window.electronAPI.getDirPath();
+  console.log(assetsPath)
+
   apps.forEach(app => {
-    
     const appElement = document.createElement('div');
     appElement.className = 'start-menu-app';
+
+    const iconUrl = new URL(`${app.dir}/${app.icon}`, `file://${assetsPath}/`).toString();
+
     appElement.innerHTML = `
-      <img src="../assets/icons/${app.icon}" alt="${app.displayName}">
+      <img src="${iconUrl}" alt="${app.displayName}">
       <span>${app.displayName}</span>
     `;
     appElement.addEventListener('click', () => window.electronAPI.openApp(app.name));
     startMenu.appendChild(appElement);
   });
 }
+
 
 function setupTaskbar() {
   const taskbar = document.getElementById('taskbar');
@@ -102,35 +111,31 @@ function setupDesktop() {
 
 async function loadDesktopIcons() {
   const desktop = document.getElementById('desktop');
-  
-  // Obter itens do desktop do Electron
   const desktopItems = await window.electronAPI.getDesktopItems();
-  
+  const assetsPath = await window.electronAPI.getAssetsPath();
+
   desktopItems.forEach(item => {
     const icon = document.createElement('div');
     icon.className = 'desktop-icon';
+
+    const iconUrl = new URL(`icons/${item.icon}.png`, `file://${assetsPath}/`).toString();
+
     icon.innerHTML = `
-      <img src="../assets/icons/${item.icon}.png" alt="${item.name}">
+      <img src="${iconUrl}" alt="${item.name}">
       <span>${item.name}</span>
     `;
-    
-    // Adicionar eventos de clique
+
+    // Eventos como antes...
     icon.addEventListener('click', (e) => {
       e.stopPropagation();
-      
-      // Selecionar/desselecionar com Ctrl
       if (e.ctrlKey) {
         icon.classList.toggle('selected');
       } else {
-        // Desselecionar todos e selecionar apenas este
-        document.querySelectorAll('.desktop-icon').forEach(i => {
-          i.classList.remove('selected');
-        });
+        document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
         icon.classList.add('selected');
       }
     });
-    
-    // Duplo clique para abrir
+
     icon.addEventListener('dblclick', () => {
       if (item.type === 'app') {
         window.electronAPI.openApp(item.id);
@@ -140,7 +145,7 @@ async function loadDesktopIcons() {
         window.electronAPI.openFolder(item.path);
       }
     });
-    
+
     desktop.appendChild(icon);
   });
 }
