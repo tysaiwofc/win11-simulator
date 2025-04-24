@@ -1,9 +1,10 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
+
 contextBridge.exposeInMainWorld('electronAPI', {
   // Arquivos
   fileExists: (path) => ipcRenderer.invoke('file-exists', path),
-  getFileUrl: (path) => ipcRenderer.invoke('get-file-url', path),
+  getFileUrl: (path) => `file://${path}`,
   readFile: (filePath) => ipcRenderer.invoke('read-file', filePath),
   writeFile: (filePath, content) => ipcRenderer.invoke('write-file', filePath, content),
   readDirectory: (subPath = '') => ipcRenderer.invoke('read-directory', subPath),

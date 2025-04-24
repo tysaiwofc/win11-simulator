@@ -6,6 +6,7 @@ windows-update-server/
 # Ignorar build
 dist/
 
+
 # Ignorar arquivos de lock do npm
 package-lock.json
 

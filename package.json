@@ -1,7 +1,7 @@
 {
   "name": "windows-simulator",
-  "version": "1.0.6",
-  "main": "main.js",
+  "version": "1.0.7",
+  "main": "src/main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --win portable --x64",
@@ -12,8 +12,6 @@
     "productName": "Windows 11 Simulator",
     "files": [
       "src/**/*",
-      "main.js",
-      "preload.js",
       "assets/**/*"
     ],
     "win": {

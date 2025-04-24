@@ -2,7 +2,6 @@
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-
   // Carregar apps
   const apps = await window.electronAPI.getApps();
   console.log(apps)
@@ -23,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Configurar seleção no desktop
   setupDesktopSelection();
 });
+
 
 async function renderApps(apps) {
   const startMenu = document.getElementById('start-menu-apps');
@@ -193,11 +193,11 @@ function setupContextMenu() {
   });
   
   document.getElementById('context-display').addEventListener('click', () => {
-    window.electronAPI.openApp('settings/display');
+    window.electronAPI.openApp('settings');
   });
   
   document.getElementById('context-personalize').addEventListener('click', () => {
-    window.electronAPI.openApp('settings/personalization');
+    window.electronAPI.openApp('settings');
   });
 }
 
