@@ -27,13 +27,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function renderApps(apps) {
   const startMenu = document.getElementById('start-menu-apps');
   const assetsPath = await window.electronAPI.getDirPath();
-  console.log(assetsPath)
+
 
   apps.forEach(app => {
     const appElement = document.createElement('div');
     appElement.className = 'start-menu-app';
 
-    alert(app.dir + app.displayName)
     const iconUrl = new URL(`${app.dir}/${app.icon}`, `file://${assetsPath}/`).toString();
 
     appElement.innerHTML = `

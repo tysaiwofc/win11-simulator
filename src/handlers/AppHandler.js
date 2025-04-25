@@ -9,7 +9,7 @@ class AppHandler {
   }
 
   async openApp(event, appName) {
-    console.log("abrindo app")
+
     const appDataPath = path.join(this.getDirPath(), appName, 'data.json');
     const appPath = path.join(this.getDirPath(), appName, 'index.html');
 
@@ -17,7 +17,6 @@ class AppHandler {
       const rawData = await fs.readFile(appDataPath, 'utf-8');
       const appData = JSON.parse(rawData);
 
-      console.log(appName, appData)
       const appWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -34,7 +33,7 @@ class AppHandler {
         }
       });
 
-      appWindow.webContents.openDevTools();
+   //appWindow.webContents.openDevTools();
 
       appWindow.loadFile(appPath);
       return true;
