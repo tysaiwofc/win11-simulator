@@ -32,6 +32,8 @@ class AppHandler {
         }
       });
 
+      //appWindow.webContents.openDevTools();
+
       appWindow.loadFile(appPath);
       return true;
     } catch (err) {

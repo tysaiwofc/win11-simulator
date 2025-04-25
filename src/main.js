@@ -63,7 +63,7 @@ function createWindow() {
   });
   
 
-  // mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
   Menu.setApplicationMenu(null);
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 

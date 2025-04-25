@@ -1,19 +1,19 @@
 {
   "name": "windows-simulator",
-  "version": "1.0.9",
+  "version": "1.1.1",
   "main": "src/main.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/tysaiwofc/win11-simulator.git"
   },
   "scripts": {
-    "start": "electron .",
-    "build": "electron-builder --win --mac --linux",
-    "build:win": "electron-builder --win portable --x64",
+    "start": "electron src/main.js",
+    "build": "electron-builder --win ",
+    "build:win": "electron-builder --win nsis --x64",
+    "build:win:portable": "electron-builder --win portable --x64",
     "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux",
-    "publish": "electron-builder --win --mac --linux --publish always",
-    "publish:win": "electron-builder --win --publish always",
+    "publish": "electron-builder --win --publish always",
+    "publish:win": "electron-builder --win nsis portable --x64 --publish always",
     "release": "npm version patch && npm run publish && git push --follow-tags"
   },
   "build": {
@@ -40,7 +40,7 @@
     }
   },
   "devDependencies": {
-    "electron": "^28.0.0",
+    "electron": "^28.3.3",
     "electron-builder": "^24.6.4",
     "electron-context-menu": "^3.6.1",
     "electron-store": "^8.2.0"
