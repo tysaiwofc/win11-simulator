@@ -20,12 +20,22 @@
       </div>
      
     </div>
-    <div id="clock"></div>
+    <div class="left-menu-start-container">
+      <img id="taskbar-app-manager" src="../assets/icons/up.png" width="32px" height="32px" alt="Start">
+      <img id="wifi-status"  width="22px" height="22px" alt="Start">
+      <div id="clock"></div>
+    </div>
+    
   </div>
   
   <div id="start-menu">
     <input type="text" id="start-menu-search" placeholder="Type here to search">
     <div id="start-menu-apps"></div>
+    <div class="start-menu-options">
+      <p id="version">{{windows.boot.packages.version}}</p>
+      <img id="start-menu-restart" src="../assets/icons/restart.png" width="20px" height="20px" alt="Start">
+      <img id="start-menu-power" src="../assets/icons/power.png" width="20px" height="20px" alt="Start">
+    </div>
   </div>
   
   <!-- Menu de contexto -->

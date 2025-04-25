@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 2rem;
+    background-color: #f9f9f9;
+  }
+  
+  form input, form textarea {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+  }
+  
+  button {
+    padding: 0.5rem 1rem;
+    background: #0a84ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .app {
+    background: white;
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 1px solid #ccc;
+  }
+  

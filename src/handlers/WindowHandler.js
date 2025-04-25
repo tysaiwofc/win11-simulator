@@ -6,11 +6,14 @@ class WindowHandler {
   }
 
   maximizeWindow(event) {
-    const window = BrowserWindow.fromWebContents(event.sender);
-    if (window.isMaximized()) {
-      window.unmaximize();
-    } else {
-      window.maximize();
+    let win = BrowserWindow.getFocusedWindow();
+    if (win) {
+      // Verifica se a janela está maximizada
+      if (win.isMaximized()) {
+        win.restore();  // Desmaximiza a janela
+      } else {
+        win.maximize();  // Maximiza a janela
+      }
     }
   }
 

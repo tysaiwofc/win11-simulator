@@ -33,12 +33,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openApp: (appName) => ipcRenderer.invoke('open-app', appName),
   getApps: () => ipcRenderer.invoke('get-apps'),
 
+
   // Desktop
   getDesktopItems: () => ipcRenderer.invoke('get-desktop-items'),
   pasteToDesktop: () => ipcRenderer.invoke('paste-to-desktop'),
   hasClipboardItems: () => ipcRenderer.invoke('has-clipboard-items'),
 
   // Janela
+  toggleFullScreen: () => ipcRenderer.send('toggle-fullscreen'),
   minimizeWindow: () => ipcRenderer.send('minimize-window'),
   maximizeWindow: () => ipcRenderer.send('maximize-window'),
   closeWindow: () => ipcRenderer.send('close-window'),
@@ -57,17 +59,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
  // Listeners
  onUpdateStatus: (callback) => ipcRenderer.on('update-status', callback),
  onDownloadProgress: (callback) => ipcRenderer.on('download-progress', callback),
- 
+ getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+ // close App and Restart
+ restartApp: () => ipcRenderer.send('restart-app'),
+ closeApp: () => ipcRenderer.send('close-app'),
   // Comunicação com o renderer
   receiveFileToOpen: (callback) => {
     ipcRenderer.on('file-to-open', (event, filePath) => callback(filePath));
   }
 });
 
-contextBridge.exposeInMainWorld('versions', {
+contextBridge.exposeInMainWorld('versionsAPI', {
   node: () => process.versions.node,
   chrome: () => process.versions.chrome,
-  electron: () => process.versions.electron
+  electron: () => process.versions.electron,
 });
 
 contextBridge.exposeInMainWorld('appAPI', {

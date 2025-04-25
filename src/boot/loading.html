@@ -69,4 +69,16 @@
     <div class="dot"></div>
   </div>
 </body>
+<script>
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'F11') {
+      event.preventDefault(); // Previne o comportamento padrão do F11 (entrar em modo de tela cheia)
+      window.electronAPI.maximizeWindow(); // Chama a função do preload
+    }
+    if (event.key === 'F12') {
+      event.preventDefault();  // Previne o comportamento padrão
+      window.electronAPI.toggleFullScreen();  // Alterna para fullscreen ou desativa
+    }
+  });
+</script>
 </html>

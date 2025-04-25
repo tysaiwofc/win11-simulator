@@ -8,7 +8,7 @@ const FileHandler = require('./handlers/FileHandler');
 const SystemHandler = require('./handlers/SystemHandler');
 const UpdateHandler = require('./handlers/UpdateHandler');
 const WindowHandler = require('./handlers/WindowHandler');
-
+const { version } = require('../package.json')
 
 let mainWindow;
 let splashWindow;
@@ -50,6 +50,7 @@ function createWindow() {
     height: 800,
     minWidth: 800,
     minHeight: 600,
+    frame: false,
     backgroundColor: '#00000000',
     icon: path.resolve(__dirname, 'assets', 'windows.ico'),
     show: false,
@@ -121,6 +122,12 @@ function registerIpcHandlers() {
   ipcMain.handle('get-desktop-items', () => systemHandler.getDesktopItems());
   ipcMain.handle('has-clipboard-items', () => systemHandler.hasClipboardItems());
   ipcMain.handle('paste-to-desktop', () => systemHandler.pasteToDesktop());
+  ipcMain.handle('get-app-version', () => {
+    return version;
+  });
+  ipcMain.on('close-app', () => {
+    app.quit(); // Agora sim, fecha o app corretamente
+  });
 
   ipcMain.handle('updater:check', updateHandler.checkForUpdates);
   ipcMain.handle('updater:download', updateHandler.downloadUpdate);
@@ -129,11 +136,31 @@ function registerIpcHandlers() {
   ipcMain.handle('updater:showReadyDialog', updateHandler.showUpdateReadyDialog);
   ipcMain.handle('updater:setConfig', updateHandler.setUpdaterConfig);
   // Window Handlers
+  ipcMain.on('toggle-fullscreen', () => {
+    let win = BrowserWindow.getFocusedWindow();
+    if (win) {
+      win.setFullScreen(!win.isFullScreen()); // Alterna o estado de tela cheia
+    }
+  });
+
   ipcMain.handle('minimize-window', (event) => windowHandler.minimizeWindow(event));
-  ipcMain.handle('maximize-window', (event) => windowHandler.maximizeWindow(event));
+  ipcMain.on('maximize-window', (event) => {
+    let win = BrowserWindow.getFocusedWindow();
+    if (win) {
+      // Verifica se a janela está maximizada
+      if (win.isMaximized()) {
+        win.restore();  // Desmaximiza a janela
+      } else {
+        win.maximize();  // Maximiza a janela
+      }
+    }
+  });
   ipcMain.handle('close-window', (event) => windowHandler.closeWindow(event));
   ipcMain.handle('open-external', (event, url) => windowHandler.openExternal(event, url));
-  ipcMain.on('restart-app', () => windowHandler.restartApp());
+  ipcMain.on('restart-app', () => {
+    app.relaunch(); // relança o app
+    app.exit(); 
+  });
 
   // Path Handlers
   ipcMain.handle('get-assets-path', () => getAssetsPath());

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Store - Discover Amazing Apps</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0078d7;
+            --secondary-color: #106ebe;
+            --dark-color: #201f1e;
+            --light-color: #f3f2f1;
+            --success-color: #107c10;
+            --warning-color: #d83b01;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+        }
+        
+        .search-bar {
+            flex-grow: 1;
+            max-width: 600px;
+            margin: 0 20px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .user-actions button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        nav {
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: 500;
+            padding: 5px 0;
+            position: relative;
+        }
+        
+        .nav-links a.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        main {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .hero {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            background-image: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: white;
+            color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .see-all {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .categories {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .category {
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            min-width: 120px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category i {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .category.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .category.active i {
+            color: white;
+        }
+        
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .app-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-image {
+            height: 150px;
+            background-color: #e6e6e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        
+        .app-details {
+            padding: 15px;
+        }
+        
+        .app-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .app-author {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .app-description {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .app-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-rating {
+            color: #ffb900;
+        }
+        
+        .app-download {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter {
+            background-color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 30px 20px;
+            margin-top: 50px;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+        
+        .footer-column h3 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column a {
+            color: #ccc;
+            text-decoration: none;
+        }
+        
+        .footer-column a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            .nav-links {
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-store"></i>
+            <span>Windows Store</span>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" placeholder="Search apps, games, and more...">
+        </div>
+        
+        <div class="user-actions">
+            <button title="Downloads"><i class="fas fa-download"></i></button>
+            <button title="Settings"><i class="fas fa-cog"></i></button>
+            <button title="Account"><i class="fas fa-user-circle"></i></button>
+        </div>
+    </header>
+    
+    <!-- <nav>
+        <div class="nav-links">
+            <a href="#" class="active">Home</a>
+            <a href="#">Apps</a>
+            <a href="#">Games</a>
+            <a href="#">Entertainment</a>
+            <a href="#">Productivity</a>
+            <a href="#">Deals</a>
+        </div>
+    </nav> -->
+    
+    <main>
+        <!-- <section class="hero">
+            <h1>Discover Amazing Apps</h1>
+            <p>Browse thousands of apps for work, play, and everything in between. Find your next favorite app today!</p>
+            <button class="btn btn-primary">Explore Now</button>
+        </section> -->
+        
+        <!-- <section>
+            <div class="section-header">
+                <h2 class="section-title">Categories</h2>
+                <a href="#" class="see-all">See all</a>
+            </div>
+            
+            <div class="categories">
+                <div class="category active">
+                    <i class="fas fa-home"></i>
+                    <div>Home</div>
+                </div>
+                <div class="category">
+                    <i class="fas fa-gamepad"></i>
+                    <div>Games</div>
+                </div>
+                <div class="category">
+                    <i class="fas fa-briefcase"></i>
+                    <div>Business</div>
+                </div>
+                <div class="category">
+                    <i class="fas fa-graduation-cap"></i>
+                    <div>Education</div>
+                </div>
+                <div class="category">
+                    <i class="fas fa-utensils"></i>
+                    <div>Food</div>
+                </div>
+                <div class="category">
+                    <i class="fas fa-heartbeat"></i>
+                    <div>Health</div>
+                </div>
+                <div class="category">
+                    <i class="fas fa-newspaper"></i>
+                    <div>News</div>
+                </div>
+                <div class="category">
+                    <i class="fas fa-paint-brush"></i>
+                    <div>Design</div>
+                </div>
+            </div>
+        </section>
+         -->
+        <section>
+            <div class="section-header">
+                <h2 class="section-title">Featured Apps</h2>
+                <!-- <a href="#" class="see-all">See all</a> -->
+            </div>
+            
+            <!-- <div class="filters">
+                <div class="filter active">All</div>
+                <div class="filter">New Releases</div>
+                <div class="filter">Top Rated</div>
+                <div class="filter">Most Downloaded</div>
+                <div class="filter">Editor's Choice</div>
+            </div> -->
+            
+            <div class="apps-grid" id="apps-container">
+                <!-- App cards will be dynamically inserted here -->
+            </div>
+        </section>
+        
+        <!-- <section>
+            <div class="section-header">
+                <h2 class="section-title">Top Free Games</h2>
+                <a href="#" class="see-all">See all</a>
+            </div>
+            
+            <div class="apps-grid" id="games-container">
+                 Game cards will be dynamically inserted here
+            </div>
+        </section>  -->
+    </main>
+
+
+    <script>
+        // Placeholder for app data - this would come from your API
+        const sampleApps = [
+            {
+                name: "Photo Editor Pro", 
+                description: "Edit your photos with powerful tools and filters. Perfect for social media!",
+                author: "Creative Apps Inc.",
+                screenshots: ["photo1.jpg", "photo2.jpg"],
+                downloadUrl: "#",
+                tags: "photo, editor, creative",
+                rating: 4.5
+            },
+            {
+                name: "Task Manager", 
+                description: "Organize your work and personal tasks with this intuitive productivity app.",
+                author: "Productivity Labs",
+                screenshots: ["task1.jpg", "task2.jpg"],
+                downloadUrl: "#",
+                tags: "productivity, tasks, business",
+                rating: 4.2
+            },
+            {
+                name: "Weather Forecast", 
+                description: "Accurate weather predictions with beautiful visualizations.",
+                author: "Weather Technologies",
+                screenshots: ["weather1.jpg", "weather2.jpg"],
+                downloadUrl: "#",
+                tags: "weather, forecast, tools",
+                rating: 4.7
+            },
+            {
+                name: "Fitness Tracker", 
+                description: "Track your workouts, nutrition, and health metrics all in one place.",
+                author: "Health & Fitness Co.",
+                screenshots: ["fitness1.jpg", "fitness2.jpg"],
+                downloadUrl: "#",
+                tags: "health, fitness, exercise",
+                rating: 4.8
+            },
+            {
+                name: "Music Player", 
+                description: "Play your favorite songs with a sleek and modern interface.",
+                author: "Media Solutions",
+                screenshots: ["music1.jpg", "music2.jpg"],
+                downloadUrl: "#",
+                tags: "music, audio, entertainment",
+                rating: 4.3
+            },
+            {
+                name: "Budget Planner", 
+                description: "Take control of your finances with this comprehensive budgeting tool.",
+                author: "Finance Apps LLC",
+                screenshots: ["budget1.jpg", "budget2.jpg"],
+                downloadUrl: "#",
+                tags: "finance, budget, money",
+                rating: 4.6
+            }
+        ];
+
+        // Sample games data
+        const sampleGames = [
+            {
+                name: "Space Adventure", 
+                description: "Explore the galaxy in this epic space exploration game.",
+                author: "Game Studios",
+                screenshots: ["space1.jpg", "space2.jpg"],
+                downloadUrl: "#",
+                tags: "adventure, space, action",
+                rating: 4.9
+            },
+            {
+                name: "Puzzle Master", 
+                description: "Challenge your brain with hundreds of mind-bending puzzles.",
+                author: "Brain Games",
+                screenshots: ["puzzle1.jpg", "puzzle2.jpg"],
+                downloadUrl: "#",
+                tags: "puzzle, brain, casual",
+                rating: 4.5
+            },
+            {
+                name: "Racing Legends", 
+                description: "High-speed racing with realistic physics and stunning graphics.",
+                author: "Speed Games Inc.",
+                screenshots: ["racing1.jpg", "racing2.jpg"],
+                downloadUrl: "#",
+                tags: "racing, sports, action",
+                rating: 4.7
+            },
+            {
+                name: "Word Connect", 
+                description: "Connect letters to form words in this addictive word game.",
+                author: "Word Play Studios",
+                screenshots: ["word1.jpg", "word2.jpg"],
+                downloadUrl: "#",
+                tags: "word, puzzle, casual",
+                rating: 4.4
+            }
+        ];
+
+        // Function to create app cards
+        function createAppCard(app) {
+            return `
+                <div class="app-card">
+                    <div class="app-image">
+                        <i class="fas fa-mobile-alt fa-3x"></i>
+                    </div>
+                    <div class="app-details">
+                        <h3 class="app-title">${app.name}</h3>
+                        <div class="app-author">${app.author}</div>
+                        <p class="app-description">${app.description}</p>
+                        <div class="app-footer">
+                            <div class="app-rating">
+                                ${'<i class="fas fa-star"></i>'.repeat(Math.floor(app.rating))}
+                                ${app.rating % 1 ? '<i class="fas fa-star-half-alt"></i>' : ''}
+                                ${'<i class="far fa-star"></i>'.repeat(5 - Math.ceil(app.rating))}
+                                <span>${app.rating}</span>
+                            </div>
+                            <div class="app-download">Get</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to load apps from API
+        async function loadApps() {
+    try {
+        const response = await fetch('https://hwid-spoofer-server.vercel.app/api/apps');
+        const apps = await response.json();
+        const appsContainer = document.getElementById('apps-container');
+        appsContainer.innerHTML = apps.map(createAppCard).join('');
+    } catch (error) {
+        console.error('Error loading apps:', error);
+    }
+}
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', loadApps);
+    </script>
+</body>
+</html>

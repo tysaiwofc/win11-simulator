@@ -44,6 +44,32 @@ async function renderApps(apps) {
   });
 }
 
+const wifiImg = document.getElementById('wifi-status');
+
+  function updateIcon(isOnline) {
+    wifiImg.src = isOnline ? '../assets/icons/wifi.png' : '../assets/icons/no-wifi.png';
+  }
+
+  async function verifyRealConnection() {
+    try {
+      const res = await fetch('https://www.gstatic.com/generate_204', { method: 'HEAD', cache: 'no-cache' });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  async function checkAndUpdate() {
+    const isReallyOnline = await verifyRealConnection();
+    updateIcon(isReallyOnline);
+  }
+
+  // Eventos nativos do navegador
+  window.addEventListener('online', checkAndUpdate);
+  window.addEventListener('offline', () => updateIcon(false));
+
+  // Verificação inicial
+  checkAndUpdate();
 
 function setupTaskbar() {
   const taskbar = document.getElementById('taskbar');
@@ -72,6 +98,27 @@ function setupTaskbar() {
   setInterval(updateClock, 1000);
   updateClock();
   
+  const powerButton = document.getElementById("start-menu-power")
+
+  const restartButton = document.getElementById('start-menu-restart')
+
+  restartButton.addEventListener('click', e => {
+    window.electronAPI.restartApp()
+  })
+  powerButton.addEventListener('click', (e) => {
+    window.electronAPI.closeApp()
+  })
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'F11') {
+      event.preventDefault(); // Previne o comportamento padrão do F11 (entrar em modo de tela cheia)
+      window.electronAPI.maximizeWindow(); // Chama a função do preload
+    }
+    if (event.key === 'F12') {
+      event.preventDefault();  // Previne o comportamento padrão
+      window.electronAPI.toggleFullScreen();  // Alterna para fullscreen ou desativa
+    }
+  });
   // Mostrar/ocultar menu iniciar
   startButton.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -105,9 +152,12 @@ function setupStartMenu() {
   });
 }
 
-function setupDesktop() {
+async function setupDesktop() {
   const desktop = document.getElementById('desktop');
   
+  const version = document.getElementById("version");
+
+  version.innerText = `Windows 11 Simulator v${await window.electronAPI.getAppVersion()}`
   // Fechar menu iniciar ao clicar no desktop
   desktop.addEventListener('click', () => {
     document.getElementById('start-menu').classList.remove('visible');
@@ -135,7 +185,7 @@ async function loadDesktopIcons() {
 
     
     // Verifique se o item tem um displayName
-    const iconUrl = `file:///${item.displayName ? `${item.dir}/${item.icon}` : `${assetsPath.replace('src', '')}/icons/${item.icon}.png`}`;
+    const iconUrl = `file:///${item.displayName ? `${assetsDirPath}/${item.dir}/${item.icon}` : `${assetsPath.replace('src', '')}/icons/${item.icon}.png`}`;
     // Use displayName se existir, senão usa o nome padrão
     const name = item.displayName || item.name;
 
