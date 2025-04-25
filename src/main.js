@@ -8,6 +8,9 @@ const FileHandler = require('./handlers/FileHandler');
 const SystemHandler = require('./handlers/SystemHandler');
 const UpdateHandler = require('./handlers/UpdateHandler');
 const WindowHandler = require('./handlers/WindowHandler');
+const ConfigHandler = require('./handlers/ConfigHandler');
+
+
 const { version } = require('../package.json')
 
 let mainWindow;
@@ -90,11 +93,12 @@ function createWindow() {
   return mainWindow;
 }
 
-const appHandler = new AppHandler(getDirPath);
+const appHandler = new AppHandler(getDirPath, getAssetsPath);
 const fileHandler = new FileHandler();
 const systemHandler = new SystemHandler();
 const updateHandler = new UpdateHandler();
 const windowHandler = new WindowHandler();
+const configHandler = new ConfigHandler();
 
 // Registrar handlers IPC
 function registerIpcHandlers() {
@@ -104,6 +108,39 @@ function registerIpcHandlers() {
   ipcMain.handle('get-app-data', (event, appName) => appHandler.getAppData(event, appName));
   ipcMain.handle('get-apps', () => appHandler.getApps());
   ipcMain.handle('save-app-data', (event, appName, data) => appHandler.saveAppData(event, appName, data));
+
+  ipcMain.handle('check-icon-exists', (event, baseDir, iconPath) => {
+    
+    const fullPath = path.join(baseDir, iconPath);
+    return fsSync.existsSync(fullPath) ? fullPath : false;
+  });
+  // Config
+
+  ipcMain.handle('get-global-config', () => {
+    return configHandler.getGlobalConfig();  // Retorna todas as configurações
+  });
+  
+  ipcMain.handle('get-config', (event, key) => {
+    return configHandler.getConfig(key);  // Retorna uma configuração específica
+  });
+  
+  ipcMain.handle('set-config', (event, { key, value }) => {
+    configHandler.setConfig(key, value);
+    console.log(key, value);
+    
+    if (key === 'wallpaper') {
+      // Envia o evento para TODAS as janelas abertas
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send('wallpaper-changed', value);
+      });
+    }
+  
+    return true;
+  });
+  
+  ipcMain.handle('save-custom-config', (event, config) => {
+    return configHandler.saveCustomConfig(event, config);  // Salva configurações personalizadas
+  });
 
   // File Handlers
   ipcMain.handle('read-directory', (event, subPath) => fileHandler.readDirectory(event, subPath));

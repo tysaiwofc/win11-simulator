@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Explorer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="explorer-container">
+    <div class="window-header">
+      <div class="window-title"></div>
+      <div class="window-controls">
+        <div class="window-control minimize"></div>
+        <div class="window-control maximize"></div>
+        <div class="window-control close"></div>
+      </div>
+    </div>
+    <div class="explorer-toolbar">
+      <button id="back-button" title="Back">←</button>
+      <button id="forward-button" title="Forward">→</button>
+      <button id="up-button" title="Up">↑</button>
+      <input type="text" id="address-bar" placeholder="Enter path">
+    </div>
+    <div class="explorer-content">
+      <div class="sidebar">
+        <div class="sidebar-item active" data-path="desktop">
+          <img src="https://i.imgur.com/Fsjo2qy.png" alt="Desktop"> Desktop
+        </div>
+        <div class="sidebar-item" data-path="documents">
+          <img src="https://i.imgur.com/9UZOb9p.png" alt="Documents"> Documents
+        </div>
+        <div class="sidebar-item" data-path="pictures">
+          <img src="https://i.imgur.com/JpAWuDI.png" alt="Pictures"> Downloads
+        </div>
+        <div class="sidebar-item" data-path="videos">
+          <img src="https://i.imgur.com/TDu1F9C.png" alt="Videos"> Videos
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="path-bar" id="current-path">Desktop</div>
+        <div class="files-grid" id="files-container">
+          <!-- Files will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>

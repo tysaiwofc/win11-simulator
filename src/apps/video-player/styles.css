@@ -1,0 +1,73 @@
+.video-player-container {
+    height: calc(100% - 30px);
+    display: flex;
+    flex-direction: column;
+    background-color: #000;
+  }
+  
+  #video-element {
+    width: 100%;
+    height: calc(100% - 20px);
+    outline: none;
+  }
+  
+  .window-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    color: white;
+    user-select: none;
+    -webkit-app-region: drag; 
+  }
+  
+  .window-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .window-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .window-control {
+    width: 15px;
+    height: 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: #aaa;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Estilos individuais para cada botão */
+  .window-control.minimize {
+    background-color: #ffcc00;
+  }
+  
+  .window-control.maximize {
+    background-color: #00cc00;
+  }
+  
+  .window-control.close {
+    background-color: #ff0000;
+  }
+  
+  .window-control:hover {
+    background-color: #555;
+  }
+  
+  
+  .window-control:active {
+    background-color: #222;
+  }
+  
+  .video-info {
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 4px 8px;
+    font-size: 12px;
+    text-align: center;
+  }

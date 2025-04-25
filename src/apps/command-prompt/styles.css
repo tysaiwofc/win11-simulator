@@ -1,0 +1,117 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    color: #00ff00;
+    font-family: Consolas, monospace;
+    font-size: 14px;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .window-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    color: white;
+    user-select: none;
+    -webkit-app-region: drag; 
+  }
+  
+  .window-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .window-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .window-control {
+    width: 15px;
+    height: 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: #aaa;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Estilos individuais para cada botão */
+  .window-control.minimize {
+    background-color: #ffcc00;
+  }
+  
+  .window-control.maximize {
+    background-color: #00cc00;
+  }
+  
+  .window-control.close {
+    background-color: #ff0000;
+  }
+  
+  .window-control:hover {
+    background-color: #555;
+  }
+  
+  
+  .window-control:active {
+    background-color: #222;
+  }
+  
+  #cmd {
+    padding: 16px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+
+  
+  #output {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 8px;
+  }
+  
+  #output::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  #output::-webkit-scrollbar-track {
+    background: #111;
+    border-radius: 5px;
+  }
+  
+  #output::-webkit-scrollbar-thumb {
+    background: #00ff00;
+    border-radius: 5px;
+    border: 2px solid black;
+  }
+  
+  #output::-webkit-scrollbar-thumb:hover {
+    background: #33ff33;
+  }
+  
+  .input-line {
+    display: flex;
+    align-items: center;
+  }
+  
+  .prompt {
+    margin-right: 8px;
+  }
+  
+  #cmdInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    outline: none;
+  }
+  

@@ -1,0 +1,8 @@
+{
+    "displayName": "Image Viewer",
+    "icon": "image-viewer.png",
+    "dir": "image-viewer",
+    "description": "View images and photos",
+    "version": "1.0.0",
+    "fileExtensions": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"]
+  }

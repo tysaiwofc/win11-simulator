@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Windows CMD Simulator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  
+  <div id="cmd">
+    <div class="window-header">
+      <div class="window-title"></div>
+      <div class="window-controls">
+        <div class="window-control minimize"></div>
+        <div class="window-control maximize"></div>
+        <div class="window-control close"></div>
+      </div>
+    </div>
+    <div id="output"></div>
+    <div class="input-line">
+      <span class="prompt">C:\Windows\System32&gt;</span>
+      <input type="text" id="cmdInput" autofocus />
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

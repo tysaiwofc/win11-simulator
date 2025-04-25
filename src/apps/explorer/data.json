@@ -1,0 +1,11 @@
+{
+  "displayName": "File Explorer",
+  "icon": "explorer.png",
+  "dir": "explorer",
+  "description": "Browse your files and folders",
+  "version": "1.0.0",
+  "fileAssociations": {
+    "image": ["jpg", "jpeg", "png", "gif", "bmp", "webp"],
+    "video": ["mp4", "mov", "avi", "mkv", "webm"]
+  }
+}

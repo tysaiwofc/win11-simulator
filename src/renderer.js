@@ -26,23 +26,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function renderApps(apps) {
   const startMenu = document.getElementById('start-menu-apps');
-  const assetsPath = await window.electronAPI.getDirPath();
+  const assetsPath = await window.electronAPI.getAssetsPath();
+  const dirPath = await window.electronAPI.getDirPath();
 
-
-  apps.forEach(app => {
+  for (const app of apps) {
     const appElement = document.createElement('div');
     appElement.className = 'start-menu-app';
 
-    const iconUrl = new URL(`${app.dir}/${app.icon}`, `file://${assetsPath}/`).toString();
+    // Checa se o ícone existe em assetsPath
+    const existsInAssets = await window.electronAPI.checkIconExists(assetsPath, app.icon);
+    const basePath = existsInAssets ? assetsPath : dirPath;
+    const iconUrl = new URL(`${app.dir}/${app.name}/${app.icon}`, `file://${basePath}/`)
+    console.log(iconUrl)
 
     appElement.innerHTML = `
       <img src="${iconUrl}" alt="${app.displayName}">
       <span>${app.displayName}</span>
     `;
-    appElement.addEventListener('click', () => window.electronAPI.openApp(app.name))
+
+    appElement.addEventListener('click', () => window.electronAPI.openApp(app.name));
     startMenu.appendChild(appElement);
-  });
+  }
 }
+
+
 
 const wifiImg = document.getElementById('wifi-status');
 
@@ -154,8 +161,30 @@ function setupStartMenu() {
 
 async function setupDesktop() {
   const desktop = document.getElementById('desktop');
+
+  const wallpaper = await window.electronAPI.getConfig("desktopBackground")
+
+  desktop.style.backgroundImage = `url('${wallpaper}')`
+  
+  window.electronAPI.onWallpaperChanged((newWallpaper) => {
+    let fileUrl;
+  
+    if (newWallpaper.startsWith('http://') || newWallpaper.startsWith('https://')) {
+      // Se for uma URL, apenas use diretamente
+      fileUrl = newWallpaper;
+    } else {
+      // Se for um caminho de arquivo local
+      const normalizedPath = newWallpaper.replace(/\\/g, '/'); // Substitui barras invertidas por barras normais
+      fileUrl = `file:///${encodeURI(normalizedPath)}`; // Garante que o caminho do arquivo seja válido
+    }
+    
+    // Aplicando o background no elemento
+    desktop.style.backgroundImage = `url('${fileUrl}')`;
+  });
+  
   
   const version = document.getElementById("version");
+
 
   version.innerText = `Windows 11 Simulator v${await window.electronAPI.getAppVersion()}`
   // Fechar menu iniciar ao clicar no desktop
@@ -176,31 +205,47 @@ async function loadDesktopIcons() {
   const desktop = document.getElementById('desktop');
   const desktopItems = await window.electronAPI.getDesktopItems();
   const assetsPath = await window.electronAPI.getAssetsPath();
-  const assetsDirPath = await window.electronAPI.getDirPath();
-  let gridSize = 90; // espaço entre ícones
+  const dirPath = await window.electronAPI.getDirPath();
+  const gridSize = 90;
 
-  desktopItems.forEach((item, index) => {
+  for (let index = 0; index < desktopItems.length; index++) {
+    const item = desktopItems[index];
     const icon = document.createElement('div');
     icon.className = 'desktop-icon';
 
-    
-    // Verifique se o item tem um displayName
-    const iconUrl = `file:///${item.displayName ? `${assetsDirPath}/${item.dir}/${item.icon}` : `${assetsPath.replace('src', '')}/icons/${item.icon}.png`}`;
-    // Use displayName se existir, senão usa o nome padrão
     const name = item.displayName || item.name;
+    let iconUrl;
+
+    // Caminhos relativos para verificação
+    const appIconRelativePath = `${item.dir}/${item.icon}`;
+    const assetIconRelativePath = `icons/${item.icon}`;
+    const assetIconDefaultRelativePath = `${item.dir}/${item.icon}`
+    const appIconExists = await window.electronAPI.checkIconExists(dirPath, appIconRelativePath);
+    const assetIconExists = await window.electronAPI.checkIconExists(assetsPath, assetIconRelativePath);
+    const defaultAppExists = await window.electronAPI.checkIconExists(assetsPath.replace('assets', '').replace('src', ''), `src/apps/${assetIconDefaultRelativePath}`)
+    
+    console.log(item.dir , defaultAppExists, assetIconExists, appIconExists, `./src/apps/${assetIconDefaultRelativePath}`)
+    if (appIconExists) {
+      iconUrl = new URL(appIconRelativePath, `file://${dirPath.replace('apps', 'src/apps').replace(/\\/g, '/')}/`).toString();
+    } else if (assetIconExists) {
+      iconUrl = new URL(assetIconRelativePath, `file://${assetsPath.replace('src', '').replace(/\\/g, '/')}/`).toString();
+    } else if(defaultAppExists) {
+      iconUrl = defaultAppExists
+    } else {
+      // Ícone fallback
+      iconUrl = new URL('icons/file.png', `file://${assetsPath.replace('src', '').replace(/\\/g, '/')}/`).toString();
+    }
 
     icon.innerHTML = `
       <img src="${iconUrl}" alt="${name}">
       <span>${name}</span>
     `;
 
-    // Posição inicial em grade
     const col = index % 5;
     const row = Math.floor(index / 5);
     icon.style.left = `${col * gridSize}px`;
     icon.style.top = `${row * gridSize}px`;
 
-    // Clique e duplo clique
     icon.addEventListener('click', (e) => {
       e.stopPropagation();
       if (e.ctrlKey) {
@@ -215,18 +260,19 @@ async function loadDesktopIcons() {
       if (item.type === 'app') {
         window.electronAPI.openApp(item.name);
       } else if (item.isDirectory) {
-        window.electronAPI.openFolder(item.path); 
+        window.electronAPI.openFolder(item.path);
       } else if (item.type === 'file') {
-        window.electronAPI.openFile(item.path);  // Abrir o arquivo
+        window.electronAPI.openFile(item.path);
       }
     });
 
-    // 👉 Drag and drop
     makeDraggable(icon);
-
     desktop.appendChild(icon);
-  });
+  }
 }
+
+
+
 
 function makeDraggable(el) {
   const gridSize = 90;
@@ -475,3 +521,4 @@ function setupDesktopSelection() {
     }
   });
 }
+

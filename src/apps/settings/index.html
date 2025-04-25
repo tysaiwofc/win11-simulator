@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="window">
+    <div class="window-header">
+      <div class="window-title"></div>
+      <div class="window-controls">
+        <div class="window-control minimize"></div>
+        <div class="window-control maximize"></div>
+        <div class="window-control close"></div>
+      </div>
+    </div>
+    <div class="window-content">
+      <div class="settings-container">
+        <div class="settings-sidebar">
+          <div class="settings-category active" data-section="system">System</div>
+          <div class="settings-category" data-section="personalization">Personalization</div>
+          <div class="settings-category" data-section="apps">Apps</div>
+          <div class="settings-category" data-section="privacy">Privacy</div>
+        </div>
+        <div class="settings-content">
+          <div class="settings-section" id="system-section">
+            <h2>System</h2>
+            <div class="settings-item">
+              <label>Display</label>
+              <select id="display-select">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </div>
+            <div class="settings-item">
+              <label>Wallpaper</label>
+              <div id="wallpaper-options" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <!-- Será preenchido via JS -->
+              </div>
+              <button id="select-wallpaper-btn">Selecionar da pasta</button>
+            </div>
+          </div>
+          
+          <div class="settings-section" id="personalization-section" style="display: none;">
+            <h2>Personalization</h2>
+            <div class="settings-item">
+              <label>Theme Color</label>
+              <input type="color" id="theme-color" value="#0078d7">
+            </div>
+          </div>
+          
+          <div class="settings-section" id="apps-section" style="display: none;">
+            <h2>Apps</h2>
+            <div class="settings-item">
+              <label>Default Apps</label>
+              <button id="default-apps-btn">Configure</button>
+            </div>
+          </div>
+          
+          <div class="settings-section" id="privacy-section" style="display: none;">
+            <h2>Privacy</h2>
+            <div class="settings-item">
+              <label>Location</label>
+              <div class="toggle-switch">
+                <input type="checkbox" id="location-toggle">
+                <span class="slider"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>

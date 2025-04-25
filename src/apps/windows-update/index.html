@@ -30,7 +30,7 @@
       background-color: var(--bg);
       color: var(--text);
       font-size: 14px;
-
+      overflow: hidden;
     }
 
     .hidden { 
@@ -267,9 +267,70 @@
         justify-content: center;
       }
     }
+
+    .window-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  color: white;
+  user-select: none;
+  -webkit-app-region: drag; 
+}
+
+.window-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.window-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.window-control {
+  width: 15px;
+  height: 15px;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  background-color: #aaa;
+  transition: background-color 0.3s ease;
+}
+
+/* Estilos individuais para cada botão */
+.window-control.minimize {
+  background-color: #ffcc00;
+}
+
+.window-control.maximize {
+  background-color: #00cc00;
+}
+
+.window-control.close {
+  background-color: #ff0000;
+}
+
+.window-control:hover {
+  background-color: #555;
+}
+
+
+.window-control:active {
+  background-color: #222;
+}
   </style>
 </head>
 <body>
+  <div class="window-header">
+    <div class="window-title"></div>
+    <div class="window-controls">
+      <div class="window-control minimize"></div>
+      <div class="window-control maximize"></div>
+      <div class="window-control close"></div>
+    </div>
+  </div>
   <div class="update-container">
     <div class="header">
       <svg viewBox="0 0 24 24" fill="currentColor">

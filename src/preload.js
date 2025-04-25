@@ -55,11 +55,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
  showUpdateDialog: (info) => ipcRenderer.invoke('updater:showUpdateDialog', info),
  showReadyDialog: (info) => ipcRenderer.invoke('updater:showReadyDialog', info),
  setUpdaterConfig: (config) => ipcRenderer.invoke('updater:setConfig', config),
-
+ getGlobalConfig: () => ipcRenderer.invoke('get-global-config'),
+ getConfig: (key) => ipcRenderer.invoke('get-config', key),
+ setConfig: (key, value) => ipcRenderer.invoke('set-config', { key, value }),
+ saveCustomConfig: (config) => ipcRenderer.invoke('save-custom-config', config),
+ onWallpaperChanged: (callback) => ipcRenderer.on('wallpaper-changed', (event, value) => callback(value)),
  // Listeners
  onUpdateStatus: (callback) => ipcRenderer.on('update-status', callback),
  onDownloadProgress: (callback) => ipcRenderer.on('download-progress', callback),
  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+ checkIconExists: (baseDir, iconPath) => ipcRenderer.invoke('check-icon-exists', baseDir, iconPath),
  // close App and Restart
  restartApp: () => ipcRenderer.send('restart-app'),
  closeApp: () => ipcRenderer.send('close-app'),
