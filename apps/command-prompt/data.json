@@ -1,7 +1,0 @@
-{
-    "displayName": "Command Prompt",
-    "icon": "cmd.png",
-    "dir": "command-prompt",
-    "description": "Visualizar informações do sistema",
-    "version": "1.0.0"
-  }
