@@ -28,11 +28,11 @@ body {
 
 /* Desktop */
 #desktop {
-  position: fixed;
+  position: relative;
   top: 0;
   left: 0;
   width: 100%;
-  height: calc(100% - 48px);
+  height: 100%;
   background-color: #000;
   background-image: url('../assets/wallpaper.jpg');
   background-size: cover;
@@ -44,6 +44,7 @@ body {
   gap: 16px;
   padding: 16px;
   align-content: start;
+  overflow: hidden;
 }
 
 .desktop-icon {
@@ -54,7 +55,19 @@ body {
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
-  position: relative;
+  position: absolute;
+  width: 80px;
+  text-align: center;
+  user-select: none;
+  will-change: left, top;
+  transition: none; /* garantir que não haja animação */
+}
+
+.desktop-icon span {
+  white-space: nowrap; /* Impede que o texto quebre em várias linhas */
+  overflow: hidden;    /* Oculta o texto que ultrapassar o tamanho */
+  text-overflow: ellipsis; /* Adiciona '...' no final do texto truncado */
+  display: block; /* Para garantir que o span ocupe a largura completa do pai */
 }
 
 .desktop-icon:hover {
@@ -167,6 +180,7 @@ body {
   z-index: 1001;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: opacity 0.3s ease;
 }
 
 #start-menu.visible {
@@ -236,6 +250,7 @@ body {
   padding: 0 12px;
   margin-left: auto;
   font-variant-numeric: tabular-nums;
+  text-align: end;
 }
 
 /* Menu de contexto */

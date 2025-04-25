@@ -53,7 +53,20 @@ function setupTaskbar() {
   // Atualizar relógio
   function updateClock() {
     const now = new Date();
-    clock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+    const time = now.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  
+    const date = now.toLocaleDateString([], {
+
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric'
+    });
+  
+    clock.textContent = `${time} ${date}`;
   }
   
   setInterval(updateClock, 1000);
@@ -113,19 +126,31 @@ async function loadDesktopIcons() {
   const desktop = document.getElementById('desktop');
   const desktopItems = await window.electronAPI.getDesktopItems();
   const assetsPath = await window.electronAPI.getAssetsPath();
+  const assetsDirPath = await window.electronAPI.getDirPath();
+  let gridSize = 90; // espaço entre ícones
 
-  desktopItems.forEach(item => {
+  desktopItems.forEach((item, index) => {
     const icon = document.createElement('div');
     icon.className = 'desktop-icon';
 
-    const iconUrl = new URL(`icons/${item.icon}.png`, `file://${assetsPath}/`).toString();
+    
+    // Verifique se o item tem um displayName
+    const iconUrl = `file:///${item.displayName ? `${item.dir}/${item.icon}` : `${assetsPath.replace('src', '')}/icons/${item.icon}.png`}`;
+    // Use displayName se existir, senão usa o nome padrão
+    const name = item.displayName || item.name;
 
     icon.innerHTML = `
-      <img src="${iconUrl}" alt="${item.name}">
-      <span>${item.name}</span>
+      <img src="${iconUrl}" alt="${name}">
+      <span>${name}</span>
     `;
 
-    // Eventos como antes...
+    // Posição inicial em grade
+    const col = index % 5;
+    const row = Math.floor(index / 5);
+    icon.style.left = `${col * gridSize}px`;
+    icon.style.top = `${row * gridSize}px`;
+
+    // Clique e duplo clique
     icon.addEventListener('click', (e) => {
       e.stopPropagation();
       if (e.ctrlKey) {
@@ -138,17 +163,132 @@ async function loadDesktopIcons() {
 
     icon.addEventListener('dblclick', () => {
       if (item.type === 'app') {
-        window.electronAPI.openApp(item.id);
+        window.electronAPI.openApp(item.name);
+      } else if (item.isDirectory) {
+        window.electronAPI.openFolder(item.path); 
       } else if (item.type === 'file') {
-        window.electronAPI.openFile(item.path);
-      } else if (item.type === 'folder') {
-        window.electronAPI.openFolder(item.path);
+        window.electronAPI.openFile(item.path);  // Abrir o arquivo
       }
     });
+
+    // 👉 Drag and drop
+    makeDraggable(icon);
 
     desktop.appendChild(icon);
   });
 }
+
+function makeDraggable(el) {
+  const gridSize = 90;
+  const desktop = document.getElementById('desktop');
+  const taskbar = document.getElementById('taskbar'); // Seleciona a div da taskbar
+  let isDragging = false;
+  let startX, startY;
+  let initialLeft, initialTop;
+
+  // Função para verificar se o ícone está colidindo com outros ícones
+  function checkCollision(newLeft, newTop) {
+    const icons = document.querySelectorAll('.desktop-icon');
+    for (let icon of icons) {
+      if (icon === el) continue; // Ignorar o próprio ícone
+      const rect = icon.getBoundingClientRect();
+      if (
+        newLeft < rect.right && newLeft + el.offsetWidth > rect.left &&
+        newTop < rect.bottom && newTop + el.offsetHeight > rect.top
+      ) {
+        return true; // Colisão detectada
+      }
+    }
+    return false; // Não há colisão
+  }
+
+  // Limitar o movimento para dentro da área do desktop, considerando a taskbar
+  function limitPosition(newLeft, newTop) {
+    const desktopRect = desktop.getBoundingClientRect();
+    const taskbarHeight = taskbar.getBoundingClientRect().height; // Obtém a altura da taskbar dinamicamente
+    const maxX = desktopRect.width - el.offsetWidth;
+    const maxY = desktopRect.height - el.offsetHeight - taskbarHeight;  // Subtrai a altura da taskbar
+
+    // Impedir que o ícone saia da tela ou vá para trás da taskbar
+    newLeft = Math.max(0, Math.min(newLeft, maxX));
+    newTop = Math.max(0, Math.min(newTop, maxY));
+
+    return [newLeft, newTop];
+  }
+
+  const onMouseMove = (e) => {
+    if (!isDragging) return;
+
+    const deltaX = e.clientX - startX;
+    const deltaY = e.clientY - startY;
+
+    let newLeft = initialLeft + deltaX;
+    let newTop = initialTop + deltaY;
+
+    // Limitar a posição para dentro da tela e considerar a taskbar
+    [newLeft, newTop] = limitPosition(newLeft, newTop);
+
+    // Mover o ícone livremente sem checar colisões até o "mouseup"
+    el.style.left = `${newLeft}px`;
+    el.style.top = `${newTop}px`;
+  };
+
+  const onMouseUp = () => {
+    if (isDragging) {
+      // Encaixar na grade
+      const snappedX = Math.round(el.offsetLeft / gridSize) * gridSize;
+      const snappedY = Math.round(el.offsetTop / gridSize) * gridSize;
+
+      // Verificar colisões após o "mouseup"
+      let newLeft = snappedX;
+      let newTop = snappedY;
+
+      // Se houver colisão, tenta deslocar o ícone para o próximo espaço disponível
+      if (checkCollision(newLeft, newTop)) {
+        // Mover o ícone para uma posição livre na grade
+        do {
+          newLeft += gridSize; // Mover para a direita
+        } while (checkCollision(newLeft, newTop)); // Continuar movendo até encontrar uma posição livre
+      }
+
+      // Limitar a posição para dentro da tela e considerar a taskbar
+      [newLeft, newTop] = limitPosition(newLeft, newTop);
+
+      el.style.left = `${newLeft}px`;
+      el.style.top = `${newTop}px`;
+    }
+
+    isDragging = false;
+    el.style.zIndex = '';
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    document.body.style.userSelect = '';
+  };
+
+  el.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+
+    isDragging = true;
+    el.style.zIndex = 1000;
+    document.body.style.userSelect = 'none';
+
+    const rect = el.getBoundingClientRect();
+    startX = e.clientX;
+    startY = e.clientY;
+    initialLeft = parseInt(el.style.left, 10) || 0;
+    initialTop = parseInt(el.style.top, 10) || 0;
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+}
+
+
+
+
+
+
+
 
 function setupContextMenu() {
   const desktop = document.getElementById('desktop');
@@ -182,6 +322,7 @@ function setupContextMenu() {
   document.getElementById('context-refresh').addEventListener('click', () => {
     refreshDesktop();
   });
+
   
   document.getElementById('context-new').addEventListener('click', (e) => {
     showNewSubmenu(e);

@@ -9,6 +9,7 @@ class AppHandler {
   }
 
   async openApp(event, appName) {
+    console.log("abrindo app")
     const appDataPath = path.join(this.getDirPath(), appName, 'data.json');
     const appPath = path.join(this.getDirPath(), appName, 'index.html');
 
@@ -32,12 +33,13 @@ class AppHandler {
         }
       });
 
-      //appWindow.webContents.openDevTools();
+      appWindow.webContents.openDevTools();
 
       appWindow.loadFile(appPath);
       return true;
     } catch (err) {
       console.error('Erro ao abrir app:', err);
+      console.log(err)
       return false;
     }
   }
