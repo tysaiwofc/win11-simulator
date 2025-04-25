@@ -17,6 +17,7 @@ class AppHandler {
       const rawData = await fs.readFile(appDataPath, 'utf-8');
       const appData = JSON.parse(rawData);
 
+      console.log(appName, appData)
       const appWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -45,7 +46,7 @@ class AppHandler {
   }
 
   async getAppData(event, appName) {
-    const appDataPath = path.join(this.getDirPath(), appName, 'data.json');
+    const appDataPath = path.join(this.getDirPath(), appName, 'config.json')
     try {
       const data = await fs.readFile(appDataPath, 'utf-8');
       return JSON.parse(data);
@@ -63,8 +64,12 @@ class AppHandler {
       
       appDirs.forEach(dir => {
         const dataPath = path.join(appsPath, dir, 'data.json');
+
+        
         if (fsSync.existsSync(dataPath)) {
           const data = JSON.parse(fsSync.readFileSync(dataPath, 'utf-8'));
+
+          console.log(data)
           apps.push({
             name: dir,
             displayName: data.displayName || dir,
@@ -83,7 +88,7 @@ class AppHandler {
   }
 
   async saveAppData(event, appName, data) {
-    const appDataPath = path.join(this.getDirPath(), appName, 'data.json');
+    const appDataPath = path.join(this.getDirPath(), appName, 'config.json')
     try {
       await fs.writeFile(appDataPath, JSON.stringify(data, null, 2));
       return true;

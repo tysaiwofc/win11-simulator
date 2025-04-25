@@ -134,6 +134,7 @@ class WindowsUpdate {
       if (!updateAvailable) {
         this.updateStatus("Você está atualizado");
         this.showNoUpdatesAvailable();
+        this.elements.checkUpdatesBtn.disabled = false;
       } else {
         const mockUpdateInfo = {
           title: "Atualização do OS Simulator",
@@ -144,6 +145,8 @@ class WindowsUpdate {
         };
         this.setState({ updateAvailable: true }); // Garantir que updateAvailable seja true
         this.showUpdateAvailable(mockUpdateInfo);
+        this.elements.downloadUpdatesBtn.classList.remove('hidden');
+        
       }
     } catch (error) {
       this.updateStatus(`Erro ao verificar atualizações: ${error.message || "Ocorreu um problema"}`);
@@ -164,7 +167,7 @@ class WindowsUpdate {
     this.updateStatus("Atualizações disponíveis");
     this.updateLastChecked();
     
-    this.elements.updateTitle.textContent = info.title || "Atualização do OS Simulator";
+    this.elements.updateTitle.textContent = info.title || "Atualização do Windows 11 Simulator";
     this.elements.updateDescription.textContent = info.description || "Esta atualização inclui melhorias de desempenho e correções de segurança.";
     this.elements.updateVersion.textContent = `Versão: ${info.version}`;
     this.elements.updateSize.textContent = `Tamanho: ${this.formatUpdateSize(info.size)}`;

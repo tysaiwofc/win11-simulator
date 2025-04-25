@@ -33,13 +33,14 @@ async function renderApps(apps) {
     const appElement = document.createElement('div');
     appElement.className = 'start-menu-app';
 
+    alert(app.dir + app.displayName)
     const iconUrl = new URL(`${app.dir}/${app.icon}`, `file://${assetsPath}/`).toString();
 
     appElement.innerHTML = `
       <img src="${iconUrl}" alt="${app.displayName}">
       <span>${app.displayName}</span>
     `;
-    appElement.addEventListener('click', () => window.electronAPI.openApp(app.name));
+    appElement.addEventListener('click', () => window.electronAPI.openApp(app.name))
     startMenu.appendChild(appElement);
   });
 }

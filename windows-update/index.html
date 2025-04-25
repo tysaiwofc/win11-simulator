@@ -5,144 +5,128 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Windows Update Simulator</title>
   <style>
-    :root {
-      --primary-color: #0078d7;
+       :root {
+      --primary: #0078d4;
       --primary-dark: #106ebe;
-      --text-primary: #323130;
-      --text-secondary: #605e5c;
-      --bg-color: #f3f2f1;
-      --panel-color: #ffffff;
-      --border-color: #edebe9;
-      --success-color: #107c10;
-      --warning-color: #d83b01;
-      --btn-radius: 6px;
-      --transition-speed: 0.3s;
+      --text: #323130;
+      --text-light: #605e5c;
+      --bg: #f3f2f1;
+      --panel: #ffffff;
+      --border: #edebe9;
+      --success: #107c10;
+      --error: #d83b01;
+      --radius: 4px;
+      --transition: 0.2s ease;
     }
 
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Segoe UI', SegoeUI, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-primary);
+    body, html {
+      background-color: var(--bg);
+      color: var(--text);
       font-size: 14px;
-      line-height: 1.5;
+
     }
 
-    .windows-update {
-      display: flex;
-      flex-direction: column;
+    .hidden { 
+      display: block !important
+    }
+
+    .update-container {
       width: 100%;
-      height: 100%;
-      background-color: var(--panel-color);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
-      border-radius: var(--btn-radius);
+      height: 100vh;
+      background-color: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       overflow: hidden;
-      transition: all var(--transition-speed) ease;
     }
 
     .header {
-      background-color: var(--primary-color);
+      padding: 16px 20px;
+      background-color: var(--primary);
       color: white;
-      padding: 16px;
-      border-bottom: 1px solid var(--border-color);
       font-weight: 600;
-    }
-
-    .header-content {
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
-    .windows-icon {
-      width: 24px;
-      height: 24px;
+    .header svg {
+      width: 20px;
+      height: 20px;
     }
 
     .content {
       padding: 20px;
-      background-color: #ffffff;
-      border-bottom: 1px solid var(--border-color);
     }
 
-    .status-container {
-      margin-bottom: 20px;
-    }
-
-    .status-message {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .last-checked {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .update-details {
+    .status {
       margin-bottom: 24px;
-      border: 1px solid var(--border-color);
-      border-radius: var(--btn-radius);
-      padding: 16px;
-      background-color: #f9f9f9;
     }
 
-    .update-details h2 {
+    .status-title {
       font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      color: var(--primary-color);
-    }
-
-    .update-item {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-
-    .update-icon img {
-      width: 32px;
-      height: 32px;
-    }
-
-    .update-info h3 {
-      font-size: 15px;
       font-weight: 600;
       margin-bottom: 4px;
     }
 
-    .update-description {
-      font-size: 14px;
-      color: var(--text-secondary);
+    .status-subtitle {
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    .update-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 20px;
+      background-color: #f9f9f9;
+      display: none;
+    }
+
+    .update-card.visible {
+      display: block;
+    }
+
+    .update-title {
+      font-size: 15px;
+      font-weight: 600;
       margin-bottom: 8px;
+      color: var(--primary);
     }
 
     .update-meta {
       display: flex;
-      gap: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
       font-size: 13px;
-      color: var(--text-secondary);
+      color: var(--text-light);
+      margin-top: 12px;
     }
 
     .progress-container {
-      margin: 24px 0;
-      border: 1px solid var(--border-color);
-      border-radius: var(--btn-radius);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       padding: 16px;
+      margin-bottom: 20px;
       background-color: #fafafa;
+      display: none;
+    }
+
+    .progress-container.visible {
+      display: block;
     }
 
     .progress-header {
       display: flex;
       justify-content: space-between;
       margin-bottom: 8px;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .progress-bar {
@@ -150,44 +134,43 @@
       background-color: #e1e1e1;
       border-radius: 3px;
       overflow: hidden;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .progress-fill {
       height: 100%;
       width: 0%;
-      background-color: var(--primary-color);
-      transition: width var(--transition-speed) ease;
+      background-color: var(--primary);
+      transition: width 0.3s ease;
     }
 
     .progress-details {
       display: flex;
       justify-content: space-between;
       font-size: 12px;
-      color: var(--text-secondary);
+      color: var(--text-light);
     }
 
-    .action-buttons {
+    .actions {
       display: flex;
       gap: 12px;
-      margin: 24px 0;
+      margin-top: 24px;
     }
 
     .btn {
-      padding: 10px 16px;
+      padding: 8px 16px;
+      border-radius: var(--radius);
       border: none;
-      border-radius: var(--btn-radius);
-      cursor: pointer;
-      font-size: 14px;
       font-weight: 600;
-      display: flex;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-      transition: all var(--transition-speed) ease;
     }
 
     .btn-primary {
-      background-color: var(--primary-color);
+      background-color: var(--primary);
       color: white;
     }
 
@@ -197,12 +180,12 @@
 
     .btn-secondary {
       background-color: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
+      border: 1px solid var(--border);
+      color: var(--text);
     }
 
     .btn-secondary:hover {
-      background-color: var(--bg-color);
+      background-color: #f5f5f5;
     }
 
     .btn:disabled {
@@ -210,60 +193,73 @@
       cursor: not-allowed;
     }
 
-    .footer {
-      padding: 12px 24px;
-      border-top: 1px solid var(--border-color);
-      background-color: #f8f8f8;
-      text-align: center;
+    .options {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .footer-links {
-      display: inline-block;
-      color: var(--primary-color);
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+
+    }
+
+    .footer-link {
+      color: var(--primary);
       text-decoration: none;
       font-size: 13px;
     }
 
-    .footer-links:hover {
+    .footer-link:hover {
       text-decoration: underline;
-    }
-
-    .hidden {
-      display: none !important;
     }
 
     /* Animações */
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
-    .loading {
+    .spinner {
       animation: spin 1s linear infinite;
     }
 
-    /* Responsividade */
-    @media (max-width: 600px) {
-      .windows-update {
-        margin: 10px;
-        border-radius: 8px;
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: #60a5fa;
+        --text: #f3f4f6;
+        --text-light: #9ca3af;
+        --bg: #1f2937;
+        --panel: #111827;
+        --border: #374151;
       }
 
-      .content {
-        padding: 16px;
+      .update-card, .progress-container {
+        background-color: #1e293b;
       }
 
-      .update-meta {
-        flex-direction: column;
-        gap: 4px;
+      .btn-secondary:hover {
+        background-color: #1f2937;
+      }
+    }
+
+    /* Responsivo */
+    @media (max-width: 500px) {
+      body {
+        padding: 10px;
       }
 
-      .progress-details {
-        flex-direction: column;
-        gap: 4px;
-      }
-
-      .action-buttons {
+      .actions {
         flex-direction: column;
       }
 
@@ -274,52 +270,75 @@
   </style>
 </head>
 <body>
-  <div class="windows-update">
+  <div class="update-container">
     <div class="header">
-      <div class="header-content">
-        <h1>Windows Update</h1>
-      </div>
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3,12V6.75L9,5.43V11.91L3,12M20,3V11.75L10,11.9V5.21L20,3M3,13L9,13.09V19.9L3,18.75V13M20,13.25V22L10,20.09V13.1L20,13.25Z" />
+      </svg>
+      <span>Atualizações do Windows</span>
     </div>
+    
     <div class="content">
-      <div class="status-container">
-        <p id="status-message" class="status-message">Pronto</p>
-        <p id="last-checked" class="last-checked">Última verificação: --</p>
+      <div class="status">
+        <div class="status-title" id="status-message">Pronto para verificar atualizações</div>
+        <div class="status-subtitle" id="last-checked">Última verificação: --</div>
       </div>
-      <div id="update-details" class="update-details hidden">
-        <h2 id="update-title"></h2>
-        <p id="update-description"></p>
-        <p id="update-version"></p>
-        <p id="update-size"></p>
-        <p id="update-date"></p>
+      
+      <div class="update-card" id="update-details">
+        <div class="update-title" id="update-title"></div>
+        <div id="update-description"></div>
+        <div class="update-meta">
+          <span id="update-version"></span>
+          <span id="update-size"></span>
+          <span id="update-date"></span>
+        </div>
       </div>
-      <div id="progress-container" class="progress-container hidden">
+      
+      <div class="progress-container" id="progress-container">
         <div class="progress-header">
           <span id="download-speed">Velocidade: --</span>
           <span id="time-remaining">Tempo restante: --</span>
         </div>
         <div class="progress-bar">
-          <div id="progress-fill" class="progress-fill"></div>
+          <div class="progress-fill" id="progress-fill"></div>
         </div>
         <div class="progress-details">
           <span id="downloaded-size">Baixado: --</span>
           <span id="download-percent">0%</span>
         </div>
       </div>
-      <div class="action-buttons">
-        <button id="check-updates" class="btn btn-primary">Verificar Atualizações</button>
-        <button id="download-updates" class="btn btn-primary hidden">Baixar Atualizações</button>
-        <button id="install-updates" class="btn btn-primary hidden">Instalar Atualizações</button>
+      
+      <div class="actions">
+        <button class="btn btn-primary" id="check-updates">
+          <span id="check-updates">Verificar atualizações</span>
+          <svg id="check-spinner" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+            <path d="M12 2v4m0 12v4m-8-8H2m20 0h-4m1.078 7.078L16.25 16.25m5.828-8.328L16.25 7.75" />
+          </svg>
+        </button>
+        <button class="btn btn-primary" id="download-updates" >
+          <span>Baixar atualizações</span>
+        </button>
+        <button class="btn btn-primary" id="install-updates">
+          <span>Instalar agora</span>
+        </button>
       </div>
-      <div class="update-options">
-        <label><input type="checkbox" id="auto-download" checked> Download automático</label><br>
-        <label><input type="checkbox" id="auto-install"> Instalação automática</label>
+      
+      <div class="options">
+        <label class="option-item">
+          <input type="checkbox" id="auto-download" checked>
+          <span>Baixar atualizações automaticamente</span>
+        </label>
+        <label class="option-item">
+          <input type="checkbox" id="auto-install">
+          <span>Instalar atualizações automaticamente</span>
+        </label>
       </div>
     </div>
+    
     <div class="footer">
-      <a id="help-link" href="#" class="footer-links">Ajuda</a>
+      <a href="#" class="footer-link" id="help-link">Ajuda com atualizações</a>
     </div>
   </div>
-
   <script src="renderer.js"></script>
 </body>
 </html>
