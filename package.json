@@ -2,6 +2,10 @@
   "name": "windows-simulator",
   "version": "1.0.8",
   "main": "src/main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tysaiwofc/win11-simulator.git"
+  },
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --win portable --x64",
@@ -13,6 +17,13 @@
     "files": [
       "src/**/*",
       "assets/**/*"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "tysaiwofc",
+        "repo": "win11-simulator"
+      }
     ],
     "win": {
       "target": "nsis",
@@ -30,6 +41,8 @@
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
+    "electron-log": "^5.3.4",
+    "electron-updater": "^6.6.2",
     "extract-zip": "^2.0.1",
     "https": "^1.0.0",
     "util": "^0.12.5"

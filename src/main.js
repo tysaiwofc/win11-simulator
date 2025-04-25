@@ -9,6 +9,7 @@ const SystemHandler = require('./handlers/SystemHandler');
 const UpdateHandler = require('./handlers/UpdateHandler');
 const WindowHandler = require('./handlers/WindowHandler');
 
+
 let mainWindow;
 let splashWindow;
 
@@ -41,7 +42,7 @@ function createWindow() {
     show: true,
   });
 
-  splashWindow.loadFile(path.join(__dirname, 'loading.html'));
+  splashWindow.loadFile(path.join(__dirname, 'boot', 'loading.html'));
 
   // Janela Principal
   mainWindow = new BrowserWindow({
@@ -66,6 +67,10 @@ function createWindow() {
   Menu.setApplicationMenu(null);
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.send('check-for-updates');
+  });
+
   mainWindow.once('ready-to-show', () => {
     setTimeout(() => {
       splashWindow.destroy();
@@ -83,7 +88,6 @@ function createWindow() {
 
   return mainWindow;
 }
-
 
 const appHandler = new AppHandler(getDirPath);
 const fileHandler = new FileHandler();
@@ -118,12 +122,12 @@ function registerIpcHandlers() {
   ipcMain.handle('has-clipboard-items', () => systemHandler.hasClipboardItems());
   ipcMain.handle('paste-to-desktop', () => systemHandler.pasteToDesktop());
 
-  // Update Handlers
-  ipcMain.handle('check-for-updates', () => updateHandler.checkForUpdates());
-  ipcMain.handle('download-update', (event, url) => updateHandler.downloadUpdate(event, url));
-  ipcMain.handle('download-and-extract', () => updateHandler.downloadAndExtract());
-  ipcMain.handle('install-update', () => updateHandler.installUpdate());
-
+  ipcMain.handle('updater:check', updateHandler.checkForUpdates);
+  ipcMain.handle('updater:download', updateHandler.downloadUpdate);
+  ipcMain.handle('updater:install', updateHandler.quitAndInstall);
+  ipcMain.handle('updater:showUpdateDialog', updateHandler.showUpdateAvailableDialog);
+  ipcMain.handle('updater:showReadyDialog', updateHandler.showUpdateReadyDialog);
+  ipcMain.handle('updater:setConfig', updateHandler.setUpdaterConfig);
   // Window Handlers
   ipcMain.handle('minimize-window', (event) => windowHandler.minimizeWindow(event));
   ipcMain.handle('maximize-window', (event) => windowHandler.maximizeWindow(event));

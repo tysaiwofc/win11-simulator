@@ -28,10 +28,6 @@ class WindowHandler {
     }
   }
 
-  restartApp() {
-    app.relaunch();
-    app.exit(0);
-  }
 }
 
 module.exports = WindowHandler;

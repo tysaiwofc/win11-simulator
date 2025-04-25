@@ -1,6 +1,7 @@
 {
-    "displayName": "Windows Update",
-    "icon": "update.png",
     "dir": "windows-update",
-    "description": "Browse your files and folders"
+    "displayName": "Windows Update",
+    "description": "Verifica e instala atualizações do sistema",
+    "version": "1.0.0",
+    "icon": "update.png"
   }

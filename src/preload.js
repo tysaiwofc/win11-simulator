@@ -46,16 +46,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Links externos
   openExternal: (url) => ipcRenderer.send('open-external', url),
 
-  // Atualizações
-  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
-  downloadUpdate: (url) => ipcRenderer.invoke('download-update', url),
-  installUpdate: () => ipcRenderer.invoke('install-update'),
-  restartApp: () => ipcRenderer.send('restart-app'),
-  onExtractProgress: (callback) => ipcRenderer.on('extract-progress', callback),
-  downloadAndExtract: () => ipcRenderer.invoke('download-and-extract'),
-  onDownloadProgress: (callback) => ipcRenderer.on('download-progress', (_, progress) => callback(progress)),
-  onInstallProgress: (callback) => ipcRenderer.on('install-progress', (_, progress) => callback(progress)),
+ // Updater handlers
+ checkForUpdates: () => ipcRenderer.invoke('updater:check'),
+ downloadUpdate: () => ipcRenderer.invoke('updater:download'),
+ installUpdate: () => ipcRenderer.invoke('updater:install'),
+ showUpdateDialog: (info) => ipcRenderer.invoke('updater:showUpdateDialog', info),
+ showReadyDialog: (info) => ipcRenderer.invoke('updater:showReadyDialog', info),
+ setUpdaterConfig: (config) => ipcRenderer.invoke('updater:setConfig', config),
 
+ // Listeners
+ onUpdateStatus: (callback) => ipcRenderer.on('update-status', callback),
+ onDownloadProgress: (callback) => ipcRenderer.on('download-progress', callback),
+ 
   // Comunicação com o renderer
   receiveFileToOpen: (callback) => {
     ipcRenderer.on('file-to-open', (event, filePath) => callback(filePath));

@@ -65,18 +65,5 @@
     <div class="dot"></div>
     <div class="dot"></div>
   </div>
-
-  <script>
-    (async () => {
-      try {
-        const isFirstRun = await window.electronAPI.checkFirstRun();
-        if (isFirstRun) {
-          await window.electronAPI.downloadAndExtract();
-        }
-      } catch (error) {
-        console.error("Erro silencioso:", error);
-      }
-    })();
-  </script>
 </body>
 </html>
