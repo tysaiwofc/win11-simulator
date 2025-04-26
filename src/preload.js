@@ -44,6 +44,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   minimizeWindow: () => ipcRenderer.invoke('window-control', 'minimize'),
   maximizeWindow: () => ipcRenderer.invoke('window-control', 'maximize'),
   closeWindow: () => ipcRenderer.invoke('window-control', 'close'),
+  updateDesktop: () => ipcRenderer.send('update-desktop'),
+  onUpdateDesktop: (callback) => {
+    ipcRenderer.on('desktop-updated', (event, ...args) => callback(...args));
+  },
   // Links externos
   openExternal: (url) => ipcRenderer.send('open-external', url),
   downloadApp: (data) => ipcRenderer.invoke('download-app', data),

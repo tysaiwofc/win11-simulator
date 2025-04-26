@@ -4,7 +4,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   // Carregar apps
   const apps = await window.electronAPI.getApps();
-  console.log(apps)
   renderApps(apps);
   
   // Configurar taskbar
@@ -443,6 +442,20 @@ function refreshDesktop() {
   document.querySelectorAll('.desktop-icon').forEach(icon => icon.remove());
   loadDesktopIcons();
 }
+
+
+window.electronAPI.onUpdateDesktop(async () => {
+
+  // Limpar os itens antigos
+  const startMenuApps = document.getElementById('start-menu-apps');
+  startMenuApps.innerHTML = ''; // 🔥 Remove todos os filhos
+
+  // Pegar os apps novos
+  const apps = await window.electronAPI.getApps();
+
+  // Renderizar os novos apps
+  renderApps(apps);
+});
 
 function setupDesktopSelection() {
   const desktop = document.getElementById('desktop');

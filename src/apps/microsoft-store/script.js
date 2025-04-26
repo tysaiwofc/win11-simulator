@@ -155,6 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const isInstalled = installedApps.has(app.dir);
         installBtn.textContent = isInstalled ? 'Abrir' : 'Instalar';
+        installBtn.style.backgroundColor = '#0FE165'
         installBtn.disabled = isInstalled;
         installBtn.onclick = function() {
             if (isInstalled) {
@@ -186,6 +187,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             installedApps.add(app.dir);
             showNotification(`${app.displayName} instalado com sucesso!`);
+            installBtn.textContent = 'Abrir';
+            installBtn.disabled = true;
+            window.electronAPI.updateDesktop();
             updateAppStatus(app.dir);
             renderApps(); // Re-render para atualizar o botão
         } catch (error) {

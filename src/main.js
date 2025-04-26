@@ -109,6 +109,16 @@ ipcMain.handle('get-installed-apps', () => {
   return appStoreHandler.getInstalledApps();
 });
 
+ipcMain.on('update-desktop', () => {
+  console.log('update-desktop recebido');
+
+  BrowserWindow.getAllWindows().forEach((win) => {
+    if (!win.isDestroyed()) {
+      win.webContents.send('desktop-updated');
+    }
+  });
+});
+
 function registerIpcHandlers() {
   
   // App Handlers
