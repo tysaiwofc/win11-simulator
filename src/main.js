@@ -9,7 +9,7 @@ const SystemHandler = require('./handlers/SystemHandler');
 const UpdateHandler = require('./handlers/UpdateHandler');
 const WindowHandler = require('./handlers/WindowHandler');
 const ConfigHandler = require('./handlers/ConfigHandler');
-
+const AppStoreHandler = require('./handlers/AppStoreHandler');
 
 const { version } = require('../package.json')
 
@@ -99,8 +99,16 @@ const systemHandler = new SystemHandler();
 const updateHandler = new UpdateHandler();
 const windowHandler = new WindowHandler();
 const configHandler = new ConfigHandler();
+const appStoreHandler = new AppStoreHandler(getDirPath);
 
-// Registrar handlers IPC
+ipcMain.handle('download-app', (event, appData) => {
+  return appStoreHandler.downloadApp(event, appData);
+});
+
+ipcMain.handle('get-installed-apps', () => {
+  return appStoreHandler.getInstalledApps();
+});
+
 function registerIpcHandlers() {
   
   // App Handlers

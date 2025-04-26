@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Store - Windows 11 Style</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="window-header">
+        <div class="window-title"></div>
+        <div class="window-controls">
+          <div class="window-control minimize"></div>
+          <div class="window-control close"></div>
+        </div>
+      </div>
+    <div class="background"></div>
+    <div class="blur-overlay"></div>
+    
+    <div class="app-container">
+        <header class="app-header">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Pesquisar aplicativos...">
+            </div>
+            <div class="user-controls">
+                <button class="btn-refresh"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </header>
+        
+        <main class="app-main">
+            <div class="sidebar">
+                <div class="sidebar-item active" data-category="all">
+                    <i class="fas fa-th"></i>
+                    <span>Todos os Apps</span>
+                </div>
+                <div class="sidebar-item" data-category="productivity">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Produtividade</span>
+                </div>
+                <div class="sidebar-item" data-category="utilities">
+                    <i class="fas fa-tools"></i>
+                    <span>Utilitários</span>
+                </div>
+                <div class="sidebar-item" data-category="games">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Jogos</span>
+                </div>
+            </div>
+            
+            <div class="app-grid-container">
+                <h2 class="section-title">Aplicativos Disponíveis</h2>
+                <div class="app-grid" id="appGrid">
+                    <!-- Apps serão carregados aqui via JavaScript -->
+                    <div class="app-skeleton"></div>
+                    <div class="app-skeleton"></div>
+                    <div class="app-skeleton"></div>
+                    <div class="app-skeleton"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="download-progress-container" class="progress-container" style="display: none;">
+        <div class="progress-info">
+            <span id="phase-text">Baixando...</span>
+            <span id="progress-text">0%</span>
+        </div>
+        <div class="progress-bar">
+            <div id="progress-bar" class="progress"></div>
+        </div>
+    </div>
+      
+    <div class="app-detail-modal" id="appDetailModal">
+        <div class="modal-content">
+            <button class="close-modal">×</button>
+            <div class="modal-header">
+                <img id="detailAppIcon" src="" alt="App Icon">
+                <div>
+                    <h2 id="detailAppName"></h2>
+                    <p id="detailAppCategory"></p>
+                </div>
+            </div>
+            <div class="modal-body">
+                <p id="detailAppDescription"></p>
+                <div class="modal-actions">
+                    <button class="btn-install" id="installBtn">Instalar</button>
+                    <button class="btn-cancel">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <i class="fas fa-check-circle"></i>
+            <span id="notificationText">Aplicativo instalado com sucesso!</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
