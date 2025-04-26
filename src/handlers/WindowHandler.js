@@ -1,36 +1,39 @@
 const { BrowserWindow, shell, ipcMain } = require('electron');
 
 class WindowHandler {
-  minimizeWindow(event) {
-    BrowserWindow.fromWebContents(event.sender).minimize();
+  constructor() {
+    this.setupIPC();
   }
 
-  maximizeWindow(event) {
-    let win = BrowserWindow.getFocusedWindow();
-    if (win) {
-      // Verifica se a janela está maximizada
-      if (win.isMaximized()) {
-        win.restore();  // Desmaximiza a janela
-      } else {
-        win.maximize();  // Maximiza a janela
+  setupIPC() {
+    ipcMain.handle('window-control', (event, action) => {
+      const win = BrowserWindow.fromWebContents(event.sender);
+      if (!win) return;
+
+      switch (action) {
+        case 'minimize':
+          win.minimize();
+          break;
+        case 'maximize':
+          if (win.isMaximized()) win.restore();
+          else win.maximize();
+          break;
+        case 'close':
+          win.close();
+          break;
       }
-    }
-  }
+    });
 
-  closeWindow(event) {
-    BrowserWindow.fromWebContents(event.sender).close();
+    ipcMain.handle('open-external', (_, url) => {
+      try {
+        shell.openExternal(url);
+        return true;
+      } catch (error) {
+        console.error('Error opening external URL:', error);
+        return false;
+      }
+    });
   }
-
-  openExternal(event, url) {
-    try {
-      shell.openExternal(url);
-      return true;
-    } catch (error) {
-      console.error('Error opening external URL:', error);
-      return false;
-    }
-  }
-
 }
 
 module.exports = WindowHandler;

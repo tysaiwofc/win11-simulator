@@ -41,10 +41,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Janela
   toggleFullScreen: () => ipcRenderer.send('toggle-fullscreen'),
-  minimizeWindow: () => ipcRenderer.send('minimize-window'),
-  maximizeWindow: () => ipcRenderer.send('maximize-window'),
-  closeWindow: () => ipcRenderer.send('close-window'),
-
+  minimizeWindow: () => ipcRenderer.invoke('window-control', 'minimize'),
+  maximizeWindow: () => ipcRenderer.invoke('window-control', 'maximize'),
+  closeWindow: () => ipcRenderer.invoke('window-control', 'close'),
   // Links externos
   openExternal: (url) => ipcRenderer.send('open-external', url),
 

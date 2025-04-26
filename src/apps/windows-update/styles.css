@@ -160,6 +160,59 @@ body {
   margin: 24px 0;
 }
 
+.window-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  color: white;
+  user-select: none;
+  -webkit-app-region: drag; 
+}
+
+.window-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.window-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.window-control {
+  width: 15px;
+  height: 15px;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  background-color: #aaa;
+  transition: background-color 0.3s ease;
+}
+
+/* Estilos individuais para cada botão */
+.window-control.minimize {
+  background-color: #ffcc00;
+}
+
+.window-control.maximize {
+  background-color: #00cc00;
+}
+
+.window-control.close {
+  background-color: #ff0000;
+}
+
+.window-control:hover {
+  background-color: #555;
+}
+
+
+.window-control:active {
+  background-color: #222;
+}
+
 .btn {
   padding: 8px 12px;
   border: none;

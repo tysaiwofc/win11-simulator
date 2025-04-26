@@ -282,11 +282,23 @@
   font-size: 18px;
   font-weight: bold;
 }
-
-.window-controls {
+.window-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 10px;
+  color: white;
+  user-select: none;
+  -webkit-app-region: drag; /* Área arrastável */
+}
+
+.window-title {
+  -webkit-app-region: drag; /* Título também arrastável */
+}
+
+.window-controls {
+  display: flex;
+  -webkit-app-region: no-drag; /* Área dos botões NÃO arrastável */
 }
 
 .window-control {
@@ -295,8 +307,7 @@
   margin-left: 10px;
   cursor: pointer;
   border-radius: 50%;
-  background-color: #aaa;
-  transition: background-color 0.3s ease;
+  -webkit-app-region: no-drag; /* Cada botão clicável */
 }
 
 /* Estilos individuais para cada botão */
@@ -327,7 +338,6 @@
     <div class="window-title"></div>
     <div class="window-controls">
       <div class="window-control minimize"></div>
-      <div class="window-control maximize"></div>
       <div class="window-control close"></div>
     </div>
   </div>

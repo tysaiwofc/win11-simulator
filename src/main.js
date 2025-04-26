@@ -180,20 +180,7 @@ function registerIpcHandlers() {
     }
   });
 
-  ipcMain.handle('minimize-window', (event) => windowHandler.minimizeWindow(event));
-  ipcMain.on('maximize-window', (event) => {
-    let win = BrowserWindow.getFocusedWindow();
-    if (win) {
-      // Verifica se a janela está maximizada
-      if (win.isMaximized()) {
-        win.restore();  // Desmaximiza a janela
-      } else {
-        win.maximize();  // Maximiza a janela
-      }
-    }
-  });
-  ipcMain.handle('close-window', (event) => windowHandler.closeWindow(event));
-  ipcMain.handle('open-external', (event, url) => windowHandler.openExternal(event, url));
+
   ipcMain.on('restart-app', () => {
     app.relaunch(); // relança o app
     app.exit(); 

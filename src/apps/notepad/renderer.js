@@ -1,3 +1,11 @@
+document.querySelector('.window-control.minimize').addEventListener('click', () => {
+  window.electronAPI.minimizeWindow();  // Minimize a janela
+});
+
+document.querySelector('.window-control.close').addEventListener('click', () => {
+  window.electronAPI.closeWindow();  // Fechar a janela
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     // Configuração básica da janela
     setupWindowControls();
@@ -16,17 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
   function setupWindowControls() {
-    document.querySelector('.window-control.minimize').addEventListener('click', () => {
-      window.electronAPI.minimizeWindow();
-    });
-    
-    document.querySelector('.window-control.maximize').addEventListener('click', () => {
-      window.electronAPI.maximizeWindow();
-    });
-    
-    document.querySelector('.window-control.close').addEventListener('click', () => {
-      window.electronAPI.closeWindow();
-    });
+
     
     // Tornar a janela arrastável
     const header = document.querySelector('.window-header');
@@ -382,14 +380,4 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.notepad-statusbar span').textContent = `Ln ${line}, Col ${col}`;
   }
 
-  document.querySelector('.window-control.minimize').addEventListener('click', () => {
-    window.electronAPI.minimizeWindow();  // Minimize a janela
-  });
   
-  document.querySelector('.window-control.maximize').addEventListener('click', () => {
-    window.electronAPI.maximizeWindow();  // Maximize a janela
-  });
-  
-  document.querySelector('.window-control.close').addEventListener('click', () => {
-    window.electronAPI.closeWindow();  // Fechar a janela
-  });

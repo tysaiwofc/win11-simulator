@@ -1,3 +1,11 @@
+document.querySelector('.window-control.minimize').addEventListener('click', () => {
+  window.electronAPI.minimizeWindow();  // Minimize a janela
+});
+
+document.querySelector('.window-control.close').addEventListener('click', () => {
+  window.electronAPI.closeWindow();  // Fechar a janela
+});
+
 const display = document.getElementById('display');
 let current = '0';
 let operator = null;

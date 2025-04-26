@@ -1,26 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Video Player</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="window">
-    <div class="window-header">
-      <div class="window-title"></div>
-      <div class="window-controls">
-        <div class="window-control minimize"></div>
-        <div class="window-control maximize"></div>
-        <div class="window-control close"></div>
+
+  <!DOCTYPE html>
+  <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Video Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="window">
+      <div class="window-header">
+        <div class="window-title">Windows Video Player</div>
+        <div class="window-controls">
+          <div class="window-control minimize"></div>
+          <div class="window-control close"></div>
+        </div>
+      </div>
+      
+      <div class="video-player-container">
+        <video id="video-element"></video>
+        <div class="video-info" id="video-info"></div>
+        
+        <div class="video-controls">
+          <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+          
+          <div class="controls-row">
+            <div class="main-controls">
+              <button class="control-btn" id="play-pause-btn">
+                <i class="fas fa-play"></i>
+              </button>
+              <button class="control-btn" id="skip-backward">
+                <i class="fas fa-backward"></i>
+              </button>
+              <button class="control-btn" id="skip-forward">
+                <i class="fas fa-forward"></i>
+              </button>
+              <div class="time-display">
+                <span id="current-time">00:00</span> / <span id="duration">00:00</span>
+              </div>
+            </div>
+            
+            <div class="right-controls">
+              <div class="volume-container">
+                <button class="control-btn" id="volume-btn">
+                  <i class="fas fa-volume-up"></i>
+                </button>
+                <div class="volume-slider">
+                  <div class="volume-level" id="volume-level"></div>
+                </div>
+              </div>
+              <button class="control-btn" id="fullscreen-btn">
+                <i class="fas fa-expand"></i>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="video-player-container">
-      <video id="video-element" controls></video>
-      <div class="video-info" id="video-info"></div>
-    </div>
-  </div>
-  <script src="renderer.js"></script>
-</body>
-</html>
+    
+    <script src="renderer.js"></script>
+  </body>
+  </html>

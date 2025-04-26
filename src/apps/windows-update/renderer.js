@@ -1,3 +1,12 @@
+document.querySelector('.window-control.minimize').addEventListener('click', () => {
+  window.electronAPI.minimizeWindow();  // Minimize a janela
+});
+
+
+document.querySelector('.window-control.close').addEventListener('click', () => {
+  window.electronAPI.closeWindow();  // Fechar a janela
+});
+
 class WindowsUpdate {
   constructor() {
     this.elements = {
@@ -58,6 +67,7 @@ class WindowsUpdate {
       this.updateLastChecked();
     }
   }
+
 
   loadSettings() {
     // Carregar configurações usando electronAPI.saveAppData

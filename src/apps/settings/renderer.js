@@ -4,9 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
       window.electronAPI.minimizeWindow();
     });
     
-    document.querySelector('.window-control.maximize').addEventListener('click', () => {
-      window.electronAPI.maximizeWindow();
-    });
+    // document.querySelector('.window-control.maximize').addEventListener('click', () => {
+    //   window.electronAPI.maximizeWindow();
+    // });
     
     document.querySelector('.window-control.close').addEventListener('click', () => {
       window.electronAPI.closeWindow();
@@ -56,7 +56,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const defaultWallpapers = [
     'https://i.imgur.com/ne4kFZd.jpeg',
     'https://i.imgur.com/CnW28i8.jpeg',
-    'https://i.imgur.com/ILvEDSW.jpeg'
+    'https://i.imgur.com/ILvEDSW.jpeg',
+    'https://i.imgur.com/OJPj7CW.jpeg',
+    'https://i.imgur.com/xwGwMoO.jpeg',
+    'https://i.imgur.com/dEJ7ypL.jpeg',
+    'https://i.imgur.com/NTlDIWD.jpeg',
+    'https://i.imgur.com/NbbWdWi.jpeg',
+    'https://i.imgur.com/wOAwl7D.jpeg',
+    'https://i.imgur.com/m83ryc2.jpeg',
+    'https://i.imgur.com/9JbIjgG.jpeg',
+    'https://i.imgur.com/50B0dDN.jpeg',
+    'https://i.imgur.com/kRgfqEt.jpeg',
+    'https://i.imgur.com/SngXRgz.jpeg'
   ];
   
   const wallpaperOptionsContainer = document.getElementById('wallpaper-options');

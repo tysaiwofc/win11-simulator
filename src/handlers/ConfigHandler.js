@@ -1,16 +1,19 @@
 const { app } = require('electron');
-const Store = require('electron-store');
 const os = require('os');
 const path = require('path');
 
 class ConfigHandler {
   constructor() {
-    this.configStore = new Store({
-      name: 'globalConfig',
-      cwd: path.join(os.homedir(), 'WindowsSimulatorFiles'),
-    });
+    // Usando importação dinâmica para importar o electron-store
+    (async () => {
+      const { default: Store } = await import('electron-store');
+      this.configStore = new Store({
+        name: 'globalConfig',
+        cwd: path.join(os.homedir(), 'WindowsSimulatorFiles'),
+      });
 
-    this.setDefaultConfig();
+      this.setDefaultConfig();
+    })();
   }
 
   setDefaultConfig() {

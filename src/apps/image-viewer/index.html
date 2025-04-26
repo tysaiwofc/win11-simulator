@@ -1,30 +1,321 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Viewer</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizador de Fotos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #000000;
+      --bg-darker: #1a1a1a;
+      --accent: #0078d4;
+      --accent-hover: #106ebe;
+      --text-light: #ffffff;
+      --text-gray: #a0a0a0;
+      --control-radius: 4px;
+      --transition: all 0.2s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .window {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Window Header */
+    .window-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background-color: var(--bg-darker);
+      user-select: none;
+      -webkit-app-region: drag;
+      position: relative;
+      z-index: 10;
+    }
+
+    .window-title {
+      font-size: 12px;
+      opacity: 0.8;
+      -webkit-app-region: drag;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+    }
+
+    .window-control {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      -webkit-app-region: no-drag;
+    }
+
+    .window-control.minimize { background-color: #f1fa8c; }
+    .window-control.maximize { background-color: #50fa7b; }
+    .window-control.close { background-color: #ff5555; }
+    .window-control:hover { opacity: 0.8; }
+
+    /* Image Container */
+    .image-viewer-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: #000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #image-display {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: transform 0.3s ease;
+      cursor: grab;
+    }
+
+    #image-display.dragging {
+      cursor: grabbing;
+    }
+
+    /* Image Controls */
+    .image-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      padding: 12px 24px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 24px;
+      margin: 0 auto;
+      width: fit-content;
+      opacity: 0;
+      transition: var(--transition);
+      z-index: 5;
+    }
+
+    .image-viewer-container:hover .image-controls {
+      opacity: 1;
+    }
+
+    .control-btn {
+      background: none;
+      border: none;
+      color: var(--text-light);
+      font-size: 16px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: var(--transition);
+    }
+
+    .control-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .control-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .control-btn.active {
+      background-color: var(--accent);
+    }
+
+    .control-btn.active:hover {
+      background-color: var(--accent-hover);
+    }
+
+    /* Image Info */
+    .image-info {
+      position: absolute;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-light);
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 8px 16px;
+      border-radius: var(--control-radius);
+      margin: 0 auto;
+      width: fit-content;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .image-viewer-container:hover .image-info {
+      opacity: 1;
+    }
+
+    /* Zoom Controls */
+    .zoom-controls {
+      position: absolute;
+      right: 20px;
+      bottom: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: var(--control-radius);
+      padding: 8px;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .image-viewer-container:hover .zoom-controls {
+      opacity: 1;
+    }
+
+    /* Fullscreen style */
+    :fullscreen .image-controls {
+      bottom: 40px;
+    }
+
+    :fullscreen .zoom-controls {
+      right: 40px;
+      bottom: 120px;
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--accent);
+      animation: spin 1s ease-in-out infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* Context Menu */
+    .context-menu {
+      position: absolute;
+      background-color: var(--bg-darker);
+      border-radius: var(--control-radius);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+      display: none;
+    }
+
+    .context-menu-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .context-menu-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .context-menu-separator {
+      height: 1px;
+      background-color: rgba(255, 255, 255, 0.1);
+      margin: 4px 0;
+    }
+  </style>
 </head>
 <body>
   <div class="window">
     <div class="window-header">
-      <div class="window-title"></div>
+      <div class="window-title">Visualizador de Fotos</div>
       <div class="window-controls">
         <div class="window-control minimize"></div>
-        <div class="window-control maximize"></div>
         <div class="window-control close"></div>
       </div>
     </div>
-    <div class="image-viewer-container">
-      <img id="image-display" src="" alt="Image" />
+    
+    <div class="image-viewer-container" id="image-container">
+      <div class="loading-spinner" id="loading-spinner"></div>
+      <img id="image-display" src="" alt="Imagem" draggable="false">
+      
+      <div class="image-info" id="image-info">Nenhuma imagem carregada</div>
+      
       <div class="image-controls">
-        <button id="prev-image">⏮️</button>
-        <span id="image-info">No image loaded</span>
-        <button id="next-image">⏭️</button>
+        <button class="control-btn" id="prev-image" title="Anterior (←)">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="control-btn" id="zoom-out-btn" title="Zoom Out (-)">
+          <i class="fas fa-search-minus"></i>
+        </button>
+        <button class="control-btn" id="zoom-reset-btn" title="Zoom Padrão (0)">
+          <i class="fas fa-expand-alt"></i>
+        </button>
+        <button class="control-btn" id="zoom-in-btn" title="Zoom In (+)">
+          <i class="fas fa-search-plus"></i>
+        </button>
+        <button class="control-btn" id="rotate-left-btn" title="Girar para Esquerda (Ctrl+,)">
+          <i class="fas fa-undo"></i>
+        </button>
+        <button class="control-btn" id="rotate-right-btn" title="Girar para Direita (Ctrl+.)">
+          <i class="fas fa-redo"></i>
+        </button>
+        <button class="control-btn" id="next-image" title="Próxima (→)">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+      
+      <div class="zoom-controls">
+        <button class="control-btn" id="fullscreen-btn" title="Tela Cheia (F11)">
+          <i class="fas fa-expand"></i>
+        </button>
+        <button class="control-btn" id="slideshow-btn" title="Apresentação de Slides (F5)">
+          <i class="fas fa-play"></i>
+        </button>
+      </div>
+      
+      <div class="context-menu" id="context-menu">
+        <div class="context-menu-item" id="menu-open">Abrir</div>
+        <div class="context-menu-item" id="menu-save">Salvar como</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" id="menu-copy">Copiar imagem</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" id="menu-rotate-left">Girar para esquerda</div>
+        <div class="context-menu-item" id="menu-rotate-right">Girar para direita</div>
       </div>
     </div>
   </div>
+  
   <script src="renderer.js"></script>
 </body>
 </html>

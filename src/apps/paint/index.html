@@ -44,18 +44,25 @@
       padding-left: 8px;
     }
 
+    .window-title {
+      font-size: 12px;
+      opacity: 0.8;
+      -webkit-app-region: drag;
+    }
+
     .window-controls {
       display: flex;
+      gap: 8px;
       -webkit-app-region: no-drag;
     }
 
     .window-control {
-      width: 46px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
       cursor: pointer;
+      transition: var(--transition);
+      -webkit-app-region: no-drag;
     }
 
     .window-control:hover {
@@ -354,7 +361,6 @@
       <div class="window-title"></div>
       <div class="window-controls">
         <div class="window-control minimize"></div>
-        <div class="window-control maximize"></div>
         <div class="window-control close"></div>
       </div>
     </div>
@@ -443,6 +449,14 @@
   </div>
 
   <script>
+    document.querySelector('.window-control.minimize').addEventListener('click', () => {
+  window.electronAPI.minimizeWindow();  // Minimize a janela
+});
+
+document.querySelector('.window-control.close').addEventListener('click', () => {
+  window.electronAPI.closeWindow();  // Fechar a janela
+});
+
     document.addEventListener('DOMContentLoaded', () => {
       const canvas = document.getElementById('paintCanvas');
       const ctx = canvas.getContext('2d');
