@@ -19,9 +19,10 @@
 }
 
 body {
-    overflow-x: hidden;
+    overflow: hidden;
     color: var(--text-primary);
     overflow: hidden;
+    background-color: var(--bg-dark);
 }
 
 .background {
@@ -30,7 +31,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('assets/windows-11-bg.jpg') no-repeat center center;
+    background: url('../../../assets/wallpaper.jpg') no-repeat center center;
     background-size: cover;
     z-index: -2;
 }
@@ -126,7 +127,7 @@ body {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
     padding: 20px 0;
-    height: fit-content;
+    height: 100%;
 }
 
 .sidebar-item {
@@ -538,7 +539,8 @@ body {
     padding: 10px;
     color: white;
     user-select: none;
-    -webkit-app-region: drag; 
+    -webkit-app-region: drag;
+
   }
   
   .window-title {

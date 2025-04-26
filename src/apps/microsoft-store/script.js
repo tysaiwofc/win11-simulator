@@ -130,17 +130,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 <img src="${app.icon}" alt="${app.displayName}" class="app-icon">
                 <h3 class="app-name">${app.displayName}</h3>
                 <p class="app-description">${app.description}</p>
-                <button class="install-btn">${isInstalled ? 'Abrir' : 'Instalar'}</button>
+
             `;
-            
-            appCard.querySelector('.install-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (isInstalled) {
-                    openApp(app);
-                } else {
-                    openAppDetail(app);
-                }
-            });
+            // <button class="install-btn">${isInstalled ? 'Abrir' : 'Instalar'}</button>
+            // appCard.querySelector('.install-btn').addEventListener('click', (e) => {
+            //     e.stopPropagation();
+            //     if (isInstalled) {
+            //         openApp(app);
+            //     } else {
+            //         openAppDetail(app);
+            //     }
+            // });
             appCard.addEventListener('click', () => openAppDetail(app));
             appGrid.appendChild(appCard);
         });
