@@ -3,7 +3,8 @@
 
 Um simulador de interface do Windows feito com HTML, CSS e JavaScript. Recria a experiência de usar um sistema operacional Windows, com desktop, ícones, menu Iniciar e aplicativos simulados.
 
-![Captura de Tela do Projeto](./assets/screenshot.png) <!-- Adicione uma imagem do seu projeto -->
+[![Join my Discord Server](https://i.imgur.com/JANobaV.png)](https://discord.gg/9qXdFTJbCx)
+
 
 ## Funcionalidades ✨
 
@@ -53,3 +54,5 @@ Este projeto está sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para d
 3. Liste os aplicativos simulados que você implementou
 4. Adicione um link para uma versão online se estiver hospedada em algum lugar
 5. Inclua badges do Travis CI, Codecov, etc. se tiver testes/CI
+
+![Captura de Tela do Projeto](./assets/screenshot.png)
