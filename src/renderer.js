@@ -161,7 +161,7 @@ function setupStartMenu() {
 async function setupDesktop() {
   const desktop = document.getElementById('desktop');
 
-  const wallpaper = await window.electronAPI.getConfig("desktopBackground")
+  const wallpaper = await window.electronAPI.getConfig("wallpaper")
 
   desktop.style.backgroundImage = `url('${wallpaper}')`
   
