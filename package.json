@@ -1,6 +1,6 @@
 {
   "name": "windows-simulator",
-  "version": "1.2.21",
+  "version": "1.2.22",
   "main": "src/main.js",
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   "build": {
     "appId": "com.windows11.simulator",
     "productName": "Windows 11 Simulator",
+    "forceCodeSigning": false,
     "files": [
       "src/**/*",
       "assets/**/*"

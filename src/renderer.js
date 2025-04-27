@@ -2,7 +2,41 @@
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Carregar apps
+  // Carregar appsconst username = 'seu-usuario-no-github'; 
+
+  const username = 'tysaiwofc'
+  // Elemento onde os projetos serão exibidos
+  const projectsList = document.getElementById('github-projects-list');
+
+  // Função para buscar projetos no GitHub
+  const fetchGitHubProjects = async () => {
+    try {
+      const response = await fetch(`https://api.github.com/users/${username}/repos`);
+      const repos = await response.json();
+
+      // Limpa a lista antes de adicionar os novos projetos
+      projectsList.innerHTML = '';
+
+      // Adiciona os repositórios à lista
+      repos.slice(0, 4).forEach(repo => {
+        const li = document.createElement('div');
+        const link = document.createElement('a');
+
+        link.href = repo.html_url;
+        link.target = '_blank';
+        link.textContent = repo.name;
+
+        li.appendChild(link);
+        
+        projectsList.appendChild(li);
+      });
+    } catch (error) {
+      console.error('Erro ao buscar projetos do GitHub:', error);
+    }
+  };
+
+  // Chama a função para pegar os projetos assim que a página carregar
+  fetchGitHubProjects();
   const apps = await window.electronAPI.getApps();
   renderApps(apps);
   
@@ -192,7 +226,9 @@ async function setupDesktop() {
   const version = document.getElementById("version");
 
 
-  version.innerText = `Windows 11 Simulator v${await window.electronAPI.getAppVersion()}`
+  if(version) {
+    version.innerText = `Windows 11 Simulator v${await window.electronAPI.getAppVersion()}`
+  }
   // Fechar menu iniciar ao clicar no desktop
   desktop.addEventListener('click', () => {
     document.getElementById('start-menu').classList.remove('visible');

@@ -117,43 +117,223 @@ body {
   width: 100%;
 }
 
-.start-menu-options {
-  margin-top: auto;
+#start-menu {
+  position: fixed;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  width: 600px;
+  max-width: 90vw;
+  height: 680px;
+  max-height: 80vh;
+  background-color: rgba(32, 32, 32, 0.95);
+  backdrop-filter: blur(30px);
+  border-radius: 12px;
+  padding: 16px;
+  display: none;
+  flex-direction: column;
+  opacity: 0;
+  transform: scale(0.95) translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1001;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+#start-menu.visible {
+  display: flex;
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#start-menu-search {
   width: 100%;
-  max-height: 40px;
-  height: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: white;
+  margin-bottom: 20px;
+  border: none;
+  font-size: 16px;
+}
+
+#start-menu-pinned,
+#start-menu-recommended {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  overflow-y: auto; /* Scroll se ultrapassar o limite */
+}
+
+
+#start-menu-recommended div {
+  display: flex;
+  flex-direction: row;
+  max-width: 200px;
   display: flex;
   align-items: center;
-  gap: 5px
-}
-
-#start-menu-power {
-  padding: 6px;
-  height: 30px;
-  width: 30px;
-}
-
-#start-menu-restart {
-  padding: 6px;
-  height: 30px;
-  width: 30px;
-  margin-left: auto;
-}
-
-#version {
-  color: #ffffff56;
-}
-
-#start-menu-restart:hover {
-  background-color: #ffffff56;
+  align-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  width: 100%;
+  max-height: 40px;
   border-radius: 5px;
-  transition: all 0.8s cubic-bezier(0.2, 0.9, 0.1, 1);
+  height: 100%;
+  padding: 10px;
 }
 
-#start-menu-power:hover {
-  background-color: #ffffff56;
-  border-radius: 5px;
-  transition: all 0.8s cubic-bezier(0.2, 0.9, 0.1, 1);
+#start-menu-recommended div:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#start-menu-recommended a {
+  text-decoration: none;
+  color: white;
+  white-space: nowrap; /* Impede a quebra de linha */
+  overflow: hidden; /* Oculta o conteúdo que ultrapassa o limite */
+  text-overflow: ellipsis; /* Adiciona reticências quando o texto ultrapassa */
+  display: block; /* Garante que o link seja um bloco para controlar a largura */
+  width: 100%; /* Ou defina um valor específico, por exemplo, 200px */
+  height: 100%;
+}
+
+
+
+#github-projects-list {
+  display: flex;
+  flex-wrap: wrap; /* Permite que os itens quebrem para a linha seguinte quando necessário */
+  gap: 12px; /* Espaçamento entre os itens */
+  justify-content: space-between; /* Distribui os itens igualmente com espaço entre eles */
+  
+}
+
+#start-menu-pinned h3,
+#start-menu-recommended h3 {
+  color: #ccc;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+
+
+#start-menu-apps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 12px;
+  overflow-y: auto;
+}
+
+
+
+
+
+
+.start-menu-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.start-menu-app:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.start-menu-app img {
+  width: 36px;
+  height: 36px;
+}
+
+.start-menu-app span {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #ccc;
+  text-align: center;
+}
+
+#start-menu-recommended-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.recommended-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.recommended-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.recommended-item img {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+}
+
+.recommended-item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.recommended-item-title {
+  font-size: 14px;
+  color: #fff;
+}
+
+.recommended-item-subtitle {
+  font-size: 12px;
+  color: #aaa;
+}
+
+#start-menu-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+#user-name {
+  font-size: 14px;
+  color: white;
+}
+
+.start-menu-options img {
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.start-menu-options img:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .taskbar-icon {

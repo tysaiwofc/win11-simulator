@@ -35,13 +35,29 @@
   
   <div id="start-menu">
     <input type="text" id="start-menu-search" placeholder="Type here to search">
-    <div id="start-menu-apps"></div>
-    <div class="start-menu-options">
-      <p id="version">{{windows.boot.packages.version}}</p>
-      <img id="start-menu-restart" src="../assets/icons/restart.png" width="20px" height="20px" alt="Start">
-      <img id="start-menu-power" src="../assets/icons/power.png" width="20px" height="20px" alt="Start">
+  
+    <div id="start-menu-pinned">
+      <h3>Pinned</h3>
+      <div id="start-menu-apps"></div>
+    </div>
+  
+    <div id="start-menu-recommended">
+      <h3>GitHub Projects</h3>
+      <ul id="github-projects-list"></ul>
+    </div>
+    
+  
+    <div id="start-menu-footer">
+      <div id="user-info">
+        <span id="version">{{windows.version}}</span>
+      </div>
+      <div class="start-menu-options">
+        <img id="start-menu-restart" src="../assets/icons/restart.png" width="32px" height="32px" alt="Restart">
+        <img id="start-menu-power" src="../assets/icons/power.png" width="32px" height="32px" alt="Power">
+      </div>
     </div>
   </div>
+  
   
   <!-- Menu de contexto -->
   <div id="context-menu" class="context-menu">
