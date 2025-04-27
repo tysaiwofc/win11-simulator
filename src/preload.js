@@ -73,8 +73,28 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openExternal: (url) => ipcRenderer.send('open-external', url),
   downloadApp: (data) => ipcRenderer.invoke('download-app', data),
   onDownloadProgress: (callback) => ipcRenderer.on('download-progress', (event, progress) => callback(progress)),
- // Updater handlers
- checkForUpdates: () => ipcRenderer.invoke('updater:check'),
+  checkForUpdates: () => ipcRenderer.invoke('updater:check'),
+  
+ getUpdateInfo: async () => {
+  try {
+    // Usamos ipcRenderer.invoke diretamente em vez de this.checkForUpdates()
+    const updateCheckResult = await ipcRenderer.invoke('updater:check');
+    
+    if (updateCheckResult?.updateInfo) {
+      return {
+        version: updateCheckResult.updateInfo.version,
+        releaseDate: updateCheckResult.updateInfo.releaseDate,
+        title: `Atualização ${updateCheckResult.updateInfo.version}`,
+        description: updateCheckResult.updateInfo.releaseNotes || 'Melhorias de desempenho e correções de bugs',
+        size: updateCheckResult.updateInfo.files?.reduce((total, file) => total + (file.size || 0), 0) || 0
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Erro ao obter informações de atualização:', error);
+    throw error;
+  }
+},
  downloadUpdate: () => ipcRenderer.invoke('updater:download'),
  installUpdate: () => ipcRenderer.invoke('updater:install'),
  showUpdateDialog: (info) => ipcRenderer.invoke('updater:showUpdateDialog', info),
