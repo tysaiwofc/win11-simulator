@@ -501,6 +501,36 @@ body {
   font-weight: bold;
 }
 
+.app-window {
+  position: absolute;
+  top: 100px;
+  left: 100px;
+  width: 600px;
+  height: 400px;
+  background: white;
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  resize: both;
+  overflow: hidden;
+}
+
+.app-window-header {
+  background: #0078d7;
+  color: white;
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+  cursor: move;
+  user-select: none;
+}
+
+.app-window-content {
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+}
 
 .notification-list-empty {
   display: flex;

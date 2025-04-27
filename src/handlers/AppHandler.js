@@ -7,7 +7,7 @@ class AppHandler {
   constructor(getDirPath, getAssetsPath) {
     this.getDirPath = getDirPath;
     this.getAssetsPath = getAssetsPath;
-    this.Dev = false
+    this.Dev = true
   }
 
   async openApp(event, appName) {
@@ -44,8 +44,10 @@ class AppHandler {
         height: 600,
         minWidth: 400,
         minHeight: 400,
+        modal: true,
         frame: false,
         icon: finalIconPath, // Usa o caminho correto do ícone
+        skipTaskbar: true, // Não aparece na taskbar
         backgroundColor: '#00000000',
         webPreferences: {
           preload: path.join(__dirname, '..', 'preload.js'),

@@ -18,7 +18,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   clearNotifications: () => ipcRenderer.invoke('clear-notifications'),
   markNotificationAsRead: (id) => ipcRenderer.invoke('mark-notification-as-read', id),
   markAllNotificationsAsRead: () => ipcRenderer.invoke('mark-all-notifications-as-read'),
-  
+  onOpenAppInDesktop: (callback) => ipcRenderer.on('open-app-in-desktop', (event, data) => callback(data)),
   // Ouvinte de notificações
   onNotificationReceived: (callback) => {
     ipcRenderer.on('notification-added', (event, notification) => callback(notification));

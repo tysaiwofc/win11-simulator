@@ -1,7 +1,5 @@
 const { app, BrowserWindow, ipcMain, Menu  } = require('electron');
-const RPC = require('discord-rpc')
-const clientId = '1365864834574319676'
-const rpc = new RPC.Client({ transport: 'ipc'})
+
 const path = require('path');
 const fsSync = require("fs")
 const os = require("os")
@@ -13,27 +11,13 @@ const UpdateHandler = require('./handlers/UpdateHandler');
 const WindowHandler = require('./handlers/WindowHandler');
 const ConfigHandler = require('./handlers/ConfigHandler');
 const AppStoreHandler = require('./handlers/AppStoreHandler');
+const DiscordRichPresence = require('./handlers/DiscordRichPresence')
 
 const { version } = require('../package.json')
+const clientId = '1365864834574319676';
 
-
-rpc.on('ready', () => {
-  rpc.setActivity({
-    details: 'Um simulador de windows perfeito',
-    state: `Versão v${version}`,
-    startTimestamp: new Date(),
-    largeImageKey: 'windows',
-    largeImageText: 'Windows 11 Simulator',
-    // partyId: 'id_unico_da_party',        // qualquer string única
-    // partySize: 1,
-    // partyMax: 4,
-    // joinSecret: 'senha_para_entrar',     // secreto pra enviar convite e entrar
-    instance: false,
-  });
-});
-
-// Faz login
-rpc.login({ clientId }).catch(console.error);
+const presence = new DiscordRichPresence(clientId, version);
+presence.connect();
 
 let mainWindow;
 let splashWindow;
@@ -88,7 +72,6 @@ function createWindow() {
     },
   });
   
-
   //mainWindow.webContents.openDevTools();
   Menu.setApplicationMenu(null);
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
