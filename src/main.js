@@ -351,9 +351,6 @@ app.whenReady().then(async () => {
     }
   });
 
-  setTimeout(() => {
-    throw new Error('uncaughtException')
-  }, 5000)
 });
 
 app.on('window-all-closed', () => {
