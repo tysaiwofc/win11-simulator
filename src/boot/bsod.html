@@ -17,8 +17,27 @@
             align-items: center;
             cursor: none;
             user-select: none;
+            
         }
         
+        ::-webkit-scrollbar {
+  height: 10px; /* Tamanho da barra de rolagem horizontal */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #0078d7; /* Cor do polegar (parte interativa) */
+  border-radius: 10px; /* Bordas arredondadas no polegar */
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* Cor do fundo da barra de rolagem */
+  border-radius: 10px; /* Bordas arredondadas no fundo */
+}
+
+/* Caso você queira também customizar as barras verticais */
+::-webkit-scrollbar-vertical {
+  width: 10px; /* Tamanho da barra de rolagem vertical */
+}
         .emoji {
             font-size: 100px;
             margin-bottom: 30px;
