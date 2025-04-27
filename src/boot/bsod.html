@@ -101,15 +101,23 @@
     </div>
     
     <div class="footer">
-        Se você ligar para uma pessoa de suporte, forneça a elas estas informações:<br>
+        Entre em contato com o suporte e forneça essas informações:<br>
         <strong>Código de erro:</strong> <span id="error-code">CRITICAL_PROCESS_DIED</span><br>
-        <strong>Versão do simulador:</strong> <span id="app-version">1.0.0</span>
+        <strong>Versão:</strong> <span id="app-version">1.0.0</span>
     </div>
     
+    <!-- Audio element to play sound -->
+    <audio id="error-sound" src="../../assets/audio/error.mp3" preload="auto" autoplay></audio>
+
     <script>
-        // Recebe dados do erro
         const { ipcRenderer } = require('electron')
         
+        window.onload = function() {
+            // Play sound when the page loads
+            const audio = document.getElementById('error-sound');
+            audio.play();
+        }
+
         ipcRenderer.on('bsod-data', (event, data) => {
             document.getElementById('error-info').innerHTML = `
                 <strong>Mensagem de erro:</strong> ${data.error}<br><br>
