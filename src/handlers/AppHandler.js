@@ -7,7 +7,7 @@ class AppHandler {
   constructor(getDirPath, getAssetsPath) {
     this.getDirPath = getDirPath;
     this.getAssetsPath = getAssetsPath;
-    this.Dev = true
+    this.Dev = false
   }
 
   async openApp(event, appName) {

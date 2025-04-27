@@ -609,15 +609,15 @@ function setupNotificationCenter() {
 
 
 
-  for(let i = 0;i < 21;i++) {
-    window.electronAPI.sendNotification(
-      "Título da Notificação",
-      "Esta mensagem aparecerá em todas as janelas",
-      {
-        app: 'settings'
-      }
-    );
-  }
+  // for(let i = 0;i < 21;i++) {
+  //   window.electronAPI.sendNotification(
+  //     "Título da Notificação",
+  //     "Esta mensagem aparecerá em todas as janelas",
+  //     {
+  //       app: 'settings'
+  //     }
+  //   );
+  // }
   
   // Alternar visibilidade da central
   notificationIcon.addEventListener('click', (e) => {
