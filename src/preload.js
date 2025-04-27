@@ -2,6 +2,27 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 
 contextBridge.exposeInMainWorld('electronAPI', {
+  sendNotification: (title, message, options = {}) => {
+    const notification = {
+      title,
+      message,
+      options,
+      timestamp: Date.now(),
+      id: Math.random().toString(36).substring(2, 15),
+      unread: true
+    };
+    console.log(notification)
+    ipcRenderer.send('send-notification', notification);
+  },
+  getNotifications: () => ipcRenderer.invoke('get-notifications'),
+  clearNotifications: () => ipcRenderer.invoke('clear-notifications'),
+  markNotificationAsRead: (id) => ipcRenderer.invoke('mark-notification-as-read', id),
+  markAllNotificationsAsRead: () => ipcRenderer.invoke('mark-all-notifications-as-read'),
+  
+  // Ouvinte de notificações
+  onNotificationReceived: (callback) => {
+    ipcRenderer.on('notification-added', (event, notification) => callback(notification));
+  },
   // Arquivos
   fileExists: (path) => ipcRenderer.invoke('file-exists', path),
   getFileUrl: (path) => `file://${path}`,

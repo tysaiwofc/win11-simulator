@@ -137,7 +137,50 @@ function registerIpcHandlers() {
   ipcMain.handle('get-global-config', () => {
     return configHandler.getGlobalConfig();  // Retorna todas as configurações
   });
+  let allNotifications = [];
+
+// Handlers de notificações
+ipcMain.on('send-notification', (event, notification) => {
+
+  console.log(notification)
+  //allNotifications.unshift(notification);
   
+  // Limitar a 100 notificações
+  if (allNotifications.length > 100) {
+    allNotifications = allNotifications.slice(0, 100);
+  }
+  
+  // Enviar para todas as janelas
+  BrowserWindow.getAllWindows().forEach(window => {
+    if (!window.isDestroyed()) {
+      allNotifications.push(notification)
+      window.webContents.send('notification-added', notification);
+    }
+  });
+});
+
+ipcMain.handle('get-notifications', () => allNotifications);
+
+ipcMain.handle('clear-notifications', () => {
+  allNotifications = [];
+  return true;
+});
+
+ipcMain.handle('mark-notification-as-read', (event, id) => {
+  const notification = allNotifications.find(n => n.id === id);
+  console.log("tsert", notification, id, allNotifications.slice(0, 5))
+  if (notification) notification.unread = false;
+  if(notification.options.app) { appHandler.openApp(event, notification.options.app) }
+  
+  
+  return true;
+});
+
+ipcMain.handle('mark-all-notifications-as-read', () => {
+  allNotifications.forEach(n => n.unread = false);
+  return true;
+});
+
   ipcMain.handle('get-config', (event, key) => {
     return configHandler.getConfig(key);  // Retorna uma configuração específica
   });

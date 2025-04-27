@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Configurar menu iniciar
   setupStartMenu();
-  
+  setupNotificationCenter();
+
   // Configurar desktop
   setupDesktop();
   
@@ -20,7 +21,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Configurar seleção no desktop
   setupDesktopSelection();
+
+ 
 });
+
+
+
+
 
 
 async function renderApps(apps) {
@@ -535,3 +542,206 @@ function setupDesktopSelection() {
   });
 }
 
+
+
+// NOTIFICATIONS
+function setupNotificationCenter() {
+
+  const notificationIcon = document.getElementById('notification-icon');
+  const notificationCenter = document.getElementById('notification-center');
+  const clearButton = document.getElementById('clear-notifications');
+  const settingsButton = document.getElementById('notification-settings');
+  const notificationList = document.getElementById('notification-list');
+  const notificationBadge = document.getElementById('notification-badge');
+  
+  let notifications = [];
+  let unreadCount = 0;
+
+  // Carregar notificações iniciais
+  async function loadNotifications() {
+    notifications = await window.electronAPI.getNotifications();
+    unreadCount = notifications.filter(n => n.unread).length;
+    updateNotificationList();
+    updateBadge();
+  }
+
+  // Inicializar
+  loadNotifications();
+
+  // Ouvir novas notificações
+  // Ouvir novas notificações e atualizar a central de notificações
+  let lastNotificationTime = 0; // Para rastrear o tempo da última notificação
+  let notificationSoundPlayed = false; // Flag para controlar o som
+  
+  window.electronAPI.onNotificationReceived((newNotification) => {
+    const currentTime = Date.now();
+    
+    // Se a última notificação foi há mais de 10 segundos, toca o som
+    if (currentTime - lastNotificationTime > 10000) {
+      notificationSoundPlayed = false; // Permitir tocar som novamente
+    }
+    
+    // Se ainda não tocou o som, toca o som para esta notificação
+    if (!notificationSoundPlayed) {
+      playNotificationSound();
+      notificationSoundPlayed = true;
+    }
+  
+    // Atualiza a última notificação recebida
+    lastNotificationTime = currentTime;
+    
+    notifications.unshift(newNotification);
+    unreadCount++;
+    updateNotificationList();
+    updateBadge();
+    
+    // if (!notificationCenter.classList.contains('visible')) {
+    //   showToastNotification(newNotification.title, newNotification.message);
+    // }
+  });
+  
+  // Função para tocar o som da notificação
+  function playNotificationSound() {
+    const audio = new Audio('../assets/audio/notification.mp3'); // Substitua pelo caminho do áudio desejado
+    audio.play();
+  }
+  
+
+
+
+  for(let i = 0;i < 21;i++) {
+    window.electronAPI.sendNotification(
+      "Título da Notificação",
+      "Esta mensagem aparecerá em todas as janelas",
+      {
+        app: 'settings'
+      }
+    );
+  }
+  
+  // Alternar visibilidade da central
+  notificationIcon.addEventListener('click', (e) => {
+    e.stopPropagation();
+    notificationCenter.classList.toggle('visible');
+    
+    if (notificationCenter.classList.contains('visible')) {
+      //markAllAsRead();
+    }
+  });
+
+  // Fechar ao clicar fora
+  document.addEventListener('click', (e) => {
+    if (!notificationCenter.contains(e.target) && e.target !== notificationIcon) {
+      notificationCenter.classList.remove('visible');
+    }
+  });
+
+  // Limpar notificações
+  clearButton.addEventListener('click', async () => {
+    await window.electronAPI.clearNotifications();
+    await loadNotifications();
+  });
+
+  // Configurações
+  settingsButton.addEventListener('click', () => {
+    window.electronAPI.openApp('settings');
+  });
+
+  // Atualizar lista de notificações
+  function updateNotificationList() {
+    notificationList.innerHTML = '';  // Limpar a lista
+  
+    if (notifications.length === 0) {
+      notificationList.innerHTML = '<div class="notification-list-empty">Nenhuma notificação</div>';
+      return;
+    }
+  
+    // Adicionar cada notificação à lista da central
+    notifications.forEach(notif => {
+      const notifElement = document.createElement('div');
+      notifElement.className = `notification-item ${notif.unread ? 'unread' : ''}`;
+      notifElement.innerHTML = `
+        <div class="notification-title">${notif.title}</div>
+        <div class="notification-message">${notif.message}</div>
+        <div class="notification-time">${formatTime(notif.timestamp)}</div>
+      `;
+  
+      // Ação ao clicar na notificação
+      notifElement.addEventListener('click', async () => {
+        if (notif.unread) {
+          notif.unread = false;
+          unreadCount--;
+          updateBadge();
+          notifElement.classList.remove('unread');
+          await window.electronAPI.markNotificationAsRead(notif.id);
+        }
+  
+        if (notif.options?.action) {
+          notif.options.action();
+        }
+      });
+  
+      notificationList.appendChild(notifElement);  // Adicionar o item à lista
+    });
+  }
+  
+
+  // Atualizar contador no badge
+  function updateBadge() {
+    notificationBadge.textContent = unreadCount > 0 ? unreadCount : '';
+    notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+  }
+
+  // Formatar hora
+  function formatTime(timestamp) {
+    const now = new Date();
+    const date = new Date(timestamp);
+    const diff = now - date;
+    
+    if (diff < 60000) return 'Agora mesmo';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)} min atrás`;
+    if (diff < 86400000) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString([], { day: 'numeric', month: 'short' });
+  }
+
+  // Mostrar notificação toast
+  function showToastNotification(title, message) {
+    const toast = document.createElement('div');
+  toast.className = 'notification-toast';
+  toast.innerHTML = `
+    <div class="toast-title">${title}</div>
+    <div class="toast-message">${message}</div>
+  `;
+  
+  document.body.appendChild(toast);  // Adicionar o toast à página
+  
+  // Mostrar o toast com animação
+  setTimeout(() => {
+    toast.classList.add('show');
+  }, 10);
+
+  // Remover o toast após 5 segundos
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 5000);
+
+  // Ao clicar no toast, mostrar a central de notificações
+  toast.addEventListener('click', () => {
+    notificationCenter.classList.add('visible');
+    markAllAsRead();
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  });
+  }
+
+  // Marcar todas como lidas
+  async function markAllAsRead() {
+    await window.electronAPI.markAllNotificationsAsRead();
+    await loadNotifications();
+  }
+}
+
+// API global para enviar notificações
+
+// Inicializar a central de notificações
