@@ -1,10 +1,9 @@
 document.querySelector('.window-control.minimize').addEventListener('click', () => {
-  window.electronAPI.minimizeWindow();  // Minimize a janela
+  window.electronAPI.minimizeWindow();
 });
 
-
 document.querySelector('.window-control.close').addEventListener('click', () => {
-  window.electronAPI.closeWindow();  // Fechar a janela
+  window.electronAPI.closeWindow();
 });
 
 class WindowsUpdate {
@@ -50,27 +49,21 @@ class WindowsUpdate {
       lastBytesReceived: 0
     };
 
+    console.log("WindowsUpdate inicializado. Estado inicial:", this.state);
+
     this.setupListeners();
     this.setupElectronListeners();
     this.initialize();
   }
 
   initialize() {
-    // Carrega configurações salvas
     this.loadSettings();
-    
-    // Verifica atualizações ao iniciar se auto-download estiver ativado
-    if (this.elements.autoDownload.checked) {
-      this.checkForUpdates();
-    } else {
-      this.updateStatus("Pronto para verificar atualizações");
-      this.updateLastChecked();
-    }
+    this.updateStatus("Pronto para verificar atualizações");
+    this.updateLastChecked();
+    this.resetUIState();
   }
 
-
   loadSettings() {
-    // Carregar configurações usando electronAPI.saveAppData
     window.electronAPI.getAppData('windows-update').then(data => {
       if (data) {
         this.elements.autoDownload.checked = data.autoDownload || true;
@@ -85,7 +78,6 @@ class WindowsUpdate {
   }
 
   saveSettings() {
-    // Salvar configurações usando electronAPI.saveAppData
     const settings = {
       autoDownload: this.elements.autoDownload.checked,
       autoInstall: this.elements.autoInstall.checked
@@ -110,41 +102,40 @@ class WindowsUpdate {
   }
 
   setupElectronListeners() {
-    // Verificar se electronAPI está definido
     if (!window.electronAPI) {
       console.error('electronAPI não está definido. Verifique o preload.js.');
       this.updateStatus('Erro: Comunicação com o aplicativo não configurada');
       return;
     }
 
-    // Listeners disponíveis no preload.js
     window.electronAPI.onUpdateStatus((_, message) => this.updateStatus(message));
     window.electronAPI.onDownloadProgress((_, progress) => this.updateDownloadProgress(progress));
   }
 
   async checkForUpdates() {
-    if (this.state.isChecking) return;
+    if (this.state.isChecking) {
+      console.log("Verificação já em andamento. Ignorando nova solicitação.");
+      return;
+    }
+    
+    console.log("Iniciando verificação de atualizações...");
     
     this.setState({
       isChecking: true,
       updateAvailable: false,
-      updateDownloaded: false
+      updateDownloaded: false,
+      updateInfo: null
     });
   
     this.updateStatus("Verificando atualizações...");
+    this.resetUIState();
     this.elements.checkUpdatesBtn.disabled = true;
-    this.elements.downloadUpdatesBtn.classList.add('hidden');
-    this.elements.installUpdatesBtn.classList.add('hidden');
-    this.elements.updateDetails.classList.add('hidden');
-    this.elements.progressContainer.classList.add('hidden');
   
     try {
       const updateAvailable = await window.electronAPI.checkForUpdates();
-      
       if (!updateAvailable) {
         this.updateStatus("Você está atualizado");
         this.showNoUpdatesAvailable();
-        this.elements.checkUpdatesBtn.disabled = false;
       } else {
         const mockUpdateInfo = {
           title: "Atualização do OS Simulator",
@@ -153,46 +144,38 @@ class WindowsUpdate {
           size: 100 * 1024 * 1024, // 100 MB
           releaseDate: Date.now()
         };
-        this.setState({ updateAvailable: true }); // Garantir que updateAvailable seja true
         this.showUpdateAvailable(mockUpdateInfo);
-        this.elements.downloadUpdatesBtn.classList.remove('hidden');
-        
       }
     } catch (error) {
-      this.updateStatus(`Erro ao verificar atualizações: ${error.message || "Ocorreu um problema"}`);
-      console.error("Erro na verificação de atualizações:", error);
+      // alert("Erro na verificação de atualizações:", error);     this.updateStatus(`Erro ao verificar atualizações: ${error.message || "Ocorreu um problema"}`);
     } finally {
       this.updateLastChecked();
-      this.elements.checkUpdatesBtn.disabled = false;
       this.setState({ isChecking: false });
+      this.elements.checkUpdatesBtn.disabled = false;
+      this.validateState();
     }
   }
   
-  showUpdateAvailable(info) {
-    this.setState({ 
-      updateAvailable: true,
-      updateInfo: info
-    });
-  
-    this.updateStatus("Atualizações disponíveis");
-    this.updateLastChecked();
-    
-    this.elements.updateTitle.textContent = info.title || "Atualização do Windows 11 Simulator";
-    this.elements.updateDescription.textContent = info.description || "Esta atualização inclui melhorias de desempenho e correções de segurança.";
-    this.elements.updateVersion.textContent = `Versão: ${info.version}`;
-    this.elements.updateSize.textContent = `Tamanho: ${this.formatUpdateSize(info.size)}`;
-    this.elements.updateDate.textContent = `Disponível desde: ${new Date(info.releaseDate || Date.now()).toLocaleDateString('pt-BR')}`;
-    
-    this.elements.updateDetails.classList.remove('hidden');
-    this.elements.downloadUpdatesBtn.classList.remove('hidden');
-    
-    // Só baixar automaticamente se updateAvailable for true
-    if (this.elements.autoDownload.checked && this.state.updateAvailable) {
-      this.downloadUpdates();
-    }
+  resetUIState() {
+    this.elements.updateDetails.classList.add('hidden');
+    this.elements.downloadUpdatesBtn.classList.add('hidden');
+    this.elements.installUpdatesBtn.classList.add('hidden');
+    this.elements.progressContainer.classList.add('hidden');
   }
+
   async downloadUpdates() {
-    if (this.state.isDownloading) return;
+    if (this.state.isDownloading) {
+      console.log("Download já em andamento. Ignorando nova solicitação.");
+      return;
+    }
+    
+    if (!this.state.updateAvailable) {
+      this.updateStatus("Verifique as atualizações primeiro");
+      console.warn("Tentativa de download sem atualização disponível");
+      return;
+    }
+    
+    console.log("Iniciando download de atualizações...");
     
     this.setState({ 
       isDownloading: true,
@@ -208,17 +191,23 @@ class WindowsUpdate {
 
     try {
       await window.electronAPI.downloadUpdate();
-      // Assumir que download concluído implica atualização pronta
       this.showUpdateDownloaded(this.state.updateInfo);
     } catch (error) {
-      this.updateStatus(`Erro ao baixar atualizações: ${error.message || "Ocorreu um problema"}`);
       console.error("Erro no download:", error);
+      this.updateStatus(`Erro ao baixar atualizações: ${error.message || "Ocorreu um problema"}`);
       this.elements.downloadUpdatesBtn.classList.remove('hidden');
       this.setState({ isDownloading: false });
+      this.validateState();
     }
   }
 
   async installUpdates() {
+    if (!this.state.updateDownloaded) {
+      this.updateStatus("Nenhuma atualização baixada para instalar");
+      console.warn("Tentativa de instalação sem atualização baixada");
+      return;
+    }
+    
     try {
       const shouldInstall = await window.electronAPI.showReadyDialog({
         version: this.state.updateInfo?.version || "Desconhecida"
@@ -229,8 +218,8 @@ class WindowsUpdate {
         await window.electronAPI.installUpdate();
       }
     } catch (error) {
-      this.updateStatus(`Erro ao instalar atualizações: ${error.message || "Ocorreu um problema"}`);
       console.error("Erro na instalação:", error);
+      this.updateStatus(`Erro ao instalar atualizações: ${error.message || "Ocorreu um problema"}`);
     }
   }
 
@@ -238,7 +227,71 @@ class WindowsUpdate {
     window.electronAPI.openExternal("https://support.microsoft.com/windows");
   }
 
+  showUpdateAvailable(info) {
+    if (!info) {
+      console.error("Nenhuma informação de atualização fornecida");
+      return;
+    }
+    
+    console.log("Mostrando atualização disponível:", info);
+    
+    this.setState({ 
+      updateAvailable: true,
+      updateInfo: info
+    });
+  
+    this.updateStatus("Atualizações disponíveis");
+    this.updateLastChecked();
+    
+    this.elements.updateTitle.textContent = info.title || "Atualização do Windows 11 Simulator";
+    this.elements.updateDescription.textContent = info.description || "Esta atualização inclui melhorias de desempenho e correções de segurança.";
+    this.elements.updateVersion.textContent = `Versão: ${info.version}`;
+    this.elements.updateSize.textContent = `Tamanho: ${this.formatUpdateSize(info.size)}`;
+    this.elements.updateDate.textContent = `Disponível desde: ${new Date(info.releaseDate || Date.now()).toLocaleDateString('pt-BR')}`;
+    
+    this.elements.updateDetails.classList.remove('hidden');
+    
+    if (this.state.updateAvailable) {
+        this.elements.downloadUpdatesBtn.classList.remove('hidden');
+    }
+    
+    // if (this.state.updateAvailable && this.elements.autoDownload.checked) {
+    //     this.downloadUpdates();
+    // }
+    
+    this.validateState();
+  }
+
+  showUpdateDownloaded(info) {
+    console.log("Mostrando atualização pronta para instalar:", info);
+    
+    this.setState({ 
+      updateDownloaded: true,
+      isDownloading: false
+    });
+
+    this.updateStatus("Atualizações prontas para instalar");
+    this.elements.progressFill.style.width = "100%";
+    this.elements.downloadPercent.textContent = "100%";
+    this.elements.downloadUpdatesBtn.classList.add('hidden');
+    this.elements.installUpdatesBtn.classList.remove('hidden');
+    
+    // if (this.elements.autoInstall.checked) {
+    //   this.installUpdates();
+    // }
+    
+    this.validateState();
+  }
+
+  showNoUpdatesAvailable() {
+    console.log("Nenhuma atualização disponível");
+    this.updateStatus("Você está atualizado");
+    this.resetUIState();
+    this.validateState();
+  }
+
   updateStatus(message) {
+    console.log(`Atualizando status: ${message}`);
     this.elements.statusMessage.textContent = message;
   }
 
@@ -285,6 +338,24 @@ class WindowsUpdate {
     this.elements.downloadedSize.textContent = `Baixado: ${downloadedMB} MB de ${totalMB} MB`;
   }
 
+  validateState() {
+    console.log("Validando estado atual:", this.state);
+    
+    if (this.state.isDownloading) {
+        this.elements.checkUpdatesBtn.disabled = true;
+        this.elements.downloadUpdatesBtn.classList.add('hidden');
+        this.elements.installUpdatesBtn.classList.add('hidden');
+    }
+    
+    if (this.state.updateDownloaded) {
+        this.elements.installUpdatesBtn.classList.remove('hidden');
+    }
+    
+    if (!this.state.updateAvailable) {
+        this.elements.downloadUpdatesBtn.classList.add('hidden');
+    }
+  }
+
   formatTimeRemaining(seconds) {
     if (seconds < 60) {
       return `Tempo restante: ${Math.ceil(seconds)} segundos`;
@@ -293,33 +364,6 @@ class WindowsUpdate {
     } else {
       return `Tempo restante: ${Math.ceil(seconds / 3600)} horas`;
     }
-  }
-
-
-
-  showUpdateDownloaded(info) {
-    this.setState({ 
-      updateDownloaded: true,
-      isDownloading: false
-    });
-
-    this.updateStatus("Atualizações prontas para instalar");
-    this.elements.progressFill.style.width = "100%";
-    this.elements.downloadPercent.textContent = "100%";
-    this.elements.downloadUpdatesBtn.classList.add('hidden');
-    this.elements.installUpdatesBtn.classList.remove('hidden');
-    
-    if (this.elements.autoInstall.checked) {
-      this.installUpdates();
-    }
-  }
-
-  showNoUpdatesAvailable() {
-    this.updateStatus("Você está atualizado");
-    this.elements.updateDetails.classList.add('hidden');
-    this.elements.downloadUpdatesBtn.classList.add('hidden');
-    this.elements.installUpdatesBtn.classList.add('hidden');
-    this.elements.progressContainer.classList.add('hidden');
   }
 
   formatUpdateSize(bytes) {
@@ -334,11 +378,17 @@ class WindowsUpdate {
   }
 
   setState(newState) {
+    console.log("Atualizando estado de:", this.state, "para:", newState);
     this.state = { ...this.state, ...newState };
+    this.validateState();
   }
 }
 
-// Inicializa o aplicativo quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
-  new WindowsUpdate();
+  try {
+    new WindowsUpdate();
+  } catch (error) {
+    console.error("Erro ao inicializar WindowsUpdate:", error);
+    document.getElementById('status-message').textContent = "Erro ao inicializar o sistema de atualização";
+  }
 });

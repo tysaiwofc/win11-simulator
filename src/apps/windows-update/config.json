@@ -1,4 +1,4 @@
 {
-  "autoDownload": true,
-  "autoInstall": true
+  "autoDownload": false,
+  "autoInstall": false
 }

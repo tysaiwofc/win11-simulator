@@ -200,7 +200,7 @@ function registerIpcHandlers() {
     process.on('unhandledRejection', (reason, promise) => {
       const errorData = {
         type: 'unhandledRejection',
-        reason: reason instanceof Error ? reason.stack : String(reason),
+        message: reason instanceof Error ? reason.stack : String(reason),
         timestamp: new Date().toISOString()
       }
       

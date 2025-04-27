@@ -18,41 +18,44 @@ class UpdaterHandler {
   }
 
   setupAutoUpdaterListeners() {
+
+    function sendStatusToRenderer(message) {
+      log.info(message);
+      // Envia para todas as janelas
+      BrowserWindow.getAllWindows().forEach(window => {
+        window.webContents.send('update-status', message);
+      });
+    }
+
     autoUpdater.on('checking-for-update', () => {
-      this.sendStatusToRenderer('Verificando atualizações...');
+      sendStatusToRenderer('Verificando atualizações...');
     });
 
     autoUpdater.on('update-available', (info) => {
-      this.sendStatusToRenderer(`Atualização disponível: v${info.version}`);
+      sendStatusToRenderer(`Atualização disponível: v${info.version}`);
     });
 
     autoUpdater.on('update-not-available', (info) => {
-      this.sendStatusToRenderer(`Você está na versão mais recente: v${info.version}`);
+      sendStatusToRenderer(`Você está na versão mais recente: v${info.version}`);
     });
 
     autoUpdater.on('error', (err) => {
-      this.sendStatusToRenderer(`Erro no updater: ${err.message}`);
+      sendStatusToRenderer(`Erro no updater: ${err.message}`);
       log.error('Updater error:', err);
     });
 
     autoUpdater.on('download-progress', (progressObj) => {
       const message = `Download: ${Math.floor(progressObj.percent)}%`;
-      this.sendStatusToRenderer(message);
+      sendStatusToRenderer(message);
       this.sendProgressToRenderer(progressObj);
     });
 
     autoUpdater.on('update-downloaded', (info) => {
-      this.sendStatusToRenderer(`Atualização v${info.version} baixada`);
+      sendStatusToRenderer(`Atualização v${info.version} baixada`);
     });
   }
 
-  sendStatusToRenderer(message) {
-    log.info(message);
-    // Envia para todas as janelas
-    BrowserWindow.getAllWindows().forEach(window => {
-      window.webContents.send('update-status', message);
-    });
-  }
+  
 
   sendProgressToRenderer(progressObj) {
     BrowserWindow.getAllWindows().forEach(window => {
@@ -64,7 +67,16 @@ class UpdaterHandler {
   checkForUpdates(event) {
     autoUpdater.checkForUpdates().catch(err => {
       log.error('Erro ao verificar atualizações:', err);
-      this.sendStatusToRenderer('Erro ao verificar atualizações');
+      // dialog.showErrorBox('Erro', err.message || String(err));
+      function sendStatusToRenderer(message) {
+        log.info(message);
+        // Envia para todas as janelas
+        BrowserWindow.getAllWindows().forEach(window => {
+          window.webContents.send('update-status', message);
+        });
+      }
+
+      sendStatusToRenderer('Erro ao verificar atualizações');
     });
     return true; // Indica que a operação foi iniciada
   }
