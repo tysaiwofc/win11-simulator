@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>:(</title>
+    <style>
+        body {
+            background-color: #0078d7;
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: none;
+            user-select: none;
+        }
+        
+        .emoji {
+            font-size: 100px;
+            margin-bottom: 30px;
+        }
+        
+        .message {
+            font-size: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 800px;
+        }
+        
+        .details {
+            font-size: 16px;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 800px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 30px;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .progress {
+            width: 100%;
+            max-width: 500px;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: white;
+            animation: progress 5s linear infinite;
+        }
+        
+        .footer {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        @keyframes progress {
+            0% { width: 0%; }
+            10% { width: 10%; }
+            20% { width: 25%; }
+            30% { width: 35%; }
+            40% { width: 45%; }
+            50% { width: 50%; }
+            60% { width: 60%; }
+            70% { width: 70%; }
+            80% { width: 85%; }
+            90% { width: 95%; }
+            100% { width: 100%; }
+        }
+        
+        .qr-code {
+            margin-top: 20px;
+            background-color: white;
+            padding: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="emoji">:(</div>
+    <div class="message" id="main-message">O Windows 11 Simulator encontrou um problema e precisa ser reiniciado.</div>
+    
+    <div class="details">
+        <div id="error-info">Coletando informações sobre o erro...</div>
+        <div id="progress-text">0% concluído</div>
+    </div>
+    
+    <div class="progress">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    
+    <div class="footer">
+        Se você ligar para uma pessoa de suporte, forneça a elas estas informações:<br>
+        <strong>Código de erro:</strong> <span id="error-code">CRITICAL_PROCESS_DIED</span><br>
+        <strong>Versão do simulador:</strong> <span id="app-version">1.0.0</span>
+    </div>
+    
+    <script>
+        // Recebe dados do erro
+        const { ipcRenderer } = require('electron')
+        
+        ipcRenderer.on('bsod-data', (event, data) => {
+            document.getElementById('error-info').innerHTML = `
+                <strong>Mensagem de erro:</strong> ${data.error}<br><br>
+                <strong>Detalhes técnicos:</strong><br>
+                <pre>${data.stack || 'Nenhum stack trace disponível'}</pre><br>
+                <strong>Hora do erro:</strong> ${data.timestamp}
+            `
+            
+            document.getElementById('app-version').textContent = data.version
+            
+            // Simula progresso de coleta de dados
+            let progress = 0
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 10
+                if (progress >= 100) {
+                    progress = 100
+                    clearInterval(progressInterval)
+                    document.getElementById('progress-text').textContent = 'Concluído. Reiniciando...'
+                    
+                    // Reinicia após 5 segundos
+                    setTimeout(() => {
+                        ipcRenderer.send('restart-app')
+                    }, 5000)
+                } else {
+                    document.getElementById('progress-text').textContent = `${Math.round(progress)}% concluído`
+                    document.getElementById('progress-bar').style.width = `${progress}%`
+                }
+            }, 200)
+        })
+    </script>
+</body>
+</html>

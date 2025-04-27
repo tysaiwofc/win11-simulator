@@ -51,7 +51,19 @@ function createWindow() {
     show: true,
   });
 
+  splashWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    const errorData = {
+      type: 'did-fail-load',
+      code: errorCode,
+      description: errorDescription,
+      timestamp: new Date().toISOString()
+    }
+    
+    broadcastToAllWindows(errorData)
+  })
+
   splashWindow.loadFile(path.join(__dirname, 'boot', 'loading.html'));
+
 
   // Janela Principal
   mainWindow = new BrowserWindow({
@@ -124,8 +136,80 @@ ipcMain.on('update-desktop', () => {
   });
 });
 
+function broadcastToAllWindows(error) {
+  // Primeiro cria a janela BSOD
+  const bsodWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    fullscreen: true,
+    frame: false,
+    resizable: false,
+    alwaysOnTop: true,
+    backgroundColor: '#0078d7',
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+
+  // Carrega o HTML da BSOD
+  bsodWindow.loadFile(path.join(__dirname, './boot/bsod.html'));
+
+  // Envia os detalhes do erro para a tela BSOD
+  bsodWindow.webContents.on('did-finish-load', () => {
+    bsodWindow.webContents.send('bsod-data', {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toLocaleString(),
+      version: version
+    });
+    
+    // SÓ DEPOIS fecha as outras janelas
+    const windows = BrowserWindow.getAllWindows();
+    windows.forEach(win => {
+      if (!win.isDestroyed() && win !== bsodWindow) {
+        win.destroy();
+      }
+    });
+  });
+
+  // Tratamento para caso o carregamento da BSOD falhe
+  bsodWindow.webContents.on('did-fail-load', () => {
+    dialog.showErrorBox('Erro crítico', 'Falha ao carregar a tela de erro. Reinicie o aplicativo.\n\n' + error.message);
+    app.exit(1);
+  });
+}
+
 function registerIpcHandlers() {
   
+  function setupErrorHandling() {
+    // Erros não capturados
+    process.on('uncaughtException', (error) => {
+      const errorData = {
+        type: 'uncaughtException',
+        message: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      }
+      
+      console.error('Erro não capturado:', errorData)
+      broadcastToAllWindows(errorData)
+    })
+ 
+    // Rejeições de Promise não tratadas
+    process.on('unhandledRejection', (reason, promise) => {
+      const errorData = {
+        type: 'unhandledRejection',
+        reason: reason instanceof Error ? reason.stack : String(reason),
+        timestamp: new Date().toISOString()
+      }
+      
+      console.error('Promise rejeitada:', errorData)
+      broadcastToAllWindows(errorData)
+    })
+  }
+
+  setupErrorHandling()
   // App Handlers
   ipcMain.handle('open-app', (event, appName) => appHandler.openApp(event, appName));
   ipcMain.handle('get-app-data', (event, appName) => appHandler.getAppData(event, appName));
@@ -266,6 +350,10 @@ app.whenReady().then(async () => {
       mainWindow = createWindow();
     }
   });
+
+  setTimeout(() => {
+    throw new Error('uncaughtException')
+  }, 5000)
 });
 
 app.on('window-all-closed', () => {
