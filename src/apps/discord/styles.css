@@ -1,0 +1,791 @@
+/* Windows 11 inspired Discord styling */
+:root {
+    --bg-color: #313338;
+    --server-sidebar: #1e1f22;
+    --channel-sidebar: #2b2d31;
+    --main-content: #313338;
+    --members-sidebar: #2b2d31;
+    --text-primary: #f2f3f5;
+    --text-secondary: #b5bac1;
+    --accent-color: #5865f2;
+    --hover-color: #3f4248;
+    --message-hover: #383a40;
+    --windows-accent: #0078d7;
+    --windows-glass: rgba(255, 255, 255, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.windows-11-container {
+    display: grid;
+    grid-template-columns: 72px 240px 1fr 240px;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+
+
+
+.server-sidebar {
+    background-color: var(--server-sidebar);
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+}
+
+.server-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.server-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--hover-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.server-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.server-icon.active {
+    border-radius: 16px;
+}
+
+.server-icon.active::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    background-color: var(--text-primary);
+    border-radius: 0 4px 4px 0;
+}
+
+.server-icon:hover:not(.active) {
+    border-radius: 16px;
+    background-color: var(--accent-color);
+}
+
+.add-server {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--hover-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--accent-color);
+}
+
+.add-server:hover {
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 16px;
+}
+
+.channel-sidebar {
+    background-color: var(--channel-sidebar);
+    display: flex;
+    flex-direction: column;
+}
+
+.server-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.server-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.server-header i {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.channel-category {
+    margin-top: 16px;
+    padding: 0 8px;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.category-header i {
+    font-size: 10px;
+}
+
+.channel-list {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.channel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+.channel i {
+    font-size: 14px;
+}
+
+.channel:hover {
+    background-color: var(--hover-color);
+    color: var(--text-secondary);
+}
+
+.channel.active {
+    background-color: var(--hover-color);
+    color: var(--text-primary);
+}
+
+.add-channel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+.add-channel:hover {
+    color: var(--text-primary);
+}
+
+.user-panel {
+    margin-top: auto;
+    background-color: var(--hover-color);
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.user-details {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.username {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.tag {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.user-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-controls button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.user-controls button:hover {
+    color: var(--text-primary);
+}
+
+
+
+.channel-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.channel-info i {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.channel-topic {
+    margin-left: 16px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.channel-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.channel-controls button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.channel-controls button:hover {
+    color: var(--text-primary);
+    background-color: var(--hover-color);
+    border-radius: 4px;
+}
+
+
+.message {
+    display: flex;
+    gap: 16px;
+    padding: 8px 16px;
+    margin-bottom: 4px;
+    position: relative;
+}
+
+.message:hover {
+    background-color: var(--message-hover);
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-top: 4px;
+}
+
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.message-content {
+    flex: 1;
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.message-author {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.message-timestamp {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.message-text {
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.message-actions {
+    position: absolute;
+    right: 16px;
+    top: 8px;
+    display: none;
+    background-color: var(--channel-sidebar);
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.message:hover .message-actions {
+    display: flex;
+}
+
+.message-action {
+    padding: 4px 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.message-action:hover {
+    color: var(--text-primary);
+}
+
+.message-input {
+    padding: 16px;
+}
+
+.input-container {
+    background-color: var(--channel-sidebar);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+}
+
+.input-container input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 16px;
+    padding: 0 8px;
+}
+
+.input-container input:focus {
+    outline: none;
+}
+
+.add-file {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.add-file:hover {
+    color: var(--text-primary);
+}
+
+.input-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-buttons button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.input-buttons button:hover {
+    color: var(--text-primary);
+}
+
+.members-sidebar {
+    background-color: var(--members-sidebar);
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.members-header {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.member {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.member:hover {
+    background-color: var(--hover-color);
+}
+
+.member-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.status {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 3px solid var(--members-sidebar);
+}
+
+.status.online {
+    background-color: #3ba55c;
+}
+
+.member-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.member-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.member-status {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Windows 11 specific styling */
+/* Substitua estas classes no seu styles.css */
+
+.windows-11-container {
+    display: grid;
+    grid-template-columns: 72px 240px 1fr 240px;
+    grid-template-rows: auto 1fr auto; /* Linhas para header, conteúdo e input */
+    height: 100vh;
+    overflow: hidden;
+}
+
+.main-content {
+    grid-column: 3;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: 100%;
+    min-height: 0; /* Crucial para o flex funcionar corretamente */
+}
+
+
+.channel-header {
+    flex-shrink: 0; /* Impede que o header diminua */
+}
+
+.messages-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Permite que o conteúdo interno faça scroll */
+    overflow: hidden;
+    height: 100vh;
+}
+
+
+        /* Release message styles */
+        .release-message {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .release-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .release-version {
+            color: var(--accent-color);
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .release-date {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .release-notes {
+            margin: 12px 0;
+            line-height: 1.6;
+        }
+
+        .release-notes p,
+        .release-notes ul,
+        .release-notes li {
+            margin: 8px 0;
+        }
+
+        .release-notes ul {
+            padding-left: 20px;
+        }
+
+        .release-footer {
+            margin-top: 12px;
+            text-align: right;
+        }
+
+        .release-footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 0.9em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .release-footer a:hover {
+            text-decoration: underline;
+        }
+        .window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            color: white;
+            user-select: none;
+            -webkit-app-region: drag; 
+          }
+          
+          .window-title {
+            font-size: 12px;
+            opacity: 0.8;
+            -webkit-app-region: drag;
+          }
+          
+          .window-controls {
+            display: flex;
+            gap: 8px;
+            -webkit-app-region: no-drag;
+          }
+          
+          .window-control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            -webkit-app-region: no-drag;
+          }
+          
+          /* Estilos individuais para cada botão */
+          .window-control.minimize {
+            background-color: #ffcc00;
+          }
+          
+          .window-control.maximize {
+            background-color: #00cc00;
+          }
+          
+          .window-control.close {
+            background-color: #ff0000;
+          }
+          
+          .window-control:hover {
+            background-color: #555;
+          }
+          
+          
+          .window-control:active {
+            background-color: #222;
+          }
+.app-badge {
+    background-color: #5865f2;
+    border-radius: 4px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.btn-github {
+    background-color: #5b5b5e;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+    scroll-behavior: smooth;
+}
+
+.message-input {
+    flex-shrink: 0; /* Impede que o input diminua */
+    padding: 16px;
+    background: var(--main-content);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin-top: auto;
+}
+
+.server-sidebar {
+    background: rgba(30, 31, 34, 0.7);
+    backdrop-filter: blur(10px);
+}
+
+.channel-sidebar {
+    background: rgba(43, 45, 49, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.main-content {
+    background: rgba(49, 51, 56, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.members-sidebar {
+    background: rgba(43, 45, 49, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 1200px) {
+    .windows-11-container {
+        grid-template-columns: 72px 200px 1fr 200px;
+    }
+}
+
+@media (max-width: 992px) {
+    .windows-11-container {
+        grid-template-columns: 72px 1fr;
+    }
+
+    .channel-sidebar,
+    .members-sidebar {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .windows-11-container {
+        grid-template-columns: 1fr;
+    }
+
+    .server-sidebar {
+        flex-direction: row;
+        justify-content: start;
+        padding: 8px;
+        overflow-x: auto;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .server-icon, .add-server {
+        flex: 0 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .input-container input {
+        font-size: 14px;
+    }
+
+    .message-text {
+        font-size: 14px;
+    }
+
+    .server-icon, .add-server {
+        width: 40px;
+        height: 40px;
+    }
+}
