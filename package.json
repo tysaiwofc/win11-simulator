@@ -1,6 +1,6 @@
 {
   "name": "windows-simulator",
-  "version": "1.2.230",
+  "version": "1.2.234",
   "main": "src/main.js",
   "repository": {
     "type": "git",

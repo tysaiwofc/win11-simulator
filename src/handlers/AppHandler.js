@@ -38,16 +38,23 @@ class AppHandler {
       // Verifica o caminho correto do ícone, dependendo do diretório usado
       const finalIconPath = fsSync.existsSync(iconPath) ? iconPath : path.join(!this.Dev ? this.getAssetsPath().replace('assets', 'src/apps') : this.getAssetsPath().replace('assets', 'apps'), appName, appData.icon);
   
+      const allWindows = BrowserWindow.getAllWindows();
+      const firstWindow = allWindows[0];
       // Cria uma nova janela do aplicativo
       const appWindow = new BrowserWindow({
+        parent: firstWindow,
         width: 800,
         height: 600,
         minWidth: 400,
         minHeight: 400,
-        modal: true,
+        modal: false,
+        transparent: true,
         frame: false,
-        icon: finalIconPath, // Usa o caminho correto do ícone
-        skipTaskbar: true, // Não aparece na taskbar
+        vibrancy: 'ultra-thin',
+        backgroundMaterial: 'acrylic', 
+        visualEffectState: 'active',  
+        icon: finalIconPath, 
+        skipTaskbar: true,
         backgroundColor: '#00000000',
         webPreferences: {
           preload: path.join(__dirname, '..', 'preload.js'),
@@ -59,8 +66,19 @@ class AppHandler {
       });
   
       //appWindow.webContents.openDevTools();
-      // Carrega o arquivo HTML do app
+      
       appWindow.loadFile(appPath);
+
+      const windows = BrowserWindow.getAllWindows();
+  
+  // Emitir o evento para cada janela aberta
+  windows.forEach(window => {
+    window.webContents.send('open-app-in-desktop', {
+      title: appName,
+      id: window.id,
+      iconUrl: '../assets/icons/default-icon.png', // Altere conforme necessário
+    });
+  })
       return true;
     } catch (err) {
       console.error('Erro ao abrir o app:', err);

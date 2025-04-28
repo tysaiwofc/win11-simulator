@@ -1,9 +1,31 @@
 
-
-
 document.addEventListener('DOMContentLoaded', async () => {
   // Carregar appsconst username = 'seu-usuario-no-github'; 
+// Função para mostrar a janela About
+function showAboutWindow() {
+  const aboutWindow = document.getElementById('about-window');
+  aboutWindow.style.display = 'block';
+}
+showAboutWindow()
+// Função para esconder a janela About
+function hideAboutWindow() {
+  const aboutWindow = document.getElementById('about-window');
+  if (aboutWindow) {
+    aboutWindow.remove();  // Remove o elemento do DOM
+  }
+}
 
+
+// Adicionar evento de clique ao botão OK
+const okButton = document.getElementById('okbtn');
+  const okButtonText = okButton.querySelector('div[data-allow="true"]'); // Seletor para o elemento correto dentro da div
+
+  if (okButtonText) {
+    okButtonText.addEventListener('click', hideAboutWindow);
+  }
+
+// Para mostrar a janela (chame esta função quando quiser exibir)
+// showAboutWindow();
   const username = 'tysaiwofc'
   // Elemento onde os projetos serão exibidos
   const projectsList = document.getElementById('github-projects-list');
@@ -58,10 +80,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
  
 });
-
-
-
-
 
 
 async function renderApps(apps) {

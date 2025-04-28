@@ -10,14 +10,18 @@
   <div id="wallpaper"></div>
   
   <div id="desktop">
-    <!-- Ícones do desktop serão adicionados dinamicamente -->
+    
   </div>
   
   <div id="taskbar">
     <div id="taskbar-icons">
-      <div id="start-button" class="taskbar-icon">
-        <img src="../assets/icons/windows.png" alt="Start">
+      <div id="taskbar-icons">
+        <div id="start-button" class="taskbar-icon">
+          <img src="../assets/icons/windows.png" alt="Start">
+        </div>
+        <div id="taskbar-windows"></div> <!-- Movido para fora do start-button -->
       </div>
+      
      
     </div>
     <div class="left-menu-start-container">
@@ -83,6 +87,20 @@
     </div>
     <div id="notification-list"></div>
   </div>
+  <div id="about-window" class="aboutApp floatTab dpShad" style="display: none;">
+    <div class="content p-6">
+      <div class="text-xl font-semibold">Sobre</div>
+      <p>Windows 11 Simulator é um projeto de código aberto criado com a intenção de replicar a experiência de desktop do Windows 11 , utilizando tecnologias padrão como Electron, CSS e JavaScript.</p>
+
+      <p>Este projeto não tem qualquer afiliação com a Microsoft e não deve ser confundido com o Sistema Operacional ou Produtos da Microsoft.</p>
+      <p>Este também não é&nbsp;<a target="_blank" href="https://www.microsoft.com/en-in/windows-365" rel="noreferrer">Windows 365 Cloud PC</a>.</p>
+      <p>Microsoft, Windows e outros produtos demonstrados neste projeto são marcas registradas do grupo Microsoft.</p>
+    </div>
+    <div class="okbtn px-6 py-4" id="okbtn">
+      <div data-allow="true">Ok, entendi</div>
+    </div>
+  </div>
+  
   <script src="renderer.js"></script>
 </body>
 </html>

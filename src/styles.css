@@ -773,3 +773,119 @@ body {
   background-color: #555;
   border-radius: 4px;
 }
+
+
+.open-source-alert {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(30, 30, 30, 0.7); /* Dark semi-transparente */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 7px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  padding: 32px;
+  width: 90%;
+  max-width: 400px;
+  z-index: 9999;
+  text-align: center;
+  font-family: "Segoe UI", sans-serif;
+  color: #ffffff;
+  animation: fadeIn 0.5s ease;
+}
+
+.alert-content h2 {
+  margin: 0 0 16px 0;
+  font-size: 24px;
+}
+
+.alert-content p {
+  margin: 8px 0;
+  font-size: 14px;
+  opacity: 0.8;
+}
+/* Estilo da janela About corrigido */
+.aboutApp {
+  position: fixed; /* Mudado de absolute para fixed */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  max-width: 90%;
+  background: rgba(32, 32, 32, 0.95);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(30px);
+  color: white;
+  display: none; /* Inicialmente oculta */
+}
+
+/* Outros estilos da janela (mantenha os que já tinha) */
+.content {
+  padding: 24px;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.p-6 {
+  padding: 1.5rem;
+}
+
+.pl-4 {
+  padding-left: 1rem;
+}
+
+.okbtn {
+  display: flex;
+  justify-content: flex-end;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 1.5rem;
+}
+
+.okbtn div {
+  padding: 8px 16px;
+  background-color: #0078d7;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.okbtn div:hover {
+  background-color: #0066b4;
+}
+#close-alert {
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 16px;
+  margin-left: auto;
+  border-radius: 8px;
+  font-size: 16px;
+  max-width: 200px;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#close-alert:hover {
+  background-color: #005a9e;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -60%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}

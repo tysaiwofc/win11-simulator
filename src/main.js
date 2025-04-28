@@ -118,6 +118,7 @@ const windowHandler = new WindowHandler();
 const configHandler = new ConfigHandler();
 const appStoreHandler = new AppStoreHandler(getDirPath);
 
+
 ipcMain.handle('download-app', (event, appData) => {
   return appStoreHandler.downloadApp(event, appData);
 });
@@ -215,6 +216,9 @@ function registerIpcHandlers() {
   ipcMain.handle('get-app-data', (event, appName) => appHandler.getAppData(event, appName));
   ipcMain.handle('get-apps', () => appHandler.getApps());
   ipcMain.handle('save-app-data', (event, appName, data) => appHandler.saveAppData(event, appName, data));
+
+
+
 
   ipcMain.handle('check-icon-exists', (event, baseDir, iconPath) => {
     
