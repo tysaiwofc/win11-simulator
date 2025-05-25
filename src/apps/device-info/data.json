@@ -1,0 +1,6 @@
+{
+    "displayName": "Device Info",
+    "icon": "about.png",
+    "description": "Device info",
+    "dir": "device-info"
+}

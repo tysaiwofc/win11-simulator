@@ -3,20 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Windows Update Simulator</title>
+  <title>Atualizações do Windows</title>
   <style>
-       :root {
+    :root {
+      --bg: #202020;
+      --panel: #2d2d2d;
+      --panel-light: #383838;
+      --text: #ffffff;
+      --text-secondary: #a0a0a0;
       --primary: #0078d4;
-      --primary-dark: #106ebe;
-      --text: #323130;
-      --text-light: #605e5c;
-      --bg: #f3f2f1;
-      --panel: #ffffff;
-      --border: #edebe9;
+      --primary-hover: #0086f0;
       --success: #107c10;
       --error: #d83b01;
-      --radius: 4px;
+      --border: #454545;
+      --radius: 8px;
       --transition: 0.2s ease;
+      --accent: #0078d4;
     }
 
     * {
@@ -26,113 +28,122 @@
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
-    body, html {
+    body {
       background-color: var(--bg);
       color: var(--text);
-      font-size: 14px;
-      overflow: hidden;
-    }
-
-    .hidden { 
-      display: none !important
-    }
-
-    .update-container {
-      width: 100%;
       height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .window-container {
+      width: 100%;
+      height: 100%;
       background-color: var(--panel);
-      border-radius: var(--radius);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
 
-    .header {
-      padding: 16px 20px;
-      background-color: var(--primary);
-      color: white;
+    .window-header {
+      padding: 16px 24px;
+      background-color: var(--panel-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      -webkit-app-region: drag;
+    }
+
+    .window-title {
+      font-size: 18px;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .header svg {
+    .window-title svg {
       width: 20px;
       height: 20px;
     }
 
-    .content {
-      padding: 20px;
+    .window-controls {
+      display: flex;
+      gap: 8px;
+      -webkit-app-region: no-drag;
     }
 
-    .status {
+    .window-control {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .window-control.minimize {
+      background-color: #f1c40f;
+    }
+
+    .window-control.close {
+      background-color: #e74c3c;
+    }
+
+    .content {
+      flex: 1;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .status-icon {
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .status-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .status-message {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .status-details {
+      color: var(--text-secondary);
+      font-size: 14px;
       margin-bottom: 24px;
     }
 
-    .status-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .status-subtitle {
-      font-size: 13px;
-      color: var(--text-light);
-    }
-
-    .update-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 20px;
-      background-color: #f9f9f9;
-      display: none;
-    }
-
-    .update-card.visible {
-      display: block;
-    }
-
-    .update-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: var(--primary);
-    }
-
-    .update-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      font-size: 13px;
-      color: var(--text-light);
-      margin-top: 12px;
-    }
-
     .progress-container {
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 20px;
-      background-color: #fafafa;
-      display: none;
-    }
-
-    .progress-container.visible {
-      display: block;
-    }
-
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 13px;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
     }
 
     .progress-bar {
-      height: 6px;
-      background-color: #e1e1e1;
-      border-radius: 3px;
+      height: 4px;
+      background-color: var(--border);
+      border-radius: 2px;
       overflow: hidden;
       margin-bottom: 8px;
     }
@@ -148,69 +159,81 @@
       display: flex;
       justify-content: space-between;
       font-size: 12px;
-      color: var(--text-light);
+      color: var(--text-secondary);
     }
 
-    .actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
-
-    .btn {
-      padding: 8px 16px;
-      border-radius: var(--radius);
+    .action-button {
+      padding: 10px 24px;
+      background-color: var(--primary);
+      color: white;
       border: none;
-      font-weight: 600;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      margin-top: 24px;
+      align-self: center;
     }
 
-    .btn-primary {
-      background-color: var(--primary);
-      color: white;
+    .action-button:hover {
+      background-color: var(--primary-hover);
     }
 
-    .btn-primary:hover {
-      background-color: var(--primary-dark);
-    }
-
-    .btn-secondary {
-      background-color: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-
-    .btn-secondary:hover {
-      background-color: #f5f5f5;
-    }
-
-    .btn:disabled {
-      opacity: 0.6;
+    .action-button:disabled {
+      opacity: 0.7;
       cursor: not-allowed;
     }
 
-    .options {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .action-button .spinner {
+      animation: spin 1s linear infinite;
     }
 
-    .option-item {
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .update-info {
+      background-color: var(--panel-light);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 24px;
+      display: none;
+    }
+
+    .update-info.visible {
+      display: block;
+    }
+
+    .update-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    .update-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .update-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
       display: flex;
-      align-items: center;
-      gap: 8px;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
     .footer {
-      padding: 12px 20px;
-      border-top: 1px solid var(--border);
+      padding: 16px;
       text-align: center;
-
+      border-top: 1px solid var(--border);
     }
 
     .footer-link {
@@ -223,186 +246,77 @@
       text-decoration: underline;
     }
 
-    /* Animações */
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+    /* Estados */
+    .state-checking .status-icon {
+      color: var(--primary);
     }
 
-    .spinner {
-      animation: spin 1s linear infinite;
+    .state-downloading .status-icon {
+      color: var(--primary);
     }
 
-    /* Dark mode */
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --primary: #60a5fa;
-        --text: #f3f4f6;
-        --text-light: #9ca3af;
-        --bg: #1f2937;
-        --panel: #111827;
-        --border: #374151;
-      }
-
-      .update-card, .progress-container {
-        background-color: #1e293b;
-      }
-
-      .btn-secondary:hover {
-        background-color: #1f2937;
-      }
+    .state-success .status-icon {
+      color: var(--success);
     }
 
-    /* Responsivo */
-    @media (max-width: 500px) {
-      body {
-        padding: 10px;
-      }
-
-      .actions {
-        flex-direction: column;
-      }
-
-      .btn {
-        justify-content: center;
-      }
+    .state-error .status-icon {
+      color: var(--error);
     }
-
-    .window-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  color: white;
-  user-select: none;
-  -webkit-app-region: drag; 
-}
-
-.window-title {
-  font-size: 18px;
-  font-weight: bold;
-}
-.window-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  color: white;
-  user-select: none;
-  -webkit-app-region: drag; /* Área arrastável */
-}
-
-.window-title {
-  -webkit-app-region: drag; /* Título também arrastável */
-}
-
-.window-controls {
-  display: flex;
-  -webkit-app-region: no-drag; /* Área dos botões NÃO arrastável */
-}
-
-.window-control {
-  width: 15px;
-  height: 15px;
-  margin-left: 10px;
-  cursor: pointer;
-  border-radius: 50%;
-  -webkit-app-region: no-drag; /* Cada botão clicável */
-}
-
-/* Estilos individuais para cada botão */
-.window-control.minimize {
-  background-color: #ffcc00;
-}
-
-.window-control.maximize {
-  background-color: #00cc00;
-}
-
-.window-control.close {
-  background-color: #ff0000;
-}
-
-.window-control:hover {
-  background-color: #555;
-}
-
-
-.window-control:active {
-  background-color: #222;
-}
   </style>
 </head>
 <body>
-  <div class="window-header">
-    <div class="window-title"></div>
-    <div class="window-controls">
-      <div class="window-control minimize"></div>
-      <div class="window-control close"></div>
-    </div>
-  </div>
-  <div class="update-container">
-    <div class="header">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M3,12V6.75L9,5.43V11.91L3,12M20,3V11.75L10,11.9V5.21L20,3M3,13L9,13.09V19.9L3,18.75V13M20,13.25V22L10,20.09V13.1L20,13.25Z" />
-      </svg>
-      <span>Atualizações do Windows</span>
+  <div class="window-container">
+    <div class="window-header">
+      <div class="window-title">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3,12V6.75L9,5.43V11.91L3,12M20,3V11.75L10,11.9V5.21L20,3M3,13L9,13.09V19.9L3,18.75V13M20,13.25V22L10,20.09V13.1L20,13.25Z" />
+        </svg>
+        <span>Atualizações do Windows</span>
+      </div>
+      <div class="window-controls">
+        <div class="window-control minimize"></div>
+        <div class="window-control close"></div>
+      </div>
     </div>
     
     <div class="content">
-      <div class="status">
-        <div class="status-title" id="status-message">Pronto para verificar atualizações</div>
-        <div class="status-subtitle" id="last-checked">Última verificação: --</div>
-      </div>
-      
-      <div class="update-card" id="update-details">
-        <div class="update-title" id="update-title"></div>
-        <div id="update-description"></div>
-        <div class="update-meta">
-          <span id="update-version"></span>
-          <span id="update-size"></span>
-          <span id="update-date"></span>
+      <div class="status-container">
+        <div class="status-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z" />
+          </svg>
         </div>
-      </div>
-      
-      <div class="progress-container" id="progress-container">
-        <div class="progress-header">
-          <span id="download-speed">Velocidade: --</span>
-          <span id="time-remaining">Tempo restante: --</span>
+        
+        <div>
+          <div class="status-message" id="status-message">Pronto para verificar atualizações</div>
+          <div class="status-details" id="status-details">Última verificação: Nunca</div>
         </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progress-fill"></div>
+        
+        <div class="progress-container" id="progress-container" style="display: none;">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-details">
+            <span id="download-speed">Velocidade: --</span>
+            <span id="download-percent">0%</span>
+          </div>
         </div>
-        <div class="progress-details">
-          <span id="downloaded-size">Baixado: --</span>
-          <span id="download-percent">0%</span>
+        
+        <div class="update-info" id="update-info">
+          <div class="update-title" id="update-title"></div>
+          <div class="update-description" id="update-description"></div>
+          <div class="update-meta">
+            <span id="update-version"></span>
+            <span id="update-size"></span>
+          </div>
         </div>
-      </div>
-      
-      <div class="actions">
-        <button class="btn btn-primary" id="check-updates">
-          <span id="check-updates">Verificar atualizações</span>
+        
+        <button class="action-button" id="check-updates">
           <svg id="check-spinner" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
             <path d="M12 2v4m0 12v4m-8-8H2m20 0h-4m1.078 7.078L16.25 16.25m5.828-8.328L16.25 7.75" />
           </svg>
+          <span id="button-text">Verificar atualizações</span>
         </button>
-        <button class="btn btn-primary" id="download-updates" >
-          <span>Baixar atualizações</span>
-        </button>
-        <button class="btn btn-primary" id="install-updates">
-          <span>Instalar agora</span>
-        </button>
-      </div>
-      
-      <div class="options">
-        <label class="option-item">
-          <input type="checkbox" id="auto-download">
-          <span>Baixar atualizações automaticamente</span>
-        </label>
-        <label class="option-item">
-          <input type="checkbox" id="auto-install">
-          <span>Instalar atualizações automaticamente</span>
-        </label>
       </div>
     </div>
     
@@ -410,6 +324,295 @@
       <a href="#" class="footer-link" id="help-link">Ajuda com atualizações</a>
     </div>
   </div>
-  <script src="renderer.js"></script>
+
+  <script>
+    class WindowsUpdate {
+      constructor() {
+        // Elementos da UI
+        this.elements = {
+          statusMessage: document.getElementById('status-message'),
+          statusDetails: document.getElementById('status-details'),
+          progressContainer: document.getElementById('progress-container'),
+          progressFill: document.getElementById('progress-fill'),
+          downloadSpeed: document.getElementById('download-speed'),
+          downloadPercent: document.getElementById('download-percent'),
+          updateInfo: document.getElementById('update-info'),
+          updateTitle: document.getElementById('update-title'),
+          updateDescription: document.getElementById('update-description'),
+          updateVersion: document.getElementById('update-version'),
+          updateSize: document.getElementById('update-size'),
+          checkButton: document.getElementById('check-updates'),
+          buttonText: document.getElementById('button-text'),
+          checkSpinner: document.getElementById('check-spinner'),
+          helpLink: document.getElementById('help-link'),
+          minimizeBtn: document.querySelector('.window-control.minimize'),
+          closeBtn: document.querySelector('.window-control.close')
+        };
+
+        // Estado da aplicação
+        this.state = {
+          isChecking: false,
+          isDownloading: false,
+          updateAvailable: false,
+          updateChecked: false,
+          updateDownloaded: false,
+          lastChecked: null,
+          downloadStartTime: null,
+          lastBytesReceived: 0
+        };
+
+        // Configurar listeners
+        this.setupListeners();
+        this.setupElectronListeners();
+        
+        // Atualizar UI inicial
+        this.updateUI();
+      }
+
+      setupListeners() {
+        // Botão de verificar atualizações
+        this.elements.checkButton.addEventListener('click', () => {
+          if (!this.state.isChecking && !this.state.isDownloading) {
+            this.checkForUpdates();
+          }
+        });
+
+        // Link de ajuda
+        this.elements.helpLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.showHelp();
+        });
+
+        // Controles da janela
+        this.elements.minimizeBtn?.addEventListener('click', () => {
+          window.electronAPI?.minimizeWindow();
+        });
+
+        this.elements.closeBtn?.addEventListener('click', () => {
+          window.electronAPI?.closeWindow();
+        });
+      }
+
+      setupElectronListeners() {
+        if (!window.electronAPI) {
+          this.showError("Erro de comunicação com o sistema");
+          return;
+        }
+
+        // Listener para atualizações de progresso
+        window.electronAPI.onDownloadProgress((_, progress) => {
+          this.updateDownloadProgress(progress);
+        });
+
+        // Listener para mensagens de status
+        window.electronAPI.onUpdateStatus((_, message) => {
+          this.updateStatus(message);
+        });
+      }
+
+      async checkForUpdates() {
+        if (this.state.isChecking || this.state.isDownloading) return;
+
+        this.setState({
+          isChecking: true,
+          updateAvailable: false,
+          updateChecked: false,
+          updateDownloaded: false
+        });
+
+        try {
+          const updateAvailable = await window.electronAPI.checkForUpdates();
+          this.setState({ updateChecked: true });
+          
+          if (updateAvailable) {
+            const updateInfo = await window.electronAPI.getUpdateInfo();
+            this.showUpdateAvailable(updateInfo);
+            
+            // Download automático
+            this.downloadUpdates();
+          } else {
+            this.showNoUpdatesAvailable();
+          }
+        } catch (error) {
+          this.showError(error.message || "Erro ao verificar atualizações");
+        } finally {
+          this.setState({ isChecking: false });
+          this.updateLastChecked();
+        }
+      }
+
+      async downloadUpdates() {
+        // Verificação adicional para garantir que a verificação foi concluída
+        if (!this.state.updateChecked) {
+          this.showError("Verifique as atualizações primeiro");
+          return;
+        }
+
+        if (!this.state.updateAvailable) {
+          this.showError("Nenhuma atualização disponível para download");
+          return;
+        }
+
+        if (this.state.isDownloading) return;
+
+        this.setState({ 
+          isDownloading: true,
+          downloadStartTime: Date.now(),
+          lastBytesReceived: 0
+        });
+
+        try {
+          await window.electronAPI.downloadUpdate();
+          const updateInfo = await window.electronAPI.getUpdateInfo();
+          this.showUpdateDownloaded(updateInfo);
+          
+          // Instalação automática
+          this.installUpdates();
+        } catch (error) {
+          this.showError(error.message || "Erro ao baixar atualizações");
+        } finally {
+          this.setState({ isDownloading: false });
+        }
+      }
+
+      async installUpdates() {
+        try {
+          await window.electronAPI.installUpdate();
+        } catch (error) {
+          console.error("Erro na instalação:", error);
+          this.showError("Erro na instalação das atualizações");
+        }
+      }
+
+      showUpdateAvailable(info) {
+        this.setState({ 
+          updateAvailable: true,
+          updateChecked: true
+        });
+        
+        // Atualizar informações na UI
+        this.elements.updateTitle.textContent = info?.title || "Atualização do Windows";
+        this.elements.updateDescription.textContent = info?.description || "Esta atualização inclui melhorias de desempenho e correções de segurança.";
+        this.elements.updateVersion.textContent = `Versão: ${info?.version || "Desconhecida"}`;
+        this.elements.updateSize.textContent = `Tamanho: ${this.formatSize(info?.size || 0)}`;
+        
+        this.updateStatus("Atualizações disponíveis");
+      }
+
+      showUpdateDownloaded(info) {
+        this.setState({ updateDownloaded: true });
+        this.updateStatus("Atualizações prontas para instalar");
+      }
+
+      showNoUpdatesAvailable() {
+        this.setState({ updateChecked: true });
+        this.updateStatus("Você está atualizado");
+      }
+
+      showError(message) {
+        this.updateStatus(message);
+        // Adiciona classe de erro temporariamente
+        const container = document.querySelector('.status-container');
+        container.classList.add('state-error');
+        
+        // Remove após 3 segundos
+        setTimeout(() => {
+          container.classList.remove('state-error');
+        }, 3000);
+      }
+
+      showHelp() {
+        window.electronAPI?.openExternal("https://support.microsoft.com/windows");
+      }
+
+      updateStatus(message) {
+        this.elements.statusMessage.textContent = message;
+      }
+
+      updateLastChecked() {
+        const now = new Date();
+        this.state.lastChecked = now;
+        
+        const formatted = now.toLocaleDateString('pt-BR', {
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric',
+          hour: '2-digit', 
+          minute: '2-digit'
+        });
+        
+        this.elements.statusDetails.textContent = `Última verificação: ${formatted}`;
+      }
+
+      updateDownloadProgress(progress) {
+        if (!this.state.isDownloading) return;
+
+        const percent = Math.floor(progress.percent);
+        this.elements.progressFill.style.width = `${percent}%`;
+        this.elements.downloadPercent.textContent = `${percent}%`;
+        
+        // Calcular velocidade de download
+        const now = Date.now();
+        const timeElapsed = (now - this.state.downloadStartTime) / 1000; // em segundos
+        const bytesPerSecond = progress.transferred / timeElapsed;
+        
+        this.elements.downloadSpeed.textContent = `Velocidade: ${this.formatSpeed(bytesPerSecond)}`;
+      }
+
+      formatSize(bytes) {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+      }
+
+      formatSpeed(bytesPerSecond) {
+        if (bytesPerSecond < 1024) return `${bytesPerSecond.toFixed(0)} B/s`;
+        if (bytesPerSecond < 1024 * 1024) return `${(bytesPerSecond / 1024).toFixed(1)} KB/s`;
+        return `${(bytesPerSecond / (1024 * 1024)).toFixed(1)} MB/s`;
+      }
+
+      setState(newState) {
+        this.state = { ...this.state, ...newState };
+        this.updateUI();
+      }
+
+      updateUI() {
+        // Atualizar visibilidade dos elementos
+        this.elements.progressContainer.style.display = this.state.isDownloading ? 'block' : 'none';
+        this.elements.updateInfo.style.display = this.state.updateAvailable ? 'block' : 'none';
+        
+        // Atualizar botão
+        if (this.state.isChecking) {
+          this.elements.buttonText.textContent = "Verificando...";
+          this.elements.checkSpinner.style.display = 'block';
+          this.elements.checkButton.disabled = true;
+        } else if (this.state.isDownloading) {
+          this.elements.buttonText.textContent = "Baixando...";
+          this.elements.checkSpinner.style.display = 'block';
+          this.elements.checkButton.disabled = true;
+        } else {
+          this.elements.buttonText.textContent = "Verificar atualizações";
+          this.elements.checkSpinner.style.display = 'none';
+          this.elements.checkButton.disabled = false;
+        }
+        
+        // Atualizar classes de estado
+        const container = document.querySelector('.status-container');
+        container.className = 'status-container';
+        
+        if (this.state.isChecking || this.state.isDownloading) {
+          container.classList.add('state-checking');
+        } else if (this.state.updateDownloaded) {
+          container.classList.add('state-success');
+        }
+      }
+    }
+
+    // Inicializar quando o DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', () => {
+      new WindowsUpdate();
+    });
+  </script>
 </body>
 </html>

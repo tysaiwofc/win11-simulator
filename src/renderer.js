@@ -446,58 +446,47 @@ function makeDraggable(el) {
 
 
 
-function setupContextMenu() {
-  const desktop = document.getElementById('desktop');
-  const contextMenu = document.getElementById('context-menu');
-  
-  // Mostrar menu de contexto
-  desktop.addEventListener('contextmenu', async (e) => {
-    e.preventDefault();
+ function setupContextMenu() {
+      const desktop = document.getElementById('desktop');
+      const contextMenu = document.getElementById('context-menu');
+      
+      desktop.addEventListener('contextmenu', async (e) => {
+        e.preventDefault();
+        
+        contextMenu.style.display = 'block';
+        contextMenu.style.left = `${e.clientX}px`;
+        contextMenu.style.top = `${e.clientY}px`;
+        
+        const hasSelection = document.querySelectorAll('.desktop-icon.selected').length > 0;
+        
+        document.getElementById('context-paste').style.display = 
+          await window.electronAPI.hasClipboardItems() ? 'block' : 'none';
+        document.getElementById('context-view').style.display = hasSelection ? 'none' : 'block';
+        document.getElementById('context-sort').style.display = hasSelection ? 'none' : 'block';
+      });
+      
+      document.addEventListener('click', () => {
+        contextMenu.style.display = 'none';
+      });
+      
+      document.getElementById('context-refresh').addEventListener('click', () => {
+        refreshDesktop();
+      });
+      
+      document.getElementById('context-paste').addEventListener('click', () => {
+        window.electronAPI.pasteToDesktop();
+        refreshDesktop();
+      });
+      
+      document.getElementById('context-display').addEventListener('click', () => {
+        window.electronAPI.openApp('settings');
+      });
+      
+      document.getElementById('context-personalize').addEventListener('click', () => {
+        window.electronAPI.openApp('settings');
+      });
+    }
     
-    // Posicionar menu
-    contextMenu.style.display = 'block';
-    contextMenu.style.left = `${e.clientX}px`;
-    contextMenu.style.top = `${e.clientY}px`;
-    
-    // Verificar se há itens selecionados
-    const hasSelection = document.querySelectorAll('.desktop-icon.selected').length > 0;
-    
-    // Ajustar itens do menu baseado na seleção
-    document.getElementById('context-paste').style.display = 
-      await window.electronAPI.hasClipboardItems() ? 'block' : 'none';
-    document.getElementById('context-view').style.display = hasSelection ? 'none' : 'block';
-    document.getElementById('context-sort').style.display = hasSelection ? 'none' : 'block';
-  });
-  
-  // Fechar menu ao clicar em outro lugar
-  document.addEventListener('click', () => {
-    contextMenu.style.display = 'none';
-  });
-  
-  // Ações do menu de contexto
-  document.getElementById('context-refresh').addEventListener('click', () => {
-    refreshDesktop();
-  });
-
-  
-  document.getElementById('context-new').addEventListener('click', (e) => {
-    showNewSubmenu(e);
-  });
-  
-  document.getElementById('context-paste').addEventListener('click', () => {
-    window.electronAPI.pasteToDesktop();
-    refreshDesktop();
-  });
-  
-  document.getElementById('context-display').addEventListener('click', () => {
-    window.electronAPI.openApp('settings');
-  });
-  
-  document.getElementById('context-personalize').addEventListener('click', () => {
-    window.electronAPI.openApp('settings');
-  });
-}
-
 function refreshDesktop() {
   const desktop = document.getElementById('desktop');
   document.querySelectorAll('.desktop-icon').forEach(icon => icon.remove());
@@ -786,7 +775,3 @@ function setupNotificationCenter() {
     await loadNotifications();
   }
 }
-
-// API global para enviar notificações
-
-// Inicializar a central de notificações

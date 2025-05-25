@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre o seu computador</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap">
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-color: #000000;
+            --primary-color: #0078d4;
+            --text-color: #323130;
+            --border-color: #000000;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .windows-container {
+            width: 100%;
+            height: 100vh;
+            background-color: var(--card-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .windows-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .windows-logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+        }
+
+        .windows-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .windows-content {
+            padding: 20px;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .spec-item {
+            margin-bottom: 15px;
+        }
+
+        .spec-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .spec-value {
+            padding: 8px;
+            background-color: var(--bg-color);
+            border-radius: 4px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .windows-footer {
+            padding: 15px 20px;
+  
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .windows-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Segoe UI';
+            font-weight: 600;
+        }
+
+        .windows-button:hover {
+            background-color: #106ebe;
+        }
+
+        @media (max-width: 600px) {
+            .specs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+         .window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            color: white;
+            user-select: none;
+            -webkit-app-region: drag; 
+          }
+          
+          .window-title {
+            font-size: 12px;
+            opacity: 0.8;
+            -webkit-app-region: drag;
+          }
+          
+          .window-controls {
+            display: flex;
+            gap: 8px;
+            -webkit-app-region: no-drag;
+          }
+          
+          .window-control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            -webkit-app-region: no-drag;
+          }
+          
+          /* Estilos individuais para cada botão */
+          .window-control.minimize {
+            background-color: #ffcc00;
+          }
+          
+          .window-control.maximize {
+            background-color: #00cc00;
+          }
+          
+          .window-control.close {
+            background-color: #ff0000;
+          }
+          
+          .window-control:hover {
+            background-color: #555;
+          }
+          
+          
+          .window-control:active {
+            background-color: #222;
+          }
+    </style>
+</head>
+<body>
+    <div class="windows-container">
+        <div class="window-header">
+        <div class="window-title"></div>
+        <div class="window-controls">
+          <div class="window-control minimize"></div>
+          <div class="window-control close"></div>
+        </div>
+      </div>
+        
+        <div class="windows-content">
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <div class="spec-label">Sistema Operacional</div>
+                    <div class="spec-value" id="os-name">Carregando...</div>
+                </div>
+                
+                <div class="spec-item">
+                    <div class="spec-label">Versão</div>
+                    <div class="spec-value" id="os-version">Carregando...</div>
+                </div>
+                
+                <div class="spec-item">
+                    <div class="spec-label">Processador</div>
+                    <div class="spec-value" id="cpu-info">Carregando...</div>
+                </div>
+                
+                <div class="spec-item">
+                    <div class="spec-label">Memória RAM</div>
+                    <div class="spec-value" id="ram-info">Carregando...</div>
+                </div>
+                
+                <div class="spec-item">
+                    <div class="spec-label">Arquitetura</div>
+                    <div class="spec-value" id="architecture">Carregando...</div>
+                </div>
+                
+                <div class="spec-item">
+                    <div class="spec-label">Resolução de Tela</div>
+                    <div class="spec-value" id="screen-resolution">Carregando...</div>
+                </div>
+                
+                <div class="spec-item">
+                    <div class="spec-label">Navegador</div>
+                    <div class="spec-value" id="browser-info">Carregando...</div>
+                </div>
+                
+                <div class="spec-item">
+                    <div class="spec-label">Núcleos de CPU</div>
+                    <div class="spec-value" id="cpu-cores">Carregando...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="windows-footer">
+            <button class="windows-button" id="refresh-btn">Atualizar</button>
+        </div>
+    </div>
+
+    <script>
+        // Função para formatar bytes em GB
+        function formatBytes(bytes) {
+            const gb = bytes / (1024 * 1024 * 1024);
+            return gb.toFixed(2) + ' GB';
+        }
+
+        // Função principal para obter informações do sistema
+        function getSystemInfo() {
+            // Informações do navegador e SO
+            const userAgent = navigator.userAgent;
+            let osName = 'Sistema Operacional Desconhecido';
+            let osVersion = 'Versão Desconhecida';
+
+            if (userAgent.includes('Windows NT 10.0')) osName = 'Windows 10';
+            if (userAgent.includes('Windows NT 11.0')) osName = 'Windows 11';
+            if (userAgent.includes('Mac')) osName = 'macOS';
+            if (userAgent.includes('Linux')) osName = 'Linux';
+            if (userAgent.includes('Android')) osName = 'Android';
+            if (userAgent.includes('iOS')) osName = 'iOS';
+
+            // Extrai a versão do Windows
+            const winVersionMatch = userAgent.match(/Windows NT (\d+\.\d+)/);
+            if (winVersionMatch) osVersion = winVersionMatch[1];
+
+            // Informações da CPU (limitado pelo navegador)
+            const cpuCores = navigator.hardwareConcurrency || 'Desconhecido';
+
+            // Informações de memória (funciona em alguns navegadores)
+            let ramInfo = 'Memória não disponível';
+            if (navigator.deviceMemory) {
+                ramInfo = `${navigator.deviceMemory} GB`;
+            }
+
+            // Arquitetura
+            const is64bit = navigator.userAgent.includes('WOW64') || 
+                           navigator.userAgent.includes('Win64') || 
+                           navigator.cpuClass === 'x64';
+            const architecture = is64bit ? '64-bit' : '32-bit';
+
+            // Resolução de tela
+            const screenResolution = `${screen.width} × ${screen.height}`;
+
+            // Navegador
+            let browserInfo = 'Navegador Desconhecido';
+            if (userAgent.includes('Firefox')) browserInfo = 'Mozilla Firefox';
+            else if (userAgent.includes('Edg')) browserInfo = 'Microsoft Edge';
+            else if (userAgent.includes('Chrome')) browserInfo = 'Google Chrome';
+            else if (userAgent.includes('Safari')) browserInfo = 'Apple Safari';
+            else if (userAgent.includes('Opera')) browserInfo = 'Opera';
+
+            // Atualiza a interface
+            document.getElementById('os-name').textContent = osName;
+            document.getElementById('os-version').textContent = osVersion;
+            document.getElementById('cpu-info').textContent = navigator.platform;
+            document.getElementById('ram-info').textContent = ramInfo;
+            document.getElementById('architecture').textContent = architecture;
+            document.getElementById('screen-resolution').textContent = screenResolution;
+            document.getElementById('browser-info').textContent = browserInfo;
+            document.getElementById('cpu-cores').textContent = cpuCores;
+        }
+
+        // Tenta obter mais informações usando APIs experimentais
+        function tryAdvancedInfo() {
+            // Memória (API experimental)
+            if ('deviceMemory' in navigator) {
+                const ramGB = navigator.deviceMemory;
+                document.getElementById('ram-info').textContent = `${ramGB} GB`;
+            }
+
+            // Informações de CPU mais detalhadas (quando disponível)
+            if ('cpu' in navigator) {
+                navigator.cpu.getInfo().then(info => {
+                    document.getElementById('cpu-info').textContent = info.brand || document.getElementById('cpu-info').textContent;
+                });
+            }
+        }
+
+        // Botão de atualizar
+        document.getElementById('refresh-btn').addEventListener('click', () => {
+            document.querySelectorAll('.spec-value').forEach(el => {
+                el.textContent = 'Carregando...';
+            });
+            getSystemInfo();
+            tryAdvancedInfo();
+        });
+
+        // Carrega as informações quando a página abre
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('.window-control.minimize').addEventListener('click', () => {
+    window.electronAPI.minimizeWindow();  // Minimize a janela
+  });
+  
+  document.querySelector('.window-control.close').addEventListener('click', () => {
+    window.electronAPI.closeWindow();  // Fechar a janela
+  });
+            getSystemInfo();
+            tryAdvancedInfo();
+            
+        });
+    </script>
+</body>
+</html>

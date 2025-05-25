@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VS Code Clone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vscode-codicons/0.0.32/dist/codicon.min.css">
+    <style>
+        :root {
+            --vscode-background: #1e1e1e;
+            --vscode-sideBar-background: #252526;
+            --vscode-editor-background: #1e1e1e;
+            --vscode-foreground: #cccccc;
+            --vscode-focusBorder: #007fd4;
+            --vscode-sideBar-border: #252526;
+            --vscode-tab-activeBackground: #1e1e1e;
+            --vscode-tab-inactiveBackground: #2d2d2d;
+            --vscode-statusBar-background: #007acc;
+            --vscode-statusBar-foreground: #ffffff;
+            --vscode-activityBar-background: #333333;
+            --vscode-activityBar-foreground: #ffffff;
+            --vscode-editor-lineHighlightBackground: #282828;
+            --vscode-editor-selectionBackground: #264f78;
+            --vscode-button-background: #0e639c;
+            --vscode-button-foreground: #ffffff;
+            --vscode-input-background: #3c3c3c;
+            --vscode-input-foreground: #cccccc;
+            --vscode-list-hoverBackground: #2a2d2e;
+            --vscode-list-activeSelectionBackground: #094771;
+            --vscode-badge-background: #4d4d4d;
+            --vscode-badge-foreground: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+            color: var(--vscode-foreground);
+            background-color: var(--vscode-background);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #status-bar {
+            background-color: var(--vscode-statusBar-background);
+            color: var(--vscode-statusBar-foreground);
+            height: 22px;
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            user-select: none;
+        }
+
+        .status-bar-item {
+            padding: 0 6px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-bar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        #activity-bar {
+            width: 48px;
+            background-color: var(--vscode-activityBar-background);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 10px;
+        }
+
+        .activity-bar-item {
+            width: 100%;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            color: var(--vscode-activityBar-foreground);
+            font-size: 18px;
+        }
+
+        .activity-bar-item.active {
+            color: var(--vscode-activityBar-foreground);
+        }
+
+        .activity-bar-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: var(--vscode-statusBar-background);
+        }
+
+        .activity-bar-badge {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            background-color: var(--vscode-badge-background);
+            color: var(--vscode-badge-foreground);
+            border-radius: 10px;
+            padding: 0 4px;
+            font-size: 9px;
+            line-height: 16px;
+            min-width: 8px;
+            text-align: center;
+        }
+
+        #sidebar {
+            width: 300px;
+            background-color: var(--vscode-sideBar-background);
+            border-right: 1px solid var(--vscode-sideBar-border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 5px 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .sidebar-header-actions {
+            display: flex;
+        }
+
+        .sidebar-header-action {
+            padding: 2px 4px;
+            cursor: pointer;
+            opacity: 0.7;
+            font-size: 15px;
+        }
+
+        .sidebar-header-action:hover {
+            opacity: 1;
+        }
+
+        #file-explorer {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .explorer-item {
+            padding: 3px 10px 3px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            position: relative;
+            user-select: none;
+        }
+
+        .explorer-item:hover {
+            background-color: var(--vscode-list-hoverBackground);
+        }
+
+        .explorer-item.selected {
+            background-color: var(--vscode-list-activeSelectionBackground);
+        }
+
+        .explorer-item .icon {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .explorer-item.folder {
+            padding-left: 10px;
+        }
+
+        .explorer-item.folder::before {
+            content: '▶';
+            position: absolute;
+            left: 5px;
+            font-size: 10px;
+            transition: transform 0.1s;
+        }
+
+        .explorer-item.folder.expanded::before {
+            transform: rotate(90deg);
+        }
+
+        .explorer-item-contents {
+            display: none;
+            padding-left: 15px;
+        }
+
+        .explorer-item.folder.expanded > .explorer-item-contents {
+            display: block;
+        }
+
+        #editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #tab-bar {
+            height: 35px;
+            background-color: var(--vscode-tab-inactiveBackground);
+            display: flex;
+            overflow-x: auto;
+            user-select: none;
+        }
+
+        .tab {
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            border-right: 1px solid var(--vscode-sideBar-border);
+            cursor: pointer;
+            white-space: nowrap;
+            max-width: 200px;
+            position: relative;
+        }
+
+        .tab.active {
+            background-color: var(--vscode-tab-activeBackground);
+            color: var(--vscode-foreground);
+        }
+
+        .tab-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab-close {
+            margin-left: 8px;
+            opacity: 0.7;
+            display: none;
+        }
+
+        .tab:hover .tab-close,
+        .tab.dirty .tab-close {
+            display: block;
+        }
+
+        .tab-close:hover {
+            opacity: 1;
+        }
+
+        .tab.dirty::after {
+            content: '•';
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--vscode-foreground);
+        }
+
+        #editor-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #editor {
+            width: 100%;
+            height: 100%;
+            background-color: var(--vscode-editor-background);
+            color: var(--vscode-foreground);
+            border: none;
+            resize: none;
+            padding: 10px 10px 10px 50px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            outline: none;
+            tab-size: 4;
+            white-space: pre;
+        }
+
+        #editor-line-numbers {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            background-color: var(--vscode-sideBar-background);
+            color: var(--vscode-foreground);
+            text-align: right;
+            padding: 10px 5px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .context-menu {
+            position: absolute;
+            background-color: var(--vscode-sideBar-background);
+            border: 1px solid var(--vscode-sideBar-border);
+            z-index: 1000;
+            min-width: 200px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            padding: 4px 0;
+        }
+
+        .context-menu-item {
+            padding: 5px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .context-menu-item:hover {
+            background-color: var(--vscode-list-hoverBackground);
+        }
+
+        .context-menu-separator {
+            height: 1px;
+            background-color: var(--vscode-sideBar-border);
+            margin: 4px 0;
+        }
+
+        .context-menu-shortcut {
+            opacity: 0.6;
+            margin-left: 20px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .modal {
+            background-color: var(--vscode-sideBar-background);
+            border: 1px solid var(--vscode-sideBar-border);
+            min-width: 400px;
+            max-width: 80%;
+            border-radius: 2px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 10px 15px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--vscode-sideBar-border);
+        }
+
+        .modal-body {
+            padding: 15px;
+        }
+
+        .modal-footer {
+            padding: 10px 15px;
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid var(--vscode-sideBar-border);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 8px;
+            background-color: var(--vscode-input-background);
+            color: var(--vscode-input-foreground);
+            border: 1px solid var(--vscode-sideBar-border);
+            margin-bottom: 10px;
+        }
+
+        .button {
+            padding: 5px 12px;
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .button.secondary {
+            background-color: transparent;
+            border: 1px solid var(--vscode-sideBar-border);
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .codicon {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="main-container">
+            <div id="activity-bar">
+                <div class="activity-bar-item active" title="Explorer (Ctrl+Shift+E)">
+                    <span class="codicon codicon-files"></span>
+                </div>
+                <div class="activity-bar-item" title="Search (Ctrl+Shift+F)">
+                    <span class="codicon codicon-search"></span>
+                </div>
+                <div class="activity-bar-item" title="Source Control (Ctrl+Shift+G)">
+                    <span class="codicon codicon-source-control"></span>
+                    <span class="activity-bar-badge">1</span>
+                </div>
+                <div class="activity-bar-item" title="Run and Debug (Ctrl+Shift+D)">
+                    <span class="codicon codicon-debug-alt"></span>
+                </div>
+                <div class="activity-bar-item" title="Extensions (Ctrl+Shift+X)">
+                    <span class="codicon codicon-extensions"></span>
+                </div>
+            </div>
+            <div id="sidebar">
+                <div class="sidebar-header">
+                    <span>EXPLORER</span>
+                    <div class="sidebar-header-actions">
+                        <span class="sidebar-header-action codicon codicon-new-file" title="New File"></span>
+                        <span class="sidebar-header-action codicon codicon-refresh" title="Refresh"></span>
+                    </div>
+                </div>
+                <div id="file-explorer"></div>
+            </div>
+            <div id="editor-area">
+                <div id="tab-bar"></div>
+                <div id="editor-container">
+                    <div id="editor-line-numbers"></div>
+                    <textarea id="editor" spellcheck="false"></textarea>
+                </div>
+            </div>
+        </div>
+        <div id="status-bar">
+            <div class="status-bar-item" id="branch-status">
+                <span class="codicon codicon-git-branch"></span>
+                <span>main*</span>
+            </div>
+            <div class="status-bar-item" id="sync-status">
+                <span class="codicon codicon-sync"></span>
+            </div>
+            <div class="status-bar-item" id="errors-warnings">
+                <span class="codicon codicon-warning"></span>
+                <span>0</span>
+                <span class="codicon codicon-error" style="margin-left: 10px;"></span>
+                <span>0</span>
+            </div>
+            <div class="status-bar-item" id="encoding-status">
+                <span>UTF-8</span>
+            </div>
+            <div class="status-bar-item" id="line-ending-status">
+                <span>LF</span>
+            </div>
+            <div class="status-bar-item" id="language-status">
+                <span>Plain Text</span>
+            </div>
+            <div class="status-bar-item" id="feedback-status">
+                <span class="codicon codicon-feedback"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // DOM elements
+            const fileExplorer = document.getElementById('file-explorer');
+            const editor = document.getElementById('editor');
+            const editorLineNumbers = document.getElementById('editor-line-numbers');
+            const tabBar = document.getElementById('tab-bar');
+            
+            // State
+            let currentFilePath = '';
+            let openFiles = [];
+            let fileTree = {};
+            let basePath = '';
+            let isDirty = false;
+            
+            // File icons mapping using VS Code codicons
+            const fileIcons = {
+                // File extensions
+                '.js': 'codicon-symbol-method',
+                '.json': 'codicon-json',
+                '.html': 'codicon-symbol-html',
+                '.css': 'codicon-symbol-css',
+                '.md': 'codicon-markdown',
+                '.txt': 'codicon-symbol-text',
+                '.py': 'codicon-symbol-python',
+                '.java': 'codicon-symbol-class',
+                '.cpp': 'codicon-symbol-method',
+                '.c': 'codicon-symbol-method',
+                '.php': 'codicon-symbol-method',
+                '.ts': 'codicon-symbol-method',
+                '.jsx': 'codicon-symbol-react',
+                '.tsx': 'codicon-symbol-react',
+                '.xml': 'codicon-xml',
+                '.yml': 'codicon-symbol-array',
+                '.yaml': 'codicon-symbol-array',
+                '.sh': 'codicon-terminal',
+                '.bat': 'codicon-terminal',
+                '.ps1': 'codicon-terminal',
+                
+                // File names
+                'package.json': 'codicon-library',
+                'package-lock.json': 'codicon-library',
+                'README.md': 'codicon-book',
+                'LICENSE': 'codicon-law',
+                '.gitignore': 'codicon-git',
+                '.env': 'codicon-key',
+                
+                // Default file icon
+                '_default': 'codicon-symbol-file'
+            };
+            
+            // Folder icons
+            const folderIcons = {
+                '_default': 'codicon-folder',
+                'node_modules': 'codicon-folder-library',
+                'src': 'codicon-folder-src',
+                'public': 'codicon-folder-public',
+                'dist': 'codicon-folder-dist',
+                'build': 'codicon-folder-build',
+                'assets': 'codicon-folder-images',
+                'images': 'codicon-folder-images',
+                'styles': 'codicon-folder-css',
+                'components': 'codicon-folder-components',
+                '.git': 'codicon-folder-git',
+                '.github': 'codicon-folder-github',
+                '.vscode': 'codicon-folder-vscode'
+            };
+            
+            // Initialize
+            await initializeIDE();
+            updateLineNumbers();
+            
+            // Event listeners
+            editor.addEventListener('input', () => {
+                isDirty = true;
+                updateTabStatus(currentFilePath, true);
+                updateLineNumbers();
+            });
+            
+            editor.addEventListener('scroll', () => {
+                editorLineNumbers.scrollTop = editor.scrollTop;
+            });
+            
+            editor.addEventListener('click', () => {
+                updateLineNumbers();
+            });
+            
+            editor.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    switch (e.key) {
+                        case 's':
+                            e.preventDefault();
+                            saveCurrentFile();
+                            break;
+                    }
+                }
+            });
+            
+            document.querySelectorAll('.activity-bar-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.activity-bar-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                });
+            });
+            
+            document.querySelector('.sidebar-header-action.codicon-new-file').addEventListener('click', () => {
+                showNewFileDialog();
+            });
+            
+            document.querySelector('.sidebar-header-action.codicon-refresh').addEventListener('click', () => {
+                loadFileExplorer();
+            });
+            
+            // Functions
+            async function initializeIDE() {
+                try {
+                    // Get base path
+                    basePath = await window.electronAPI.getDirPath();
+                    console.log("Base path:", basePath);
+                    
+                    // Load file explorer
+                    await loadFileExplorer();
+                    
+                    // Show welcome page
+                    await showWelcomePage();
+                } catch (error) {
+                    console.error("Initialization error:", error);
+                    showErrorMessage("Initialization Error", error.message);
+                }
+            }
+            
+            async function loadFileExplorer() {
+                try {
+                    fileExplorer.innerHTML = '';
+                    
+                    // Read directory - expecting an array of {name, type, path} objects
+                    const filesData = await window.electronAPI.readDirectory();
+                    console.log("Files data:", filesData);
+                    
+                    // Build file tree structure
+                    fileTree = buildFileTree(filesData);
+                    renderFileExplorer(fileTree, basePath);
+                } catch (error) {
+                    console.error('Error loading file explorer:', error);
+                    showErrorMessage('Failed to load file explorer', error.message);
+                }
+            }
+            
+            function buildFileTree(filesData) {
+                const tree = {};
+                
+                filesData.forEach(item => {
+                    const pathParts = item.path.replace(basePath + '/', '').split('/');
+                    let currentLevel = tree;
+                    
+                    pathParts.forEach((part, index) => {
+                        if (!currentLevel[part]) {
+                            currentLevel[part] = {
+                                type: index === pathParts.length - 1 ? item.type : 'directory',
+                                path: basePath + '/' + pathParts.slice(0, index + 1).join('/')
+                            };
+                        }
+                        
+                        currentLevel = currentLevel[part];
+                    });
+                });
+                
+                return tree;
+            }
+            
+            function renderFileExplorer(tree, currentPath, parentElement = fileExplorer, depth = 0) {
+                Object.keys(tree).sort((a, b) => {
+                    // Folders first, then files, both alphabetically
+                    const aIsFile = tree[a].type === 'file';
+                    const bIsFile = tree[b].type === 'file';
+                    
+                    if (aIsFile && !bIsFile) return 1;
+                    if (!aIsFile && bIsFile) return -1;
+                    return a.localeCompare(b);
+                }).forEach(key => {
+                    const itemData = tree[key];
+                    const isFile = itemData.type === 'file';
+                    const item = document.createElement('div');
+                    item.className = `explorer-item ${isFile ? 'file' : 'folder'}`;
+                    item.dataset.path = itemData.path;
+                    item.dataset.name = key;
+                    item.title = key;
+                    
+                    const icon = document.createElement('div');
+                    icon.className = 'icon';
+                    
+                    // Set appropriate icon
+                    if (isFile) {
+                        const fileExt = key.substring(key.lastIndexOf('.'));
+                        const fileName = key;
+                        const iconClass = fileIcons[fileName] || fileIcons[fileExt] || fileIcons['_default'];
+                        icon.innerHTML = `<span class="codicon ${iconClass}"></span>`;
+                    } else {
+                        const iconClass = folderIcons[key] || folderIcons['_default'];
+                        icon.innerHTML = `<span class="codicon ${iconClass}"></span>`;
+                    }
+                    
+                    const name = document.createElement('span');
+                    name.textContent = key;
+                    
+                    item.appendChild(icon);
+                    item.appendChild(name);
+                    
+                    if (!isFile) {
+                        const contents = document.createElement('div');
+                        contents.className = 'explorer-item-contents';
+                        item.appendChild(contents);
+                        
+                        item.addEventListener('click', async (e) => {
+                            if (e.target !== item && e.target !== name && e.target !== icon) return;
+                            
+                            item.classList.toggle('expanded');
+                            
+                            if (item.classList.contains('expanded') && contents.children.length === 0) {
+                                try {
+                                    const subPath = itemData.path.replace(basePath + '/', '');
+                                    const filesData = await window.electronAPI.readDirectory(subPath);
+                                    const subTree = buildFileTree(filesData);
+                                    renderFileExplorer(subTree, itemData.path, contents, depth + 1);
+                                } catch (error) {
+                                    console.error('Error loading directory:', error);
+                                }
+                            }
+                        });
+                    } else {
+                        item.addEventListener('click', async (e) => {
+                            if (e.target !== item && e.target !== name && e.target !== icon) return;
+                            await openFile(itemData.path);
+                        });
+                    }
+                    
+                    item.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        selectItem(item);
+                        
+                        const items = [
+                            { label: 'New File', shortcut: '', action: () => showNewFileDialog(itemData.path) },
+                            { label: 'New Folder', shortcut: '', action: () => showNewFolderDialog(itemData.path) },
+                            { type: 'separator' },
+                            { label: 'Rename', shortcut: 'F2', action: () => renameItem(item) },
+                            { label: 'Delete', shortcut: 'Del', action: () => deleteItem(item) },
+                            { type: 'separator' },
+                            { label: 'Download', shortcut: '', action: () => downloadItem(item) },
+                            { label: 'Refresh', shortcut: '', action: () => loadFileExplorer() }
+                        ];
+                        
+                        showContextMenu(e, items);
+                    });
+                    
+                    parentElement.appendChild(item);
+                });
+            }
+            
+            function selectItem(item) {
+                document.querySelectorAll('.explorer-item').forEach(i => i.classList.remove('selected'));
+                item.classList.add('selected');
+            }
+            
+            async function openFile(filePath) {
+                if (openFiles.includes(filePath)) {
+                    switchToTab(filePath);
+                    return;
+                }
+                
+                try {
+                    const content = await window.electronAPI.readFile(filePath);
+                    const fileInfo = await window.electronAPI.getFileInfo(filePath);
+                    const fileName = filePath.split('/').pop();
+                    
+                    openFiles.push(filePath);
+                    createTab(filePath, fileName);
+                    switchToTab(filePath);
+                    
+                    editor.value = content;
+                    currentFilePath = filePath;
+                    isDirty = false;
+                    updateTabStatus(filePath, false);
+                    
+                    updateStatusBar(fileInfo);
+                    updateLanguageStatus(filePath);
+                } catch (error) {
+                    console.error('Error opening file:', error);
+                    showErrorMessage('Failed to open file', error.message);
+                }
+            }
+            
+            function createTab(filePath, fileName) {
+                const tab = document.createElement('div');
+                tab.className = 'tab';
+                tab.dataset.path = filePath;
+                
+                const label = document.createElement('span');
+                label.className = 'tab-label';
+                label.textContent = fileName;
+                
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'tab-close codicon codicon-close';
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closeTab(filePath);
+                });
+                
+                tab.appendChild(label);
+                tab.appendChild(closeBtn);
+                
+                tab.addEventListener('click', () => {
+                    switchToTab(filePath);
+                });
+                
+                tabBar.appendChild(tab);
+            }
+            
+            function switchToTab(filePath) {
+                if (!filePath) return;
+                
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.path === filePath);
+                });
+                
+                document.querySelectorAll('.explorer-item').forEach(item => {
+                    item.classList.toggle('selected', item.dataset.path === filePath);
+                });
+                
+                if (currentFilePath !== filePath) {
+                    currentFilePath = filePath;
+                    window.electronAPI.readFile(filePath).then(content => {
+                        editor.value = content;
+                        isDirty = false;
+                        updateTabStatus(filePath, false);
+                        return window.electronAPI.getFileInfo(filePath);
+                    }).then(info => {
+                        updateStatusBar(info);
+                        updateLanguageStatus(filePath);
+                    }).catch(error => {
+                        console.error('Error switching to tab:', error);
+                    });
+                }
+            }
+            
+            function closeTab(filePath) {
+                if (isDirty) {
+                    if (!confirm('Do you want to save changes to this file?')) {
+                        return;
+                    }
+                    saveCurrentFile();
+                }
+                
+                openFiles = openFiles.filter(path => path !== filePath);
+                document.querySelector(`.tab[data-path="${filePath}"]`)?.remove();
+                
+                if (currentFilePath === filePath) {
+                    currentFilePath = '';
+                    editor.value = '';
+                    document.getElementById('language-status').textContent = 'Plain Text';
+                }
+                
+                if (openFiles.length > 0) {
+                    switchToTab(openFiles[openFiles.length - 1]);
+                }
+            }
+            
+            async function saveCurrentFile() {
+                if (!currentFilePath) return;
+                
+                try {
+                    await window.electronAPI.writeFile(currentFilePath, editor.value);
+                    isDirty = false;
+                    updateTabStatus(currentFilePath, false);
+                    const fileInfo = await window.electronAPI.getFileInfo(currentFilePath);
+                    updateStatusBar(fileInfo);
+                } catch (error) {
+                    console.error('Error saving file:', error);
+                    showErrorMessage('Failed to save file', error.message);
+                }
+            }
+            
+            function updateTabStatus(filePath, isDirty) {
+                const tab = document.querySelector(`.tab[data-path="${filePath}"]`);
+                if (tab) {
+                    tab.classList.toggle('dirty', isDirty);
+                }
+            }
+            
+            function updateStatusBar(info) {
+                if (!info) {
+                    document.getElementById('language-status').textContent = 'Plain Text';
+                    return;
+                }
+                
+                const sizeKB = Math.round(info.size / 1024);
+                const lastModified = new Date(info.lastModified).toLocaleString();
+                document.getElementById('language-status').textContent = info.type || 'Plain Text';
+            }
+            
+            function updateLanguageStatus(filePath) {
+                const extension = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
+                const languageMap = {
+                    '.js': 'JavaScript',
+                    '.json': 'JSON',
+                    '.html': 'HTML',
+                    '.css': 'CSS',
+                    '.md': 'Markdown',
+                    '.txt': 'Plain Text',
+                    '.py': 'Python',
+                    '.java': 'Java',
+                    '.cpp': 'C++',
+                    '.c': 'C',
+                    '.php': 'PHP',
+                    '.ts': 'TypeScript',
+                    '.jsx': 'JavaScript React',
+                    '.tsx': 'TypeScript React'
+                };
+                
+                document.getElementById('language-status').textContent = languageMap[extension] || 'Plain Text';
+            }
+            
+            function updateLineNumbers() {
+                const lineCount = editor.value.split('\n').length;
+                let numbers = '';
+                
+                for (let i = 1; i <= lineCount; i++) {
+                    numbers += i + '\n';
+                }
+                
+                editorLineNumbers.innerHTML = numbers;
+                editorLineNumbers.scrollTop = editor.scrollTop;
+            }
+            
+            function showContextMenu(e, items) {
+                const existingMenu = document.querySelector('.context-menu');
+                if (existingMenu) existingMenu.remove();
+                
+                const menu = document.createElement('div');
+                menu.className = 'context-menu';
+                menu.style.left = `${e.pageX}px`;
+                menu.style.top = `${e.pageY}px`;
+                
+                items.forEach(item => {
+                    if (item.type === 'separator') {
+                        const separator = document.createElement('div');
+                        separator.className = 'context-menu-separator';
+                        menu.appendChild(separator);
+                    } else {
+                        const menuItem = document.createElement('div');
+                        menuItem.className = 'context-menu-item';
+                        
+                        const label = document.createElement('span');
+                        label.textContent = item.label;
+                        
+                        menuItem.appendChild(label);
+                        
+                        if (item.shortcut) {
+                            const shortcut = document.createElement('span');
+                            shortcut.className = 'context-menu-shortcut';
+                            shortcut.textContent = item.shortcut;
+                            menuItem.appendChild(shortcut);
+                        }
+                        
+                        menuItem.addEventListener('click', () => {
+                            item.action();
+                            menu.remove();
+                        });
+                        
+                        menu.appendChild(menuItem);
+                    }
+                });
+                
+                document.body.appendChild(menu);
+                
+                const closeMenu = () => {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                };
+                
+                setTimeout(() => {
+                    document.addEventListener('click', closeMenu);
+                }, 100);
+            }
+            
+            function showNewFileDialog(parentPath = '') {
+                const modal = createModal('New File', `
+                    <input type="text" class="input-field" id="new-file-name" placeholder="File name">
+                    <select class="input-field" id="file-type">
+                        <option value="">Empty File</option>
+                        <option value=".js">JavaScript File</option>
+                        <option value=".html">HTML File</option>
+                        <option value=".css">CSS File</option>
+                        <option value=".json">JSON File</option>
+                    </select>
+                `);
+                
+                const fileNameInput = modal.querySelector('#new-file-name');
+                const fileTypeSelect = modal.querySelector('#file-type');
+                
+                modal.querySelector('.modal-footer').innerHTML = `
+                    <button class="button secondary" id="cancel-button">Cancel</button>
+                    <button class="button" id="create-button">Create</button>
+                `;
+                
+                modal.querySelector('#cancel-button').addEventListener('click', () => {
+                    modal.remove();
+                });
+                
+                modal.querySelector('#create-button').addEventListener('click', async () => {
+                    let fileName = fileNameInput.value.trim();
+                    const fileType = fileTypeSelect.value;
+                    
+                    if (!fileName) {
+                        alert('Please enter a file name');
+                        return;
+                    }
+                    
+                    if (fileType && !fileName.endsWith(fileType)) {
+                        fileName += fileType;
+                    }
+                    
+                    const fullPath = parentPath ? `${parentPath}/${fileName}` : `${basePath}/${fileName}`;
+                    
+                    try {
+                        await window.electronAPI.writeFile(fullPath, '');
+                        loadFileExplorer();
+                        modal.remove();
+                    } catch (error) {
+                        console.error('Error creating file:', error);
+                        showErrorMessage('Failed to create file', error.message);
+                    }
+                });
+                
+                fileNameInput.focus();
+            }
+            
+            function showNewFolderDialog(parentPath = '') {
+                const modal = createModal('New Folder', `
+                    <input type="text" class="input-field" id="new-folder-name" placeholder="Folder name">
+                `);
+                
+                const folderNameInput = modal.querySelector('#new-folder-name');
+                
+                modal.querySelector('.modal-footer').innerHTML = `
+                    <button class="button secondary" id="cancel-button">Cancel</button>
+                    <button class="button" id="create-button">Create</button>
+                `;
+                
+                modal.querySelector('#cancel-button').addEventListener('click', () => {
+                    modal.remove();
+                });
+                
+                modal.querySelector('#create-button').addEventListener('click', async () => {
+                    const folderName = folderNameInput.value.trim();
+                    
+                    if (!folderName) {
+                        alert('Please enter a folder name');
+                        return;
+                    }
+                    
+                    const fullPath = parentPath ? `${parentPath}/${folderName}` : `${basePath}/${folderName}`;
+                    
+                    try {
+                        await window.electronAPI.writeFile(`${fullPath}/.keep`, '');
+                        loadFileExplorer();
+                        modal.remove();
+                    } catch (error) {
+                        console.error('Error creating folder:', error);
+                        showErrorMessage('Failed to create folder', error.message);
+                    }
+                });
+                
+                folderNameInput.focus();
+            }
+            
+            function renameItem(item) {
+                const oldPath = item.dataset.path;
+                const isFile = item.classList.contains('file');
+                
+                const modal = createModal(`Rename ${isFile ? 'File' : 'Folder'}`, `
+                    <input type="text" class="input-field" id="new-name" value="${item.dataset.name}">
+                `);
+                
+                const newNameInput = modal.querySelector('#new-name');
+                
+                modal.querySelector('.modal-footer').innerHTML = `
+                    <button class="button secondary" id="cancel-button">Cancel</button>
+                    <button class="button" id="rename-button">Rename</button>
+                `;
+                
+                modal.querySelector('#cancel-button').addEventListener('click', () => {
+                    modal.remove();
+                });
+                
+                modal.querySelector('#rename-button').addEventListener('click', async () => {
+                    const newName = newNameInput.value.trim();
+                    
+                    if (!newName) {
+                        alert(`Please enter a new ${isFile ? 'file' : 'folder'} name`);
+                        return;
+                    }
+                    
+                    const newPath = oldPath.substring(0, oldPath.lastIndexOf('/') + 1) + newName;
+                    
+                    try {
+                        await window.electronAPI.writeFile(`${newPath}`, await window.electronAPI.readFile(oldPath));
+                        await window.electronAPI.writeFile(oldPath, '');
+                        loadFileExplorer();
+                        
+                        // Update open tabs if this file was open
+                        openFiles = openFiles.map(path => path === oldPath ? newPath : path);
+                        
+                        if (currentFilePath === oldPath) {
+                            currentFilePath = newPath;
+                        }
+                    
+                    
+                    modal.remove();
+                } catch (error) {
+                    console.error('Error renaming item:', error);
+                    showErrorMessage(`Failed to rename ${isFile ? 'file' : 'folder'}`, error.message);
+                }
+            });
+            
+            newNameInput.focus();
+            newNameInput.select();
+        }
+        
+        async function deleteItem(item) {
+            const itemName = item.dataset.name;
+            const itemPath = item.dataset.path;
+            const isFile = item.classList.contains('file');
+            
+            if (!confirm(`Are you sure you want to delete "${itemName}"?`)) {
+                return;
+            }
+            
+            try {
+                // In a real implementation, we would call electronAPI.deleteFile or electronAPI.deleteFolder
+                // For now, we'll just write an empty file to simulate deletion
+                await window.electronAPI.writeFile(itemPath, '');
+                
+                // Remove from open files if it's open
+                if (openFiles.includes(itemPath)) {
+                    openFiles = openFiles.filter(path => path !== itemPath);
+                    document.querySelector(`.tab[data-path="${itemPath}"]`)?.remove();
+                    
+                    if (currentFilePath === itemPath) {
+                        currentFilePath = '';
+                        editor.value = '';
+                        document.getElementById('language-status').textContent = 'Plain Text';
+                    }
+                }
+                
+                // Reload explorer
+                loadFileExplorer();
+            } catch (error) {
+                console.error('Error deleting item:', error);
+                showErrorMessage(`Failed to delete ${isFile ? 'file' : 'folder'}`, error.message);
+            }
+        }
+        
+        function downloadItem(item) {
+            // In a real implementation, this would trigger a download
+            console.log('Download:', item.dataset.path);
+            alert(`Download functionality would save: ${item.dataset.path}`);
+        }
+        
+        function createModal(title, content) {
+            const existingModal = document.querySelector('.modal-overlay');
+            if (existingModal) existingModal.remove();
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            
+            const header = document.createElement('div');
+            header.className = 'modal-header';
+            header.textContent = title;
+            
+            const body = document.createElement('div');
+            body.className = 'modal-body';
+            body.innerHTML = content;
+            
+            const footer = document.createElement('div');
+            footer.className = 'modal-footer';
+            
+            modal.appendChild(header);
+            modal.appendChild(body);
+            modal.appendChild(footer);
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            return modal;
+        }
+        
+        function showErrorMessage(title, message) {
+            const modal = createModal(title, `
+                <p style="margin-bottom: 10px;">${message}</p>
+            `);
+            
+            modal.querySelector('.modal-footer').innerHTML = `
+                <button class="button" id="ok-button">OK</button>
+            `;
+            
+            modal.querySelector('#ok-button').addEventListener('click', () => {
+                modal.remove();
+            });
+        }
+        
+        async function showWelcomePage() {
+        const welcomePath = 'Welcome';
+        openFiles.push(welcomePath);
+        createTab(welcomePath, 'Welcome');
+        switchToTab(welcomePath);
+        
+        editor.value = `Welcome to VS Code Clone
+
+This is a simplified clone of Visual Studio Code built with HTML, CSS, and JavaScript.
+
+Features:
+- File explorer with proper icons
+- Tabbed editor interface
+- Basic file operations (create, open, save, rename, delete)
+- Syntax highlighting detection
+- Line numbers
+- Context menus
+- Modals for file operations
+
+Base directory: ${basePath}
+`;
+        currentFilePath = welcomePath;
+        updateLineNumbers();
+    }
+
+    // Additional Electron API integration
+    async function showOpenFileDialog() {
+        try {
+            const filePath = await window.electronAPI.openFileDialog();
+            if (filePath) {
+                await openFile(filePath);
+            }
+        } catch (error) {
+            console.error('Error opening file dialog:', error);
+            showErrorMessage('Open File Error', error.message);
+        }
+    }
+
+    async function showSaveFileDialog() {
+        if (!currentFilePath) return;
+        
+        try {
+            const savedPath = await window.electronAPI.saveFileDialog();
+            if (savedPath) {
+                await window.electronAPI.writeFile(savedPath, editor.value);
+                // If saving to a new location, open the new file
+                if (savedPath !== currentFilePath) {
+                    await openFile(savedPath);
+                } else {
+                    isDirty = false;
+                    updateTabStatus(currentFilePath, false);
+                }
+            }
+        } catch (error) {
+            console.error('Error saving file dialog:', error);
+            showErrorMessage('Save File Error', error.message);
+        }
+    }
+
+    // Add keyboard shortcuts for open/save
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key.toLowerCase()) {
+                case 'o':
+                    e.preventDefault();
+                    showOpenFileDialog();
+                    break;
+                case 's':
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        showSaveFileDialog();
+                    } else {
+                        saveCurrentFile();
+                    }
+                    break;
+            }
+        }
+    });
+
+    // Initialize context menu for editor
+    editor.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        
+        showContextMenu(e, [
+            { label: 'Cut', shortcut: 'Ctrl+X', action: () => document.execCommand('cut') },
+            { label: 'Copy', shortcut: 'Ctrl+C', action: () => document.execCommand('copy') },
+            { label: 'Paste', shortcut: 'Ctrl+V', action: () => document.execCommand('paste') },
+            { type: 'separator' },
+            { label: 'Select All', shortcut: 'Ctrl+A', action: () => document.execCommand('selectAll') }
+        ]);
+    });
+
+    // Final initialization
+    window.addEventListener('load', async () => {
+        // Check for file arguments (if opened with a file)
+        const fileToOpen = await window.electronAPI.getFileArgument();
+        if (fileToOpen) {
+            await openFile(fileToOpen);
+        } else {
+            await showWelcomePage();
+        }
+        
+        // Set up periodic auto-save
+        setInterval(() => {
+            if (isDirty && currentFilePath) {
+                saveCurrentFile();
+            }
+        }, 30000); // Auto-save every 30 seconds
+    });
+})
+</script>
+</body>
+</html>

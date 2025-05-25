@@ -7,54 +7,76 @@ class AppHandler {
   constructor(getDirPath, getAssetsPath) {
     this.getDirPath = getDirPath;
     this.getAssetsPath = getAssetsPath;
-    this.Dev = true
+    this.Dev = true;
+    this.appWindows = new Map();
+  }
+
+  #getAppsPath() {
+    return !this.Dev 
+      ? this.getAssetsPath().replace('assets', 'src/apps') 
+      : this.getAssetsPath().replace('assets', 'apps');
+  }
+
+  async #getAppPaths(appName) {
+    const paths = {
+      original: {
+        data: path.join(this.getDirPath(), appName, 'data.json'),
+        app: path.join(this.getDirPath(), appName, 'index.html'),
+        icon: path.join(this.getDirPath(), appName, 'icon.png')
+      },
+      assets: {
+        data: path.join(this.#getAppsPath(), appName, 'data.json'),
+        app: path.join(this.#getAppsPath(), appName, 'index.html'),
+        icon: path.join(this.#getAppsPath(), appName, 'icon.png')
+      }
+    };
+
+    try {
+      await fs.access(paths.original.data);
+      return paths.original;
+    } catch {
+      console.log(`App não encontrado no diretório original, tentando em assets...`);
+      return paths.assets;
+    }
   }
 
   async openApp(event, appName) {
-    // Primeiro, tenta pegar o diretório no caminho original
-    let appDataPath = path.join(this.getDirPath(), appName, 'data.json');
-    let appPath = path.join(this.getDirPath(), appName, 'index.html');
-    let iconPath = path.join(this.getDirPath(), appName, 'icon.png'); // Caminho do ícone no diretório original
-  
-    //console.log(path.join(!this.Dev ? this.getAssetsPath().replace('assets', 'src/apps') : this.getAssetsPath().replace('assets', 'apps').replace('assets', 'apps'), appName, 'data.json'))
+    // Se já existe, traz para frente
+    if (this.appWindows.has(appName)) {
+      const win = this.appWindows.get(appName);
+      if (win.isMinimized()) win.restore();
+      win.focus();
+      return true;
+    }
 
     try {
-      // Verifica se o diretório existe no caminho original
-      await fs.access(appDataPath);
-    } catch (err) {
-      // Se não encontrar o diretório, tenta o caminho alternativo
-      console.log(`App não encontrado no diretório original, tentando em assets...`);
-  
-      appDataPath = path.join(!this.Dev ? this.getAssetsPath().replace('assets', 'src/apps') : this.getAssetsPath().replace('assets', 'apps'), appName, 'data.json');
-      appPath = path.join(!this.Dev ? this.getAssetsPath().replace('assets', 'src/apps') : this.getAssetsPath().replace('assets', 'apps'), appName, 'index.html');
-      iconPath = path.join(!this.Dev ? this.getAssetsPath().replace('assets', 'src/apps') : this.getAssetsPath().replace('assets', 'apps'), appName, 'icon.png'); // Caminho do ícone no diretório de assets
-    }
-  
-    try {
-      // Tenta ler o arquivo JSON de dados
+      const { data: appDataPath, app: appPath, icon: iconPath } = await this.#getAppPaths(appName);
       const rawData = await fs.readFile(appDataPath, 'utf-8');
       const appData = JSON.parse(rawData);
-  
-      // Verifica o caminho correto do ícone, dependendo do diretório usado
-      const finalIconPath = fsSync.existsSync(iconPath) ? iconPath : path.join(!this.Dev ? this.getAssetsPath().replace('assets', 'src/apps') : this.getAssetsPath().replace('assets', 'apps'), appName, appData.icon);
-  
-      const allWindows = BrowserWindow.getAllWindows();
-      const firstWindow = allWindows[0];
-      // Cria uma nova janela do aplicativo
+
+      const finalIconPath = fsSync.existsSync(iconPath) 
+        ? iconPath 
+        : path.join(this.#getAppsPath(), appName, appData.icon);
+
+      const mainWindow = BrowserWindow.getAllWindows()[0];
       const appWindow = new BrowserWindow({
-        parent: firstWindow,
+        parent: mainWindow,
         width: 800,
         height: 600,
         minWidth: 400,
         minHeight: 400,
-        modal: false,
+        modal: false, // Não é mais modal
+        show: false,
         transparent: true,
         frame: false,
+        resizable: true,
         vibrancy: 'ultra-thin',
-        backgroundMaterial: 'acrylic', 
-        visualEffectState: 'active',  
-        icon: finalIconPath, 
-        skipTaskbar: true,
+        backgroundMaterial: 'acrylic',
+        visualEffectState: 'active',
+        icon: finalIconPath,
+        skipTaskbar: true, // Não aparece na taskbar
+        fullscreenable: false,
+        maximizable: false,
         backgroundColor: '#00000000',
         webPreferences: {
           preload: path.join(__dirname, '..', 'preload.js'),
@@ -64,108 +86,108 @@ class AppHandler {
           webviewTag: true
         }
       });
-  
-      //appWindow.webContents.openDevTools();
-      
-      appWindow.loadFile(appPath);
 
-      const windows = BrowserWindow.getAllWindows();
-  
-  // Emitir o evento para cada janela aberta
-  windows.forEach(window => {
-    window.webContents.send('open-app-in-desktop', {
-      title: appName,
-      id: window.id,
-      iconUrl: '../assets/icons/default-icon.png', // Altere conforme necessário
-    });
-  })
+      // Configurações para parecer parte da mesma janela
+      appWindow.setMenu(null);
+      //appWindow.setAlwaysOnTop(true, 'floating');
+      appWindow.setVisibleOnAllWorkspaces(true);
+      appWindow.setFullScreenable(false);
+
+      // Centraliza a janela
+      appWindow.once('ready-to-show', () => {
+        const bounds = mainWindow.getBounds();
+        const x = bounds.x + (bounds.width - 800) / 2;
+        const y = bounds.y + (bounds.height - 600) / 2;
+        appWindow.setPosition(x, y);
+        appWindow.show();
+      });
+
+      // Remove da lista quando fechada
+      appWindow.on('closed', () => {
+        this.appWindows.delete(appName);
+      });
+
+      if (this.Dev) {
+        appWindow.webContents.openDevTools({ mode: 'detach' });
+      }
+
+      appWindow.loadFile(appPath);
+      this.appWindows.set(appName, appWindow);
+
       return true;
     } catch (err) {
       console.error('Erro ao abrir o app:', err);
       return false;
     }
   }
-  
+
+  async #getConfigPath(appName) {
+    const paths = [
+      path.join(this.getDirPath(), appName, 'config.json'),
+      path.join(this.#getAppsPath(), appName, 'config.json')
+    ];
+
+    for (const configPath of paths) {
+      try {
+        await fs.access(configPath);
+        return configPath;
+      } catch {}
+    }
+    return paths[1]; // Retorna o caminho de assets como fallback
+  }
 
   async getAppData(event, appName) {
-    let appDataPath = path.join(this.getDirPath(), appName, 'config.json');
-  
     try {
-      // Tenta acessar o diretório principal
-      await fs.access(appDataPath);
-    } catch (err) {
-      // Se não encontrar, tenta o diretório de assets
-      appDataPath = path.join(!this.Dev ? this.getAssetsPath().replace('assets', 'src/apps') : this.getAssetsPath().replace('assets', 'apps'), appName, 'config.json');
-    }
-  
-    try {
-      const data = await fs.readFile(appDataPath, 'utf-8');
+      const configPath = await this.#getConfigPath(appName);
+      const data = await fs.readFile(configPath, 'utf-8');
       return JSON.parse(data);
     } catch (error) {
       console.error('Erro ao ler dados do app:', error);
-      return {};  // Retorna um objeto vazio em caso de erro
+      return {};
     }
   }
-  
 
   getApps() {
     const apps = [];
-    const dirsToCheck = [this.getDirPath(), !this.Dev ? this.getAssetsPath().replace('assets', 'src/apps') : this.getAssetsPath().replace('assets', 'apps')];  // Caminhos para buscar
-    
+    const dirsToCheck = [this.getDirPath(), this.#getAppsPath()];
 
-    dirsToCheck.forEach(baseDir => {
-
+    for (const baseDir of dirsToCheck) {
       try {
         const appDirs = fsSync.readdirSync(baseDir);
         
-        appDirs.forEach(dir => {
+        for (const dir of appDirs) {
           const dataPath = path.join(baseDir, dir, 'data.json');
           
           if (fsSync.existsSync(dataPath)) {
             const data = JSON.parse(fsSync.readFileSync(dataPath, 'utf-8'));
-  
-            
-            console.log(data)
-            
             apps.push({
               name: dir,
               displayName: data.displayName || dir,
               icon: data.icon || 'default.png',
               description: data.description || '',
               fileExtensions: data.fileExtensions || [],
-              dir: baseDir  // Para saber de onde o app foi carregado
+              dir: baseDir
             });
           }
-        });
+        }
       } catch (err) {
         console.error('Erro ao ler aplicativos:', err);
       }
-    });
-  
+    }
+
     return apps;
   }
-  
 
   async saveAppData(event, appName, data) {
-    let appDataPath = path.join(this.getDirPath(), appName, 'config.json');
-  
     try {
-      // Tenta acessar o diretório principal
-      await fs.access(appDataPath);
-    } catch (err) {
-      // Se não encontrar, tenta o diretório de assets
-      appDataPath = path.join(!this.Dev ? this.getAssetsPath().replace('assets', 'src/apps') : this.getAssetsPath().replace('assets', 'apps'), appName, 'config.json');
-    }
-  
-    try {
-      await fs.writeFile(appDataPath, JSON.stringify(data, null, 2));
+      const configPath = await this.#getConfigPath(appName);
+      await fs.writeFile(configPath, JSON.stringify(data, null, 2));
       return true;
     } catch (error) {
       console.error('Erro ao salvar dados do app:', error);
       return false;
     }
   }
-  
 }
 
 module.exports = AppHandler;
