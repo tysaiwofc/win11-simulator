@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron');
 const path = require('path');
 const fsSync = require('fs');
+const fs = require('fs')
 const os = require('os');
 
 // Importar handlers
@@ -32,6 +33,13 @@ const getDirPath = () => {
   !fsSync.existsSync(baseDir) && fsSync.mkdirSync(baseDir, { recursive: true });
   return baseDir;
 };
+
+const BASE_PATH = path.join(os.homedir(), 'WindowsSimulatorFiles');
+
+// --- Garante que o diretório base exista ---
+if (!fs.existsSync(BASE_PATH)) {
+    fs.mkdirSync(BASE_PATH, { recursive: true });
+}
 
 // Window Management
 const createSplashWindow = () => {
@@ -206,6 +214,114 @@ const registerIpcHandlers = () => {
   });
   ipcMain.handle('mark-all-notifications-as-read', () => 
     (allNotifications.forEach(n => n.unread = false), true));
+
+
+  // New File Handlers
+
+  // Função para resolver o caminho completo e seguro
+const resolvePath = (relativePath) => {
+    const absolutePath = path.resolve(BASE_PATH, relativePath);
+    // Verificação de segurança: impede o acesso a diretórios pais (Path Traversal)
+    if (!absolutePath.startsWith(BASE_PATH)) {
+        throw new Error("Acesso negado. Tentativa de acessar um caminho fora do diretório permitido.");
+    }
+    return absolutePath;
+};
+
+// Obter arquivos e pastas de um diretório
+ipcMain.handle('fs:get-files', async (event, relativePath) => {
+    try {
+        const dirPath = resolvePath(relativePath);
+        const items = fs.readdirSync(dirPath);
+        const detailedItems = items.map(item => {
+            const itemPath = path.join(dirPath, item);
+            const stats = fs.statSync(itemPath);
+            return {
+                name: item,
+                isDirectory: stats.isDirectory(),
+                size: stats.size,
+                mtime: stats.mtime.getTime(), // Data de modificação em milissegundos
+            };
+        });
+        return { success: true, data: detailedItems };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+// Criar uma nova pasta
+ipcMain.handle('fs:create-folder', async (event, folderPath) => {
+    try {
+        const fullPath = resolvePath(folderPath);
+        if (!fs.existsSync(fullPath)) {
+            fs.mkdirSync(fullPath);
+        }
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+// Criar um novo arquivo (vazio)
+ipcMain.handle('fs:create-file', async (event, filePath) => {
+    try {
+        const fullPath = resolvePath(filePath);
+        fs.writeFileSync(fullPath, '', 'utf-8');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+// Renomear um arquivo ou pasta
+ipcMain.handle('fs:rename-item', async (event, oldPath, newPath) => {
+    try {
+        const fullOldPath = resolvePath(oldPath);
+        const fullNewPath = resolvePath(newPath);
+        fs.renameSync(fullOldPath, fullNewPath);
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+// Deletar um arquivo ou pasta
+ipcMain.handle('fs:delete-item', async (event, itemPath) => {
+    try {
+        const fullPath = resolvePath(itemPath);
+        const stats = fs.statSync(fullPath);
+        if (stats.isDirectory()) {
+            fs.rmSync(fullPath, { recursive: true, force: true });
+        } else {
+            fs.unlinkSync(fullPath);
+        }
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+// Abrir um arquivo com o programa padrão do sistema operacional
+ipcMain.handle('fs:open-file', async (event, filePath) => {
+    try {
+        const fullPath = resolvePath(filePath);
+        shell.openPath(fullPath);
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+// Ler o conteúdo de um arquivo de texto
+ipcMain.handle('fs:read-file', async(event, filePath) => {
+    try {
+        const fullPath = resolvePath(filePath);
+        const content = fs.readFileSync(fullPath, 'utf-8');
+        return { success: true, data: content };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
 
   // File Handlers
   ipcMain.handle('read-directory', (e, subPath) => handlersInstances.file.readDirectory(e, subPath));

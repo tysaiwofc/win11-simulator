@@ -1,5 +1,15 @@
 const { contextBridge, ipcRenderer } = require('electron');
-
+contextBridge.exposeInMainWorld('fsApi', {
+    getFiles: (path) => ipcRenderer.invoke('fs:get-files', path),
+    createFolder: (path) => ipcRenderer.invoke('fs:create-folder', path),
+    createFile: (path) => ipcRenderer.invoke('fs:create-file', path),
+    renameItem: (oldPath, newPath) => ipcRenderer.invoke('fs:rename-item', oldPath, newPath),
+    deleteItem: (path) => ipcRenderer.invoke('fs:delete-item', path),
+    openFile: (path) => ipcRenderer.invoke('fs:open-file', path),
+    readFile: (path) => ipcRenderer.invoke('fs:read-file', path),
+    // Adicione um listener para receber mensagens de erro do processo principal (se necessário)
+    onError: (callback) => ipcRenderer.on('main-process-error', (event, ...args) => callback(...args))
+});
 contextBridge.exposeInMainWorld('electronAPI', {
   sendNotification: (title, message, options = {}) => {
     const notification = {

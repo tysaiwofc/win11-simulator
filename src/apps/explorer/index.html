@@ -1,49 +1,976 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>File Explorer</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador de Ficheiros - Windows 11 Style</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Tipografia e Variáveis de Cor para um aspeto de produção - TEMA ESCURO PADRÃO */
+        :root {
+            --font-family: 'Segoe UI Variable', 'Inter', system-ui, sans-serif;
+            --bg-color: #1e1e1e; /* Fundo principal escuro */
+            --pane-bg-color: #2b2b2b; /* Fundo dos painéis escuro */
+            --border-color: #3f3f3f;
+            --text-primary: #e1e1e1; /* Texto claro */
+            --text-secondary: #aaaaaa;
+            --accent-color: #0078d4;
+            --accent-hover-color: #106ebe;
+            --accent-active-color: #005a9e;
+            --selection-bg-color: rgba(0, 120, 212, 0.3); /* Mais leve para seleção */
+            --selection-border-color: #0078d4;
+            --danger-color: #d83b01;
+            --danger-hover-color: #b72e00;
+        }
+
+        /* Remove o media query para tema escuro, pois já é o padrão */
+        /* @media (prefers-color-scheme: dark) { } */
+
+        /* Efeito Mica/Acrílico */
+        .mica {
+            background-color: rgba(32, 32, 32, 0.8); /* Cor base com opacidade para tema escuro */
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+        }
+        /* Remover .dark .mica pois já é o padrão */
+
+        /* Estilo do corpo da página - sem margem/padding e preenche a tela */
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            overflow: hidden;
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            margin: 0; /* Remove a margem */
+            padding: 0; /* Remove o padding */
+            height: 100vh; /* Ocupa a altura total da viewport */
+            width: 100vw; /* Ocupa a largura total da viewport */
+            display: flex; /* Mantém flex para centralizar o app-container, se houver um max-width */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-container {
+            display: flex;
+            /* Altura e largura para preencher o body, considerando o border-radius */
+            height: calc(100% - 2px); /* Ajusta para a borda do container */
+            width: calc(100% - 2px); /* Ajusta para a borda do container */
+            max-width: 1200px; /* Mantém para o aspecto de "janela" */
+            background-color: var(--pane-bg-color);
+           
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5); /* Sombra mais escura para tema escuro */
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        /* Remover .dark .app-container pois já é o padrão */
+
+        /* Barra Lateral */
+        .sidebar {
+            width: 260px; /* Um pouco mais larga */
+            flex-shrink: 0;
+            background-color: #202020; /* Fundo mais escuro para sidebar */
+            border-right: 1px solid var(--border-color);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Mais espaço entre grupos */
+        }
+        /* Remover .dark .sidebar pois já é o padrão */
+
+        .sidebar-group-title {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px; /* Cantos arredondados */
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(255,255,255,0.08); /* Hover para tema escuro */
+        }
+        /* Remover .dark .sidebar-item:hover pois já é o padrão */
+        .sidebar-item.active {
+            background-color: var(--selection-bg-color);
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        .sidebar-item svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+        .sidebar-item.active svg {
+            color: var(--accent-color);
+        }
+
+        /* Painel Principal */
+        .main-panel {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Barra de Ferramentas Superior */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px; /* Mais padding */
+            height: 60px; /* Mais alto */
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 6px; /* Mais espaço entre itens */
+            font-size: 0.9rem;
+        }
+        .breadcrumb-item, .breadcrumb-separator {
+            color: var(--text-secondary);
+        }
+        .breadcrumb-item:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+        .action-buttons button {
+            background-color: #3a3a3a; /* Fundo para botões em tema escuro */
+            border: 1px solid #555555; /* Borda para botões em tema escuro */
+            border-radius: 6px; /* Mais arredondado */
+            padding: 8px 16px; /* Mais padding */
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex; /* Para alinhar com ícones se adicionar */
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary); /* Cor do texto para botões em tema escuro */
+        }
+        /* Remover .dark .action-buttons button pois já é o padrão */
+        .action-buttons button:hover {
+            background-color: #4a4a4a; /* Hover para botões em tema escuro */
+            border-color: #666666; /* Borda hover para botões em tema escuro */
+        }
+        /* Remover .dark .action-buttons button:hover pois já é o padrão */
+        .action-buttons button.primary {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        .action-buttons button.primary:hover {
+            background-color: var(--accent-hover-color);
+            border-color: var(--accent-hover-color);
+        }
+
+        /* Grelha de Ficheiros */
+        .file-grid-container {
+            flex-grow: 1;
+            padding: 20px; /* Mais padding */
+            overflow-y: auto;
+        }
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); /* Tamanho um pouco maior */
+            gap: 20px; /* Mais espaço */
+        }
+        .grid-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px; /* Mais padding */
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            text-align: center;
+            transition: background-color 0.15s, border-color 0.15s, transform 0.1s;
+        }
+        .grid-item:hover {
+            background-color: rgba(255,255,255,0.06); /* Hover para tema escuro */
+            transform: translateY(-2px); /* Efeito sutil de elevação */
+        }
+        /* Remover .dark .grid-item:hover pois já é o padrão */
+        .grid-item.selected {
+            background-color: var(--selection-bg-color);
+            border-color: var(--selection-border-color);
+        }
+        .grid-item-icon {
+            width: 60px; /* Ícones maiores */
+            height: 60px;
+            margin-bottom: 8px; /* Espaço entre ícone e nome */
+        }
+        .grid-item-name {
+            font-size: 0.85rem; /* Fonte ligeiramente maior */
+            color: var(--text-primary);
+            width: 100%;
+            word-wrap: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Menu de Contexto */
+        #context-menu {
+            position: absolute;
+            z-index: 1000;
+            background-color: rgba(45, 45, 45, 0.9); /* Fundo para tema escuro */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1); /* Borda para tema escuro */
+            border-radius: 10px; /* Mais arredondado */
+            padding: 6px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5); /* Sombra mais forte para tema escuro */
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.1s ease-out, transform 0.1s ease-out;
+            transform-origin: top left; /* Animar a partir do canto */
+        }
+        /* Remover .dark #context-menu pois já é o padrão */
+
+        #context-menu.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .context-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            border-radius: 7px; /* Arredondamento dos itens */
+            cursor: pointer;
+            transition: background-color 0.15s, color 0.15s;
+            color: var(--text-primary);
+        }
+        .context-item:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .context-item svg {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            color: var(--text-secondary); /* Cor padrão dos ícones */
+            transition: color 0.15s;
+        }
+        .context-item:hover svg {
+            color: white !important; /* Força a cor branca ao passar o mouse */
+        }
+        .context-item.danger-text {
+            color: var(--danger-color);
+        }
+        .context-item.danger-text svg {
+            color: var(--danger-color);
+        }
+        .context-item.danger-text:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .context-item.danger-text:hover svg {
+            color: white !important;
+        }
+        .context-separator {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 6px 0;
+        }
+
+        /* Modals */
+        #modal-overlay {
+            transition: opacity 0.2s ease-out;
+        }
+        #input-modal, #view-modal {
+            transition: all 0.2s ease-out;
+        }
+        #input-modal.visible, #view-modal.visible {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        #modal-input {
+            appearance: none;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        #modal-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.3);
+        }
+        .window-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #333;
+  color: white;
+  user-select: none;
+  width: 100%;
+  -webkit-app-region: drag; /* Permite que o cabeçalho seja usado para arrastar a janela */
+}
+
+.window-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.window-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.window-control {
+  width: 15px;
+  height: 15px;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  background-color: #aaa;
+  transition: background-color 0.3s ease;
+}
+
+/* Estilos individuais para cada botão */
+.window-control.minimize {
+  background-color: #ffcc00;
+   -webkit-app-region: no-drag;
+}
+
+.window-control.maximize {
+  background-color: #00cc00;
+   -webkit-app-region: no-drag;
+}
+
+.window-control.close {
+  background-color: #ff0000;
+   -webkit-app-region: no-drag;
+}
+
+.window-control:hover {
+  background-color: #555;
+}
+
+/* Se o usuário clicar em um controle, muda a cor de fundo */
+.window-control:active {
+  background-color: #222;
+   -webkit-app-region: no-drag;
+}
+    </style>
 </head>
-<body>
-  <div class="explorer-container">
-    <div class="window-header">
+<body class="bg-transparent text-gray-800 dark:text-gray-200 antialiased flex flex-col">
+  <div class="window-header">
       <div class="window-title"></div>
       <div class="window-controls">
         <div class="window-control minimize"></div>
+        <!-- <div class="window-control maximize"></div> -->
         <div class="window-control close"></div>
       </div>
     </div>
-    <div class="explorer-toolbar">
-      <button id="back-button" title="Back">←</button>
-      <button id="forward-button" title="Forward">→</button>
-      <button id="up-button" title="Up">↑</button>
-      <input type="text" id="address-bar" placeholder="Enter path">
+    <div class="app-container mica">
+        <aside class="sidebar">
+            <nav class="flex flex-col gap-4">
+                <div>
+                    <div class="sidebar-group-title">Favoritos</div>
+                    <div class="flex flex-col gap-1" id="sidebar-favorites">
+                        <!-- Sidebar items will be dynamically added here -->
+                    </div>
+                </div>
+                <div>
+                    <div class="sidebar-group-title">Este PC</div>
+                    <div class="flex flex-col gap-1" id="sidebar-this-pc">
+                        <!-- Sidebar items for "This PC" will be dynamically added here -->
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-panel">
+            <header class="toolbar">
+                <div class="breadcrumb" id="breadcrumb">
+                    <!-- Breadcrumb items will be dynamically added here -->
+                </div>
+                <div class="action-buttons flex gap-3">
+                    <button id="new-folder-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2v-6Z"></path></svg>
+                        Nova Pasta
+                    </button>
+                    <button id="new-file-btn" class="primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        Novo Arquivo
+                    </button>
+                </div>
+            </header>
+
+            <div id="main-content-area" class="file-grid-container">
+                <div id="file-grid" class="file-grid">
+                    <!-- File and folder items will be dynamically added here -->
+                </div>
+            </div>
+        </main>
     </div>
-    <div class="explorer-content">
-      <div class="sidebar">
-        <div class="sidebar-item active" data-path="desktop">
-          <img src="https://i.imgur.com/Fsjo2qy.png" alt="Desktop"> Desktop
-        </div>
-        <div class="sidebar-item" data-path="documents">
-          <img src="https://i.imgur.com/9UZOb9p.png" alt="Documents"> Documents
-        </div>
-        <div class="sidebar-item" data-path="pictures">
-          <img src="https://i.imgur.com/JpAWuDI.png" alt="Pictures"> Downloads
-        </div>
-        <div class="sidebar-item" data-path="videos">
-          <img src="https://i.imgur.com/TDu1F9C.png" alt="Videos"> Videos
-        </div>
-      </div>
-      <div class="main-content">
-        <div class="path-bar" id="current-path">Desktop</div>
-        <div class="files-grid" id="files-container">
-          <!-- Files will be loaded here -->
-        </div>
-      </div>
+    
+    <!-- Menu de Contexto -->
+    <div id="context-menu" class="hidden">
+        <!-- Context menu items will be dynamically added here -->
     </div>
-  </div>
-  <script src="renderer.js"></script>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-40 opacity-0">
+        <div id="input-modal" class="hidden mica border border-gray-300 dark:border-gray-700 p-6 rounded-lg shadow-xl w-full max-w-md transform scale-95 opacity-0">
+            <h3 id="modal-title" class="text-lg font-bold mb-4"></h3>
+            <input type="text" id="modal-input" class="w-full bg-white/50 dark:bg-black/20 border border-gray-400 dark:border-gray-600 p-2 rounded-md focus:ring-2 focus:ring-[var(--accent-color)] focus:outline-none">
+            <p id="modal-text" class="text-gray-600 dark:text-gray-300 mt-2"></p>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="modal-cancel" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-bold py-2 px-4 rounded-md">Cancelar</button>
+                <button id="modal-confirm" class="bg-[var(--accent-color)] hover:bg-[var(--accent-hover-color)] text-white font-bold py-2 px-4 rounded-md">Confirmar</button>
+            </div>
+        </div>
+        <div id="view-modal" class="hidden mica border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl w-full max-w-4xl h-3/4 flex flex-col transform scale-95 opacity-0">
+            <h3 id="view-modal-title" class="text-lg font-bold p-4 border-b border-gray-200 dark:border-gray-700">Visualizando Arquivo</h3>
+            <pre id="view-modal-content" class="flex-grow w-full p-4 overflow-auto bg-transparent text-sm"></pre>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+                <button id="view-modal-close" class="bg-[var(--accent-color)] hover:bg-[var(--accent-hover-color)] text-white font-bold py-2 px-4 rounded-md">Fechar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.querySelector('.window-control.minimize').addEventListener('click', () => {
+      window.electronAPI.minimizeWindow();
+    });
+    
+    // document.querySelector('.window-control.maximize').addEventListener('click', () => {
+    //   window.electronAPI.maximizeWindow();
+    // });
+    
+    document.querySelector('.window-control.close').addEventListener('click', () => {
+      window.electronAPI.closeWindow();
+    });
+        window.fsApi = {
+            getFiles: async (path) => {
+                console.warn("window.fsApi.getFiles called. This function is expected to be implemented by the host environment (e.g., Electron).");
+                return { success: false, error: "Função não implementada pelo ambiente host." };
+            },
+            openFile: async (path) => {
+                console.warn("window.fsApi.openFile called. This function is expected to be implemented by the host environment (e.g., Electron).");
+                return { success: false, error: "Função não implementada pelo ambiente host." };
+            },
+            readFile: async (path) => {
+                console.warn("window.fsApi.readFile called. This function is expected to be implemented by the host environment (e.g., Electron).");
+                return { success: false, error: "Função não implementada pelo ambiente host." };
+            },
+            renameItem: async (oldPath, newPath) => {
+                console.warn("window.fsApi.renameItem called. This function is expected to be implemented by the host environment (e.g., Electron).");
+                return { success: false, error: "Função não implementada pelo ambiente host." };
+            },
+            deleteItem: async (path) => {
+                console.warn("window.fsApi.deleteItem called. This function is expected to be implemented by the host environment (e.g., Electron).");
+                return { success: false, error: "Função não implementada pelo ambiente host." };
+            },
+            createFolder: async (path) => {
+                console.warn("window.fsApi.createFolder called. This function is expected to be implemented by the host environment (e.g., Electron).");
+                return { success: false, error: "Função não implementada pelo ambiente host." };
+            },
+            createFile: async (path) => {
+                console.warn("window.fsApi.createFile called. This function is expected to be implemented by the host environment (e.g., Electron).");
+                return { success: false, error: "Função não implementada pelo ambiente host." };
+            },
+            windowControl: (action) => {
+                console.warn(`window.fsApi.windowControl('${action}') called. This function is expected to be implemented by the host environment (e.g., Electron).`);
+            },
+            onError: (callback) => {
+                console.warn("window.fsApi.onError registered. This function is expected to be implemented by the host environment (e.g., Electron).");
+            }
+        };
+
+        // --- Início do Script real ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Referências aos elementos do DOM ---
+            const fileGrid = document.getElementById('file-grid');
+            const breadcrumbEl = document.getElementById('breadcrumb');
+            const contextMenu = document.getElementById('context-menu');
+            const modalOverlay = document.getElementById('modal-overlay');
+            const inputModal = document.getElementById('input-modal');
+            const viewModal = document.getElementById('view-modal');
+            const sidebarFavorites = document.getElementById('sidebar-favorites');
+            const sidebarThisPC = document.getElementById('sidebar-this-pc');
+
+            // --- Estado da Aplicação ---
+            let currentPath = ''; // Representa o diretório raiz
+            let contextTarget = null; // Item clicado com o botão direito para o menu de contexto
+            let selectedItem = null; // Item atualmente selecionado na grade
+
+            // --- Ícones SVG Modernos ---
+            // Usando ícones Lucide como base, adaptados para SVG inline
+            const folderIcon = `<svg class="grid-item-icon text-sky-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9L7.29 3.4A2 2 0 0 0 5.61 2H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16Z"/></svg>`;
+            const fileIcon = `<svg class="grid-item-icon text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L15 2z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+            const parentFolderIcon = `<svg class="grid-item-icon text-sky-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-up"><path d="M12 20V10"/><path d="m16 14-4-4-4 4"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9L7.29 3.4A2 2 0 0 0 5.61 2H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16Z"/></svg>`;
+            const homeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+            const documentsIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-dot"><circle cx="12" cy="12" r="1"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9L7.29 3.4A2 2 0 0 0 5.61 2H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16Z"/></svg>`;
+            const downloadsIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download-cloud"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>`;
+            const imagesIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`;
+            const videosIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-film"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M21 7.5h-4"/><path d="M21 16.5h-4"/></svg>`;
+            const musicIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-music"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
+            const driveIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hard-drive"><path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><path d="M6 16h12"/></svg>`;
+
+            const contextIcons = {
+                open: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open"><path d="M6 14H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2.5L9 5.5 11.5 8H20a2 2 0 0 1 2 2v2"/><path d="M2 12h10l2 2h8"/></svg>`,
+                view: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
+                rename: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.85 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/><path d="M15 5l4 4"/></svg>`,
+                delete: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>`
+            };
+
+            // --- Função Principal para Carregar Arquivos ---
+            async function loadFiles(path) {
+                // As funções de fsApi são assíncronas e retornam um objeto com `success` e `data` ou `error`.
+                // Se `window.fsApi` não for injetado corretamente, estas chamadas irão falhar.
+                try {
+                    const result = await window.fsApi.getFiles(path);
+                    if (!result.success) {
+                        showInputModal('Erro', result.error || 'Erro desconhecido ao carregar ficheiros.', () => {}, true, 'OK');
+                        // Se o diretório foi deletado ou inacessível, tenta voltar um nível
+                        if(path !== '') { 
+                            const newPath = path.substring(0, path.lastIndexOf('/')) || '';
+                            if (newPath !== path) {
+                                 loadFiles(newPath);
+                            }
+                        }
+                        return;
+                    }
+
+                    currentPath = path;
+                    updateBreadcrumb();
+                    
+                    fileGrid.innerHTML = '';
+                    if (selectedItem) {
+                        selectedItem.classList.remove('selected');
+                        selectedItem = null;
+                    }
+
+                    // Adiciona ".." para voltar, se não estiver na raiz
+                    if (path !== '') {
+                        const parentPath = path.substring(0, path.lastIndexOf('/')) || ''; // Empty string for root
+                        createGridItem({ name: '..', isDirectory: true, isParent: true }, parentPath);
+                    }
+
+                    // Ordena: diretórios primeiro, depois arquivos, ambos em ordem alfabética
+                    const items = result.data.sort((a, b) => {
+                        if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
+                        return a.name.localeCompare(b.name);
+                    });
+
+                    // Renderiza
+                    items.forEach(item => createGridItem(item));
+                } catch (error) {
+                    console.error("Erro ao chamar window.fsApi.getFiles:", error);
+                    showInputModal('Erro Crítico', `Não foi possível carregar os ficheiros: ${error.message}. Certifique-se de que o ambiente host está a fornecer 'window.fsApi'.`, () => {}, true, 'OK');
+                }
+            }
+            
+            function createGridItem(item, customPath = null) {
+                // Determine the full path for the item.
+                const itemFullPath = customPath !== null ? customPath : (currentPath === '' ? item.name : `${currentPath}/${item.name}`);
+                
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item flex flex-col items-center justify-center p-2 rounded-lg cursor-pointer text-center';
+                gridItem.dataset.path = itemFullPath;
+                gridItem.dataset.name = item.name;
+                gridItem.dataset.isDirectory = item.isDirectory;
+
+                let icon;
+                if (item.isParent) icon = parentFolderIcon;
+                else if (item.isDirectory) icon = folderIcon;
+                else icon = fileIcon; // Default icon for files
+                
+                gridItem.innerHTML = `
+                    ${icon}
+                    <span class="text-xs mt-1 break-all grid-item-name">${item.name}</span>
+                `;
+                
+                // Evento de clique único para selecionar
+                gridItem.addEventListener('click', (e) => {
+                    if (selectedItem) selectedItem.classList.remove('selected');
+                    gridItem.classList.add('selected');
+                    selectedItem = gridItem;
+                });
+
+                // Duplo clique para abrir pasta/arquivo
+                gridItem.addEventListener('dblclick', async () => {
+                    if (item.isDirectory) {
+                        loadFiles(itemFullPath);
+                    } else if (item.isFile) {
+                        try {
+                            await window.fsApi.openFile(itemFullPath);
+                        } catch (error) {
+                            console.error("Erro ao chamar window.fsApi.openFile:", error);
+                            showInputModal('Erro ao Abrir Arquivo', `Não foi possível abrir o arquivo: ${error.message}.`, () => {}, true, 'OK');
+                        }
+                    }
+                });
+                
+                // Menu de Contexto (botão direito)
+                gridItem.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    // Não mostrar menu para ".."
+                    if (item.isParent) return;
+                    
+                    if (selectedItem) selectedItem.classList.remove('selected');
+                    gridItem.classList.add('selected');
+                    selectedItem = gridItem;
+
+                    contextTarget = { ...item, path: itemFullPath };
+                    showContextMenu(e.clientX, e.clientY);
+                });
+                
+                fileGrid.appendChild(gridItem);
+            }
+            
+            function updateBreadcrumb() {
+                breadcrumbEl.innerHTML = '';
+                const parts = currentPath === '' ? [] : currentPath.split('/');
+                
+                // "Início" crumb
+                const rootCrumb = document.createElement('a');
+                rootCrumb.href = '#';
+                rootCrumb.textContent = 'Início';
+                rootCrumb.className = 'breadcrumb-item hover:underline';
+                rootCrumb.onclick = (e) => { e.preventDefault(); loadFiles(''); }; // Root is empty string
+                breadcrumbEl.appendChild(rootCrumb);
+                
+                let pathAccumulator = '';
+                parts.forEach(part => {
+                    pathAccumulator += (pathAccumulator ? '/' : '') + part;
+                    const currentPartPath = pathAccumulator;
+                    
+                    const separator = document.createElement('span');
+                    separator.textContent = '›';
+                    separator.className = 'breadcrumb-separator mx-1.5 text-gray-400 dark:text-gray-500';
+                    breadcrumbEl.appendChild(separator);
+
+                    const partCrumb = document.createElement('a');
+                    partCrumb.href = '#';
+                    partCrumb.textContent = part;
+                    partCrumb.className = 'breadcrumb-item hover:underline';
+                    partCrumb.onclick = (e) => { e.preventDefault(); loadFiles(currentPartPath); };
+                    breadcrumbEl.appendChild(partCrumb);
+                });
+            }
+
+            // --- Lógica do Menu de Contexto ---
+            function showContextMenu(x, y) {
+                if (!contextTarget) return;
+
+                const isDirectory = contextTarget.isDirectory;
+                // Determine if the file content can be viewed (simple text files)
+                const isTextViewable = /\.(txt|md|json|js|html|css|xml)$/i.test(contextTarget.name);
+
+                let menuItemsHTML = `
+                    <a href="#" id="ctx-open" class="context-item">${contextIcons.open}<span>Abrir</span></a>
+                `;
+                // Add "View" option only for text-viewable files
+                if (!isDirectory && isTextViewable) {
+                    menuItemsHTML += `<a href="#" id="ctx-view" class="context-item">${contextIcons.view}<span>Visualizar</span></a>`;
+                }
+                menuItemsHTML += `
+                    <div class="context-separator"></div>
+                    <a href="#" id="ctx-rename" class="context-item">${contextIcons.rename}<span>Renomear</span></a>
+                    <a href="#" id="ctx-delete" class="context-item danger-text">${contextIcons.delete}<span>Excluir</span></a>
+                `;
+                
+                contextMenu.innerHTML = menuItemsHTML;
+                
+                // Position the menu, ensuring it doesn't go off-screen
+                const menuWidth = contextMenu.offsetWidth || 208; // Default width if not rendered yet
+                const menuHeight = contextMenu.offsetHeight || 150; // Default height
+                let finalX = x;
+                let finalY = y;
+
+                if (x + menuWidth > window.innerWidth) {
+                    finalX = window.innerWidth - menuWidth - 10; // 10px buffer
+                }
+                if (y + menuHeight > window.innerHeight) {
+                    finalY = window.innerHeight - menuHeight - 10; // 10px buffer
+                }
+
+                contextMenu.style.top = `${finalY}px`;
+                contextMenu.style.left = `${finalX}px`;
+                contextMenu.classList.remove('hidden');
+                contextMenu.classList.add('visible');
+
+                // Add listeners to the new context menu items
+                document.getElementById('ctx-open').onclick = async (e) => {
+                    e.preventDefault();
+                    if (contextTarget.isDirectory) {
+                        loadFiles(contextTarget.path);
+                    } else {
+                        try {
+                            await window.fsApi.openFile(contextTarget.path);
+                        } catch (error) {
+                            console.error("Erro ao chamar window.fsApi.openFile:", error);
+                            showInputModal('Erro ao Abrir Arquivo', `Não foi possível abrir o arquivo: ${error.message}.`, () => {}, true, 'OK');
+                        }
+                    }
+                    hideContextMenu();
+                };
+                if (!isDirectory && isTextViewable) {
+                    document.getElementById('ctx-view').onclick = (e) => { e.preventDefault(); handleView(); hideContextMenu(); };
+                }
+                document.getElementById('ctx-rename').onclick = (e) => { e.preventDefault(); handleRename(); hideContextMenu(); };
+                document.getElementById('ctx-delete').onclick = (e) => { e.preventDefault(); handleDelete(); hideContextMenu(); };
+            }
+
+            function hideContextMenu() {
+                contextMenu.classList.remove('visible');
+                contextMenu.classList.add('hidden');
+                contextTarget = null;
+            }
+
+            // --- Handlers de Ação ---
+            const handleView = async () => {
+                if (!contextTarget || contextTarget.isDirectory) return;
+                try {
+                    const result = await window.fsApi.readFile(contextTarget.path);
+                    if (result.success) {
+                        showViewModal(contextTarget.name, result.data);
+                    } else {
+                        showInputModal('Erro ao Visualizar', result.error || 'Erro desconhecido ao visualizar arquivo.', () => {}, true, 'OK');
+                    }
+                } catch (error) {
+                    console.error("Erro ao chamar window.fsApi.readFile:", error);
+                    showInputModal('Erro ao Visualizar', `Não foi possível ler o arquivo: ${error.message}.`, () => {}, true, 'OK');
+                }
+            };
+
+            const handleRename = () => {
+                if (!contextTarget) return;
+                showInputModal('Renomear Item', contextTarget.name, async (newName) => {
+                    if (newName && newName !== contextTarget.name) {
+                        const newPath = currentPath === '' ? newName : `${currentPath}/${newName}`;
+                        try {
+                            const result = await window.fsApi.renameItem(contextTarget.path, newPath);
+                            if (result.success) loadFiles(currentPath);
+                            else showInputModal('Erro ao Renomear', result.error || 'Erro desconhecido ao renomear.', () => {}, true, 'OK');
+                        } catch (error) {
+                            console.error("Erro ao chamar window.fsApi.renameItem:", error);
+                            showInputModal('Erro ao Renomear', `Não foi possível renomear: ${error.message}.`, () => {}, true, 'OK');
+                        }
+                    }
+                });
+            };
+
+            const handleDelete = () => {
+                if (!contextTarget) return;
+                showInputModal(
+                    `Excluir "${contextTarget.name}"`, 
+                    '', // No input prefill for confirmation
+                    async (confirmed) => {
+                        if (confirmed) {
+                            try {
+                                const result = await window.fsApi.deleteItem(contextTarget.path);
+                                if (result.success) loadFiles(currentPath);
+                                else showInputModal('Erro ao Excluir', result.error || 'Erro desconhecido ao excluir.', () => {}, true, 'OK');
+                            } catch (error) {
+                                console.error("Erro ao chamar window.fsApi.deleteItem:", error);
+                                showInputModal('Erro ao Excluir', `Não foi possível excluir: ${error.message}.`, () => {}, true, 'OK');
+                            }
+                        }
+                    }, 
+                    true, // isConfirmation = true
+                    'Confirmar Exclusão' // Custom confirm button text
+                );
+            };
+
+            // --- Lógica dos Modals Personalizados ---
+            function showModal(modalElement) {
+                modalOverlay.classList.remove('hidden');
+                modalElement.classList.remove('hidden');
+                // Use setTimeout to allow CSS transition to play
+                setTimeout(() => {
+                    modalOverlay.classList.remove('opacity-0');
+                    modalElement.classList.remove('scale-95', 'opacity-0');
+                    modalElement.classList.add('visible'); // Add visible class for animation
+                }, 10);
+            }
+            
+            function hideAllModals() {
+                modalOverlay.classList.add('opacity-0');
+                inputModal.classList.add('scale-95', 'opacity-0');
+                viewModal.classList.add('scale-95', 'opacity-0');
+                inputModal.classList.remove('visible');
+                viewModal.classList.remove('visible');
+
+                // Wait for transition to complete before hiding elements fully
+                setTimeout(() => {
+                    modalOverlay.classList.add('hidden');
+                    inputModal.classList.add('hidden');
+                    viewModal.classList.add('hidden');
+                }, 200);
+            }
+
+            function showInputModal(title, prefill = '', callback, isConfirmation = false, confirmButtonText = 'Confirmar') {
+                const modalTitle = document.getElementById('modal-title');
+                const modalInput = document.getElementById('modal-input');
+                const modalText = document.getElementById('modal-text');
+                const modalConfirm = document.getElementById('modal-confirm');
+                const modalCancel = document.getElementById('modal-cancel');
+                
+                modalTitle.textContent = title;
+                modalText.textContent = isConfirmation ? 'Esta ação não pode ser desfeita.' : '';
+                modalInput.style.display = isConfirmation ? 'none' : 'block';
+                modalInput.value = prefill;
+                modalConfirm.textContent = confirmButtonText; // Set custom button text
+
+                // Adjust button styles based on confirmation type
+                if (isConfirmation) {
+                    modalConfirm.classList.remove('bg-[var(--accent-color)]', 'hover:bg-[var(--accent-hover-color)]');
+                    modalConfirm.classList.add('bg-[var(--danger-color)]', 'hover:bg-[var(--danger-hover-color)]');
+                } else {
+                    modalConfirm.classList.remove('bg-[var(--danger-color)]', 'hover:bg-[var(--danger-hover-color)]');
+                    modalConfirm.classList.add('bg-[var(--accent-color)]', 'hover:bg-[var(--accent-hover-color)]');
+                }
+                
+                showModal(inputModal);
+                if (!isConfirmation) modalInput.focus();
+
+                // Clear previous listeners to prevent multiple calls
+                modalConfirm.onclick = null;
+                modalCancel.onclick = null;
+
+                const confirmHandler = () => {
+                    callback(isConfirmation ? true : modalInput.value);
+                    hideAllModals();
+                };
+
+                const cancelHandler = () => {
+                    callback(isConfirmation ? false : null); // Pass null if cancelled for input, false for confirmation
+                    hideAllModals();
+                };
+                
+                modalConfirm.addEventListener('click', confirmHandler);
+                modalCancel.addEventListener('click', cancelHandler);
+            }
+
+            function showViewModal(title, content) {
+                document.getElementById('view-modal-title').textContent = `Visualizando: ${title}`;
+                document.getElementById('view-modal-content').textContent = content;
+                showModal(viewModal);
+            }
+
+            // --- Preencher Sidebar ---
+            function renderSidebar() {
+                const favorites = [
+                    { name: 'Início', path: '', icon: homeIcon },
+                    { name: 'Documentos', path: 'documents', icon: documentsIcon },
+                    { name: 'Transferências', path: 'downloads', icon: downloadsIcon },
+                    { name: 'Imagens', path: 'pictures', icon: imagesIcon },
+                    { name: 'Vídeos', path: 'videos', icon: videosIcon },
+                ];
+
+                const thisPC = [
+                    { name: 'Disco Local (C:)', path: '', icon: driveIcon } // 'C:' maps to root
+                ];
+
+                const createSidebarItem = (itemData, container) => {
+                    const a = document.createElement('a');
+                    a.href = '#';
+                    a.className = 'sidebar-item flex items-center px-3 py-2 text-sm rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700';
+                    a.dataset.path = itemData.path; // Store the actual path for navigation
+                    a.innerHTML = `${itemData.icon}<span>${itemData.name}</span>`;
+
+                    a.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        // Remove active class from all sidebar items
+                        document.querySelectorAll('.sidebar-item').forEach(si => si.classList.remove('active'));
+                        // Add active class to the clicked item
+                        e.currentTarget.classList.add('active');
+                        loadFiles(itemData.path);
+                    });
+                    container.appendChild(a);
+                };
+
+                sidebarFavorites.innerHTML = '';
+                favorites.forEach(item => createSidebarItem(item, sidebarFavorites));
+
+                sidebarThisPC.innerHTML = '';
+                thisPC.forEach(item => createSidebarItem(item, sidebarThisPC));
+
+                // Set initial active state for 'Início'
+                const initialActiveItem = document.querySelector(`.sidebar-item[data-path="${currentPath}"]`);
+                if (initialActiveItem) {
+                    initialActiveItem.classList.add('active');
+                }
+            }
+
+
+            // --- Listeners Globais e Botões de Ação ---
+            document.addEventListener('click', (e) => {
+                // Esconde menu de contexto se clicar fora
+                if (!contextMenu.contains(e.target)) {
+                    hideContextMenu();
+                }
+                // Deseleciona item se clicar fora da grade (e não for no próprio item, nem no menu de contexto)
+                if (selectedItem && !fileGrid.contains(e.target) && !contextMenu.contains(e.target)) {
+                    selectedItem.classList.remove('selected');
+                    selectedItem = null;
+                }
+            });
+
+            document.getElementById('new-folder-btn').onclick = () => showInputModal('Criar Nova Pasta', 'Nova Pasta', async name => {
+                if(name) {
+                    const path = currentPath === '' ? name : `${currentPath}/${name}`;
+                    try {
+                        const result = await window.fsApi.createFolder(path);
+                        if(result.success) loadFiles(currentPath);
+                        else showInputModal('Erro ao Criar Pasta', result.error || 'Erro desconhecido ao criar pasta.', () => {}, true, 'OK');
+                    } catch (error) {
+                        console.error("Erro ao chamar window.fsApi.createFolder:", error);
+                        showInputModal('Erro ao Criar Pasta', `Não foi possível criar pasta: ${error.message}.`, () => {}, true, 'OK');
+                    }
+                }
+            });
+            
+            document.getElementById('new-file-btn').onclick = () => showInputModal('Criar Novo Arquivo', 'novo_arquivo.txt', async name => {
+                if(name) {
+                    const path = currentPath === '' ? name : `${currentPath}/${name}`;
+                    try {
+                        const result = await window.fsApi.createFile(path);
+                        if(result.success) loadFiles(currentPath);
+                        else showInputModal('Erro ao Criar Arquivo', result.error || 'Erro desconhecido ao criar arquivo.', () => {}, true, 'OK');
+                    } catch (error) {
+                        console.error("Erro ao chamar window.fsApi.createFile:", error);
+                        showInputModal('Erro ao Criar Arquivo', `Não foi possível criar arquivo: ${error.message}.`, () => {}, true, 'OK');
+                    }
+                }
+            });
+
+            document.getElementById('view-modal-close').onclick = hideAllModals;
+            
+            // --- Controle da Janela (mocked for browser environment) ---
+            // These buttons are usually handled by Electron's main process.
+            const closeBtn = document.getElementById('close-btn');
+            const maximizeBtn = document.getElementById('maximize-btn');
+
+            if (closeBtn) closeBtn.onclick = () => window.fsApi.windowControl('close');
+            if (maximizeBtn) maximizeBtn.onclick = () => window.fsApi.windowControl('maximize');
+
+            // --- Carga Inicial ---
+            renderSidebar(); // Populate sidebar
+            loadFiles(currentPath); // Load initial directory (root)
+        });
+    </script>
 </body>
 </html>
