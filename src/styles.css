@@ -63,6 +63,16 @@ body {
 #taskbar-windows img:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
+.taskbar-app-icon {
+  width: 32px;
+  height: 32px;
+  margin: 0 4px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.taskbar-app-icon:hover {
+  transform: scale(1.1);
+}
 
 .desktop-icon {
   display: flex;

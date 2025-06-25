@@ -1,13 +1,13 @@
 const path = require('path');
 const fs = require('fs').promises;
 const fsSync = require('fs');
-const { BrowserWindow, dialog, clipboard } = require('electron');
+const { BrowserWindow, dialog, clipboard, ipcMain } = require('electron');
 
 class AppHandler {
   constructor(getDirPath, getAssetsPath) {
     this.getDirPath = getDirPath;
     this.getAssetsPath = getAssetsPath;
-    this.Dev = true;
+    this.Dev = false;
     this.appWindows = new Map();
   }
 
@@ -65,8 +65,7 @@ class AppHandler {
         height: 600,
         minWidth: 400,
         minHeight: 400,
-        modal: false, // Não é mais modal
-        show: false,
+        modal: true, // Não é mais modal
         transparent: true,
         frame: false,
         resizable: true,
@@ -74,7 +73,7 @@ class AppHandler {
         backgroundMaterial: 'acrylic',
         visualEffectState: 'active',
         icon: finalIconPath,
-        skipTaskbar: true, // Não aparece na taskbar
+        // skipTaskbar: true, // Não aparece na taskbar
         fullscreenable: false,
         maximizable: false,
         backgroundColor: '#00000000',
@@ -100,11 +99,20 @@ class AppHandler {
         const y = bounds.y + (bounds.height - 600) / 2;
         appWindow.setPosition(x, y);
         appWindow.show();
+        ipcMain.emit('app-opened', {
+  id: appWindow.id,
+  name: appName,
+  title: appWindow.getTitle(),
+  icon: finalIconPath
+});
+
       });
 
       // Remove da lista quando fechada
       appWindow.on('closed', () => {
         this.appWindows.delete(appName);
+        ipcMain.emit('app-closed', { id: appWindow.id, name: appName });
+
       });
 
       if (this.Dev) {

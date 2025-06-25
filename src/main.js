@@ -86,13 +86,15 @@ const createMainWindow = () => {
   mainWindow.once('ready-to-show', () => {
     setTimeout(() => {
       splashWindow?.destroy();
+      
       mainWindow.show();
+      //mainWindow.webContents.openDevTools({ mode: 'detach' });
+
     }, 1000);
   });
 
-  process.env.NODE_ENV === 'development' && 
-    mainWindow.webContents.openDevTools({ mode: 'detach' });
 
+    
   mainWindow.on('closed', () => (mainWindow = null));
   return mainWindow;
 };
@@ -173,7 +175,31 @@ const registerIpcHandlers = () => {
     config: new handlers.ConfigHandler(),
     appStore: new handlers.AppStoreHandler(getDirPath)
   };
+ipcMain.on('set-main-window', (event) => {
+  const mainWebContents = event.sender;
 
+  ipcMain.on('app-opened', (appInfo) => {
+    mainWebContents.send('app-opened', appInfo);
+  });
+
+  ipcMain.on('app-closed', (appInfo) => {
+    mainWebContents.send('app-closed', appInfo);
+  });
+});
+  ipcMain.handle('get-all-windows', () => {
+  return BrowserWindow.getAllWindows().map(win => ({
+    id: win.id,
+    title: win.getTitle(),
+    icon: win.webContents.session.icon || null // ou defina manualmente o ícone
+  }));
+});
+ipcMain.handle('focus-window', (event, id) => {
+  const win = BrowserWindow.fromId(id);
+  if (win) {
+    win.show();
+    win.focus();
+  }
+});
   // App Handlers
   ipcMain.handle('open-app', (e, appName) => handlersInstances.app.openApp(e, appName));
   ipcMain.handle('get-app-data', (e, appName) => handlersInstances.app.getAppData(e, appName));

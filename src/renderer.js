@@ -140,63 +140,128 @@ function setupTaskbar() {
   const taskbar = document.getElementById('taskbar');
   const startButton = document.getElementById('start-button');
   const clock = document.getElementById('clock');
-  
+  const taskbarWindows = document.getElementById('taskbar-windows');
+
   // Atualizar relógio
   function updateClock() {
     const now = new Date();
-  
     const time = now.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit'
     });
-  
     const date = now.toLocaleDateString([], {
-
       year: 'numeric',
       month: 'numeric',
       day: 'numeric'
     });
-  
     clock.textContent = `${time} ${date}`;
   }
-  
+
   setInterval(updateClock, 1000);
   updateClock();
-  
-  const powerButton = document.getElementById("start-menu-power")
 
-  const restartButton = document.getElementById('start-menu-restart')
+  const powerButton = document.getElementById("start-menu-power");
+  const restartButton = document.getElementById('start-menu-restart');
 
   restartButton.addEventListener('click', e => {
-    window.electronAPI.restartApp()
-  })
+    window.electronAPI.restartApp();
+  });
+
   powerButton.addEventListener('click', (e) => {
-    window.electronAPI.closeApp()
-  })
+    window.electronAPI.closeApp();
+  });
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'F11') {
-      event.preventDefault(); // Previne o comportamento padrão do F11 (entrar em modo de tela cheia)
-      window.electronAPI.maximizeWindow(); // Chama a função do preload
+      event.preventDefault();
+      window.electronAPI.maximizeWindow();
     }
     if (event.key === 'F12') {
-      event.preventDefault();  // Previne o comportamento padrão
-      window.electronAPI.toggleFullScreen();  // Alterna para fullscreen ou desativa
+      event.preventDefault();
+      window.electronAPI.toggleFullScreen();
     }
   });
-  // Mostrar/ocultar menu iniciar
+
   startButton.addEventListener('click', (e) => {
     e.stopPropagation();
     const startMenu = document.getElementById('start-menu');
     startMenu.classList.toggle('visible');
   });
-  
-  // Fechar menu iniciar ao clicar fora
+
   document.addEventListener('click', () => {
     const startMenu = document.getElementById('start-menu');
     startMenu.classList.remove('visible');
   });
+
+async function updateTaskbarIcons() {
+  // Remove só os ícones dinâmicos anteriores (assumindo que eles têm uma classe específica)
+  const dynamicIcons = taskbarWindows.querySelectorAll('.taskbar-app-icon');
+
+  const windows = await window.electronAPI.getAllWindows();
+
+  // Ignora a primeira janela
+  const outrasJanelas = windows.slice(1);
+
+  outrasJanelas.forEach(win => {
+    const icon = document.createElement('img');
+    console.log(win.icon + 'A')
+    icon.src = win.icon || '../assets/icons/windows.png';
+    icon.alt = win.title || 'App';
+    icon.classList.add('taskbar-app-icon');
+
+    icon.addEventListener('click', () => {
+      window.electronAPI.focusWindow(win.id);
+    });
+
+    taskbarWindows.appendChild(icon);
+  });
 }
+
+
+window.electronAPI.onAppOpened((appInfo) => {
+  console.log("App aberto:", appInfo);
+  updateTaskbarIcons(); // ou qualquer função para atualizar os ícones
+});
+
+window.electronAPI.onAppClosed((appInfo) => {
+  console.log("App fechado:", appInfo);
+  updateTaskbarIcons();
+});
+  // Renderizar ícones da taskbar com janelas abertas
+  async function renderTaskbarWindows() {
+    window.electronAPI.setMainWindow();
+
+
+  const windows = await window.electronAPI.getAllWindows();
+  taskbarWindows.innerHTML = '';
+
+  // Ignora a primeira janela (index 0 ou id mais baixo)
+  const outrasJanelas = windows.slice(1);
+
+  outrasJanelas.forEach(win => {
+    const icon = document.createElement('img');
+    icon.src = win.icon || '../assets/icons/windows.png';
+    icon.alt = win.title || 'App';
+    icon.classList.add('taskbar-app-icon');
+
+    icon.addEventListener('click', () => {
+      window.electronAPI.focusWindow(win.id);
+    });
+
+    taskbarWindows.appendChild(icon);
+  });
+}
+
+
+  // Atualizar a barra sempre que o desktop for atualizado
+  window.electronAPI.onUpdateDesktop(() => {
+    renderTaskbarWindows();
+  });
+
+  // Chamada inicial
+  renderTaskbarWindows();
+}
+
 
 function setupStartMenu() {
   const startMenu = document.getElementById('start-menu');

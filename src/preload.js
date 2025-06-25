@@ -11,6 +11,11 @@ contextBridge.exposeInMainWorld('fsApi', {
     onError: (callback) => ipcRenderer.on('main-process-error', (event, ...args) => callback(...args))
 });
 contextBridge.exposeInMainWorld('electronAPI', {
+  setMainWindow: () => ipcRenderer.send('set-main-window'),
+onAppOpened: (callback) => ipcRenderer.on('app-opened', (_, data) => callback(data)),
+onAppClosed: (callback) => ipcRenderer.on('app-closed', (_, data) => callback(data)),
+
+  focusWindow: (id) => ipcRenderer.invoke('focus-window', id),
   sendNotification: (title, message, options = {}) => {
     const notification = {
       title,
